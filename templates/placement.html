@@ -1,0 +1,179 @@
+{% extends 'layout.html' %}
+
+{% block title %}Recruitment Hub - Student AI{% endblock %}
+
+{% block content %}
+<section class="services-section" style="padding-top: 150px; background: var(--gray-light);">
+    <div style="max-width: 1000px; margin: 0 auto; padding: 0 40px;">
+        <h1 class="section-title">Career Preparation</h1>
+        <p style="color: var(--gray-medium); margin-bottom: 60px;">Strategic recruitment diagnostics and
+            industry-standard technical simulations.</p>
+
+        <div
+            style="display: flex; gap: 40px; border-bottom: 1px solid var(--gray-border); margin-bottom: 60px; justify-content: center;">
+            <button class="tab-btn active" onclick="showTab('aptitude')">APTITUDE</button>
+            <button class="tab-btn" onclick="showTab('technical')">TECHNICAL</button>
+            <button class="tab-btn" onclick="showTab('ai')">AI SIMULATOR</button>
+            <button class="tab-btn" onclick="showTab('company')">COMPANIES</button>
+        </div>
+
+        <!-- Aptitude Tab -->
+        <div id="aptitude" class="tab-content" style="padding-bottom: 100px;">
+            {% for q in apt_questions %}
+            <div class="service-card" style="margin-bottom: 40px; padding: 60px;">
+                <p
+                    style="font-size: 0.6rem; color: var(--gray-medium); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 20px; font-weight: 800;">
+                    Diagnostic Challenge</p>
+                <h4 style="font-size: 1.4rem; margin-bottom: 40px; line-height: 1.4; letter-spacing: -0.5px;">{{
+                    q.Question }}</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    {% for opt in q.Options %}
+                    <button class="option-btn">{{ opt }}</button>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Technical Tab -->
+        <div id="technical" class="tab-content" style="display: none; padding-bottom: 100px;">
+            {% for qa in tech_qa %}
+            <div class="service-card" style="margin-bottom: 40px; padding: 60px;">
+                <p
+                    style="font-size: 0.6rem; color: var(--gray-medium); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 20px; font-weight: 800;">
+                    Technical Simulation</p>
+                <h4 style="font-size: 1.4rem; margin-bottom: 25px;">{{ qa.Question }}</h4>
+                <p
+                    style="color: var(--gray-medium); font-size: 1rem; line-height: 1.8; border-left: 3px solid #000; padding-left: 30px;">
+                    {{ qa.Answer }}</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- AI Simulator Tab -->
+        <div id="ai" class="tab-content" style="display: none; padding-bottom: 100px;">
+            <div class="service-card" style="padding: 60px; text-align: center;" id="ai-start-screen">
+                <h4 style="font-size: 1.5rem; margin-bottom: 20px; text-transform: uppercase;">AI Interview Simulator
+                </h4>
+                <p style="color: var(--gray-medium); margin-bottom: 30px;">Select a role to start a simulated interview
+                    session.</p>
+                <div style="display: flex; gap: 20px; justify-content: center; margin-bottom: 30px;">
+                    {% for role in interview_roles %}
+                    <button class="gradient-btn" onclick="startInterview('{{ role }}')">{{ role }}</button>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="service-card" style="padding: 60px; display: none;" id="ai-chat-screen">
+                <span class="status-badge badge-blue"
+                    style="background: rgba(3,218,198,0.1); color: var(--secondary); padding: 5px 15px; border-radius: 15px; font-size: 0.7rem;">AI
+                    QUESTION</span>
+                <h3 id="ai-question" style="margin-top: 20px; margin-bottom: 30px; font-size: 1.3rem;"></h3>
+
+                <textarea id="user-answer" class="form-control" rows="5" placeholder="Type your answer here..."
+                    style="width: 100%; padding: 15px; background: rgba(255,255,255,0.05); border: 1px solid var(--gray-border); border-radius: 12px; color: var(--text-heading); margin-bottom: 20px;"></textarea>
+
+                <button class="gradient-btn" onclick="nextQuestion()">Submit Answer</button>
+            </div>
+
+            <div class="service-card" style="padding: 60px; text-align: center; display: none;" id="ai-end-screen">
+                <h2 style="color: var(--secondary); margin-bottom: 20px;">Session Completed!</h2>
+                <p id="ai-final-feedback" style="color: var(--text-dim); margin-bottom: 30px;"></p>
+                <button class="gradient-btn" onclick="location.reload()">Start New Session</button>
+            </div>
+        </div>
+
+        <!-- Company Tab -->
+        <div id="company" class="tab-content" style="display: none; padding-bottom: 100px;">
+            <div class="service-card" style="padding: 100px; text-align: center;">
+                <h4 style="font-size: 1.5rem; margin-bottom: 30px; text-transform: uppercase; letter-spacing: 2px;">
+                    Recruitment Intelligence</h4>
+                <p style="color: var(--gray-medium); line-height: 1.8; max-width: 600px; margin: 0 auto;">Our neural
+                    network is currently cataloging recruitment patterns for global tech leaders including TCS, Zoho,
+                    and Google. Analytics will be available shortly.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .tab-btn {
+        background: none;
+        border: none;
+        padding: 20px 40px;
+        font-weight: 800;
+        font-size: 0.75rem;
+        letter-spacing: 4px;
+        color: #bbb;
+        cursor: pointer;
+        transition: var(--transition);
+        border-bottom: 3px solid transparent;
+    }
+
+    .tab-btn.active {
+        color: #000;
+        border-bottom: 3px solid #000;
+    }
+
+    .option-btn {
+        background: transparent;
+        border: 1px solid var(--gray-border);
+        padding: 25px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: var(--transition);
+        text-align: left;
+        letter-spacing: 1px;
+    }
+
+    .option-btn:hover {
+        background: #000;
+        color: var(--text-heading);
+        border-color: #000;
+        transform: scale(1.02);
+    }
+</style>
+
+<script>
+    function showTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).style.display = 'block';
+        event.currentTarget.classList.add('active');
+    }
+
+    async function startInterview(role) {
+        const res = await fetch('/api/interview/start', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ role: role })
+        });
+        const data = await res.json();
+
+        document.getElementById('ai-start-screen').style.display = 'none';
+        document.getElementById('ai-chat-screen').style.display = 'block';
+        document.getElementById('ai-question').innerText = data.question;
+    }
+
+    async function nextQuestion() {
+        const answer = document.getElementById('user-answer').value;
+        const res = await fetch('/api/interview/next', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ answer: answer })
+        });
+        const data = await res.json();
+
+        if (data.status === 'finished') {
+            document.getElementById('ai-chat-screen').style.display = 'none';
+            document.getElementById('ai-end-screen').style.display = 'block';
+            document.getElementById('ai-final-feedback').innerText = data.feedback;
+        } else {
+            document.getElementById('ai-question').innerText = data.question;
+            document.getElementById('user-answer').value = '';
+            // Ideally show feedback here via toast or separate element
+        }
+    }
+</script>
+{% endblock %}

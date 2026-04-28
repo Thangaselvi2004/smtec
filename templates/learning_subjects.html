@@ -1,0 +1,41 @@
+{% extends 'layout.html' %}
+
+{% block title %}Learning Center - Student AI{% endblock %}
+
+{% block content %}
+<section class="services-section" style="padding-top: 150px; background: var(--gray-light);">
+    <div style="max-width: 1400px; margin: 0 auto; padding: 0 40px;">
+        <h1 class="section-title">Learning <br> Hub</h1>
+        <p style="color: var(--gray-medium); margin-bottom: 80px; max-width: 800px; font-size: 1.1rem;">
+            Access institutional modules and specialized curricular tracks designed for advanced academic mastery.
+        </p>
+
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; padding-bottom: 150px;">
+            {% if subjects %}
+            {% for subj in subjects %}
+            <div class="service-card"
+                style="display: flex; flex-direction: column; justify-content: space-between; min-height: 400px;">
+                <div>
+                    <p
+                        style="font-size: 0.65rem; color: var(--gray-medium); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 25px; font-weight: 800;">
+                        Subject Module</p>
+                    <h3 style="font-size: 2rem; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px;">{{
+                        subj.name }}</h3>
+                    <p style="color: var(--gray-medium); font-size: 0.95rem; line-height: 1.6;">{{ subj.description or
+                        "No description available for this institutional module." }}</p>
+                </div>
+
+                <a href="{{ url_for('learning_subject', subject_id=subj.id) }}" class="service-link">Access subject
+                    details →</a>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="service-card" style="grid-column: span 3; padding: 150px; text-align: center;">
+                <p style="color: var(--gray-medium); text-transform: uppercase; letter-spacing: 2px; font-weight: 700;">
+                    No institutional modules cataloged in the current cycle.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

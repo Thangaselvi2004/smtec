@@ -1,0 +1,252 @@
+{% extends 'layout.html' %}
+
+{% block title %}Curriculum - Student AI{% endblock %}
+
+{% block content %}
+<section
+    style="padding-top: 150px; background: var(--bg-deep); min-height: 100vh; padding-bottom: 100px; color: var(--text-main);">
+    <!-- Department Hero Heading Section -->
+    <div
+        style="margin-bottom: 60px; padding: 40px 50px; background: linear-gradient(145deg, var(--bg-card), rgba(15, 23, 42, 0.4)); backdrop-filter: blur(20px); border: 1px solid var(--gray-border); border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px;">
+            <div style="flex: 1; min-width: 300px;">
+                <p
+                    style="color: var(--secondary); font-weight: 800; text-transform: uppercase; letter-spacing: 4px; font-size: 0.75rem; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-archive"></i> Institutional Archive // Regulation 2021</p>
+                <h1 id="dept-title"
+                    style="font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 800; text-transform: uppercase; letter-spacing: -0.5px; line-height: 1.2; margin: 0; color: var(--text-heading); text-shadow: 0 2px 10px rgba(0,0,0,0.5);">
+                    Academic Curriculum</h1>
+            </div>
+            <div>
+                <span
+                    style="font-size: 0.65rem; font-weight: 800; background: rgba(3, 218, 198, 0.15); color: var(--secondary); border: 1px solid rgba(3, 218, 198, 0.3); padding: 8px 16px; letter-spacing: 1.5px; text-transform: uppercase; border-radius: 12px; display: inline-flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-check-circle"></i> Official Console
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 280px 1fr; gap: 60px; align-items: start; padding: 0 20px;">
+        <!-- Sidebar Navigation -->
+        <aside style="position: sticky; top: 150px; height: fit-content;">
+            <div style="border-left: 1px solid var(--gray-border); padding-left: 25px;">
+                <h2
+                    style="font-size: 0.6rem; text-transform: uppercase; letter-spacing: 4px; font-weight: 800; color: var(--text-dim); margin-bottom: 35px;">
+                    Department List</h2>
+                <div id="dept-links" style="display: flex; flex-direction: column; gap: 8px;">
+                    {% for dept in syllabus.keys() %}
+                    <button class="dept-btn {% if loop.first %}active{% endif %}" onclick="switchDept('{{ dept }}')"
+                        style="background: none; border: none; text-align: left; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; padding: 12px 16px; transition: var(--transition); color: var(--text-dim); display: block; font-size: 0.7rem; border-radius: 10px; margin-left: -15px;">
+                        {{ dept }}
+                    </button>
+                    {% endfor %}
+                    <div style="height: 1px; background: var(--gray-border); margin: 15px 0 15px -15px; width: calc(100% + 15px);"></div>
+                    <button class="dept-btn" onclick="switchDept('extras')"
+                        style="background: none; border: none; text-align: left; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; padding: 12px 16px; transition: var(--transition); color: var(--text-dim); display: block; font-size: 0.7rem; border-radius: 10px; margin-left: -15px;">
+                        <i class="fas fa-star" style="margin-right: 8px; color: var(--primary);"></i> Special Electives
+                    </button>
+                </div>
+            </div>
+
+            <div class="glass-card" style="padding: 30px; margin-top: 50px; border-radius: 20px;">
+                <h4
+                    style="font-size: 0.6rem; text-transform: uppercase; letter-spacing: 2px; font-weight: 800; margin-bottom: 12px; color: var(--primary);">
+                    Export Data</h4>
+                <p style="font-size: 0.7rem; color: var(--text-dim); margin-bottom: 25px; line-height: 1.6;">Generate a
+                    certified
+                    PDF overview for the selected track.</p>
+                <button class="gradient-btn"
+                    style="width: 100%; border: none; padding: 15px; font-size: 0.65rem; font-weight: 800; cursor: pointer; letter-spacing: 2px; border-radius: 12px;">DOWNLOAD
+                    PDF</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main id="syllabus-content">
+            <div id="semester-grid" style="display: grid; gap: 60px;">
+                <!-- Content will be injected by JavaScript -->
+            </div>
+        </main>
+    </div>
+</section>
+
+<!-- Subject Modal -->
+<div id="subject-modal"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; backdrop-filter: blur(10px);">
+    <div class="glass-card"
+        style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 600px; padding: 50px; border-radius: 30px;">
+        <div id="modal-body"></div>
+        <button onclick="closeModal()" class="gradient-btn"
+            style="margin-top: 40px; width: 100%; padding: 18px; border-radius: 15px; font-weight: 800; text-transform: uppercase; letter-spacing: 3px; cursor: pointer;">Close
+            Catalog</button>
+    </div>
+</div>
+
+<script id="syllabus-data-config" type="application/json">
+    {
+        "syllabus": {{ syllabus | tojson }},
+        "extras": {{ extras | tojson }},
+        "details": {{ details | tojson }},
+        "userYear": "{{ user_year }}",
+        "userDept": "{{ user_dept }}"
+    }
+</script>
+
+<script>
+    const config = JSON.parse(document.getElementById('syllabus-data-config').textContent);
+    const syllabusData = config.syllabus;
+    const extraData = config.extras;
+    const subjectDetails = config.details;
+    const userYear = config.userYear;
+    const userDept = config.userDept;
+
+    const transitionText = "all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1)";
+
+    // Mapping for department shortcodes to full names in SYLLABUS_DATA
+    const deptMap = {
+        "CSE": "Computer Science and Engineering (CSE)",
+        "ECE": "Electronics and Communication Engineering (ECE)",
+        "EEE": "Electrical and Electronics Engineering (EEE)",
+        "MECH": "Mechanical Engineering (MECH)",
+        "IT": "Information Technology (IT)",
+        "AIDS": "Artificial Intelligence and Data Science (AI & DS)"
+    };
+
+    function switchDept(deptName) {
+        // Update styling
+        document.querySelectorAll('.dept-btn').forEach(btn => {
+            btn.style.color = 'var(--text-dim)';
+            btn.style.borderLeftColor = 'transparent';
+            btn.style.background = 'none';
+            btn.classList.remove('active');
+            
+            // Match button text with deptName
+            if (btn.innerText.trim() === deptName.toUpperCase() || 
+                (deptName === 'extras' && btn.innerText.trim() === 'SPECIAL ELECTIVES') ||
+                btn.innerText.trim() === deptName) {
+                btn.style.color = '#fff';
+                btn.style.borderLeftColor = 'var(--primary)';
+                btn.style.background = 'rgba(255,255,255,0.05)';
+                btn.classList.add('active');
+            }
+        });
+
+        const grid = document.getElementById('semester-grid');
+        const title = document.getElementById('dept-title');
+        grid.innerHTML = '';
+
+        if (deptName === 'extras') {
+            title.innerText = 'Professional Electives';
+            Object.keys(extraData).forEach(category => {
+                renderSemesterSection(category, extraData[category]);
+            });
+        } else {
+            // Update title - remove code in parentheses for cleaner look if requested
+            // But let's keep it as the full name for now or strip as requested
+            let displayTitle = deptName;
+            if (deptName.includes('(')) {
+                displayTitle = deptName.split('(')[0].trim();
+            }
+            title.innerText = displayTitle;
+
+            const data = syllabusData[deptName];
+            Object.keys(data).forEach(sem => {
+                // Filter logic: if First Year, only show Sem 1 and 2
+                if (userYear === 'First Year') {
+                    if (sem === 'Semester 1' || sem === 'Semester 2') {
+                        renderSemesterSection(sem, data[sem]);
+                    }
+                } else {
+                    renderSemesterSection(sem, data[sem]);
+                }
+            });
+        }
+    }
+
+    function renderSemesterSection(title, subjects) {
+        const grid = document.getElementById('semester-grid');
+        const section = document.createElement('div');
+        section.style.marginBottom = '60px';
+
+        section.innerHTML = `
+            <h3 style="font-size: 1.1rem; text-transform: uppercase; letter-spacing: 4px; font-weight: 800; border-bottom: 2px solid var(--gray-border); padding-bottom: 20px; margin-bottom: 40px; display: flex; justify-content: space-between; align-items: center; color: var(--text-heading);">
+                ${title}
+                <span style="font-size: 0.6rem; color: var(--text-dim); font-weight: 800;">${subjects.length} MODULES</span>
+            </h3>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px;">
+                ${subjects.map(s => `
+                    <div class="glass-card" style="padding: 30px; border-left: 4px solid var(--primary); border-radius: 15px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                            <span style="font-size: 0.6rem; font-weight: 800; letter-spacing: 3px; color: var(--text-dim);">${s.Code}</span>
+                            <span style="font-size: 0.55rem; font-weight: 900; background: var(--aurora-gradient); color: var(--text-heading); padding: 4px 10px; border-radius: 5px; text-shadow: none;">${s.Type}</span>
+                        </div>
+                        <h4 style="font-size: 1rem; font-weight: 800; margin-bottom: 20px; text-transform: uppercase; min-height: 2.4rem; line-height: 1.2; color: var(--text-heading);">${s.Name}</h4>
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--gray-border); padding-top: 20px;">
+                            <span style="font-size: 0.65rem; font-weight: 800; color: var(--secondary); letter-spacing: 1px;">${s.Credits ? s.Credits + ' CREDITS' : 'CORE'}</span>
+                            <button onclick="viewDetails('${s.Code}')" style="background: none; border: none; font-weight: 900; text-transform: uppercase; font-size: 0.6rem; letter-spacing: 2px; cursor: pointer; color: var(--primary); border-bottom: 1px solid var(--primary); padding-bottom: 3px; transition: 0.3s;">View Units</button>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+        grid.appendChild(section);
+    }
+
+    function viewDetails(code) {
+        const detail = subjectDetails[code];
+        const modal = document.getElementById('subject-modal');
+        const body = document.getElementById('modal-body');
+
+        if (detail) {
+            body.innerHTML = `
+                <span style="font-size: 0.6rem; font-weight: 800; letter-spacing: 3px; color: var(--secondary); text-transform: uppercase;">Module Catalog / ${code}</span>
+                <h2 style="font-size: 1.8rem; font-weight: 900; text-transform: uppercase; margin: 15px 0 30px 0; line-height: 1; color: var(--text-heading);">${detail.Name}</h2>
+                <div style="border-top: 1px solid var(--gray-border); padding-top: 25px;">
+                    <ul style="list-style: none;">
+                        ${detail.Units.map(unit => `
+                            <li style="padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-weight: 700; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; color: var(--text-dim);">
+                                <span style="margin-right: 12px; color: var(--primary);">//</span> ${unit}
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            `;
+        } else {
+            body.innerHTML = '<h3 style="color: var(--text-heading); text-transform: uppercase; letter-spacing: 2px;">Catalog details under migration.</h3>';
+        }
+        modal.style.display = 'block';
+    }
+
+    function closeModal() {
+        document.getElementById('subject-modal').style.display = 'none';
+    }
+
+    // Initialize with user's department if available, otherwise first available
+    let initialDept = Object.keys(syllabusData)[0];
+    if (userDept && deptMap[userDept]) {
+        initialDept = deptMap[userDept];
+    } else if (userDept && syllabusData[userDept]) {
+        initialDept = userDept;
+    }
+    
+    switchDept(initialDept);
+</script>
+
+<style>
+    .dept-btn {
+        border-left: 3px solid transparent !important;
+    }
+    .dept-btn:hover {
+        color: #ffffff !important;
+        background: rgba(255, 255, 255, 0.05) !important;
+        transform: translateX(4px);
+    }
+
+    .dept-btn.active {
+        color: var(--secondary) !important;
+        background: rgba(3, 218, 198, 0.1) !important;
+        border-left-color: var(--secondary) !important;
+        font-weight: 800 !important;
+    }
+</style>
+{% endblock %}

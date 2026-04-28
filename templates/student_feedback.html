@@ -1,0 +1,131 @@
+{% extends "layout.html" %}
+
+{% block title %}Submit Feedback | Student AI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .feedback-container {
+        padding: 120px 20px 60px;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .feedback-form-card {
+        background: var(--bg-card);
+        border: 1px solid var(--gray-border);
+        border-radius: 30px;
+        padding: 50px;
+        backdrop-filter: blur(20px);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    }
+
+    .rating-stars {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-bottom: 30px;
+    }
+
+    .rating-stars input {
+        display: none;
+    }
+
+    .rating-stars label {
+        font-size: 2.5rem;
+        color: var(--text-dim);
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .rating-stars label:hover,
+    .rating-stars label:hover ~ label,
+    .rating-stars input:checked ~ label {
+        color: #ffca28;
+        transform: scale(1.1);
+    }
+
+    .form-group {
+        margin-bottom: 30px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 12px;
+        font-weight: 700;
+        color: var(--text-heading);
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 15px 20px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--gray-border);
+        border-radius: 15px;
+        color: var(--text-heading);
+        font-family: inherit;
+        font-size: 1rem;
+        transition: var(--transition);
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary);
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .submit-btn {
+        width: 100%;
+        padding: 18px;
+        border-radius: 15px;
+        font-weight: 800;
+        font-size: 1.1rem;
+        letter-spacing: 2px;
+        margin-top: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="feedback-container">
+    <div class="header-section" style="text-align: center; margin-bottom: 50px;">
+        <h1 class="section-title">Share Your Thoughts</h1>
+        <p class="subtitle">Your feedback helps us improve the learning experience for everyone.</p>
+    </div>
+
+    <div class="feedback-form-card">
+        <form action="{{ url_for('student_feedback') }}" method="POST">
+            <div class="form-group">
+                <label>Select Subject</label>
+                <select name="subject_id" class="form-control" required>
+                    <option value="" disabled selected>Choose a subject...</option>
+                    {% for subject in subjects %}
+                    <option value="{{ subject.id }}">{{ subject.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>How would you rate this course?</label>
+                <div class="rating-stars">
+                    <input type="radio" name="rating" id="star5" value="5" required><label for="star5">★</label>
+                    <input type="radio" name="rating" id="star4" value="4"><label for="star4">★</label>
+                    <input type="radio" name="rating" id="star3" value="3"><label for="star3">★</label>
+                    <input type="radio" name="rating" id="star2" value="2"><label for="star2">★</label>
+                    <input type="radio" name="rating" id="star1" value="1"><label for="star1">★</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Your Comments</label>
+                <textarea name="comment" class="form-control" rows="5" placeholder="Tell us what you liked or what could be better..." required></textarea>
+            </div>
+
+            <button type="submit" class="btn-aurora submit-btn">SUBMIT FEEDBACK</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

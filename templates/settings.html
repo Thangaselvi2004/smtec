@@ -1,0 +1,131 @@
+{% extends 'layout.html' %}
+
+{% block title %}Settings - Student AI{% endblock %}
+
+{% block content %}
+<div class="glass-card" style="max-width: 800px; margin: 100px auto; padding: 50px;">
+    <h1 class="section-title" style="font-size: 2.5rem; text-align: left;">Settings</h1>
+    <p style="color: var(--text-dim); margin-bottom: 40px; font-size: 1.1rem;">
+        Manage your application preferences and system settings.
+    </p>
+
+    <div style="margin-bottom: 40px; padding: 30px; border: 1px solid var(--gray-border); border-radius: 20px; background: rgba(255, 255, 255, 0.02);">
+        <h2 style="font-size: 1.5rem; margin-bottom: 20px; color: var(--text-main);">Appearance</h2>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--gray-border); padding-bottom: 20px;">
+            <div>
+                <h3 style="font-size: 1.1rem; color: var(--text-main); margin-bottom: 5px;">Theme Interface</h3>
+                <p style="color: var(--text-dim); font-size: 0.9rem;">Toggle between Light and Dark aesthetic modes.</p>
+            </div>
+            <button id="settings-theme-toggle" class="gradient-btn">Toggle Theme</button>
+        </div>
+    </div>
+
+    <div style="margin-bottom: 40px; padding: 30px; border: 1px solid var(--gray-border); border-radius: 20px; background: rgba(255, 255, 255, 0.02);">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="font-size: 1.5rem; color: var(--text-main);">Account Settings</h2>
+            <button id="account-settings-toggle" class="gradient-btn" style="padding: 10px 20px; font-size: 0.9rem;">Open Account Settings</button>
+        </div>
+        
+        <div id="account-settings-content" style="display: none; margin-top: 30px; border-top: 1px solid var(--gray-border); padding-top: 30px;">
+            <!-- View Profile Section -->
+            <div style="margin-bottom: 40px;">
+                <h3 style="font-size: 1.2rem; color: var(--text-main); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px;">Profile Overview</h3>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+                    <div style="padding: 15px; border: 1px solid var(--gray-border); border-radius: 12px; background: rgba(255,255,255,0.03);">
+                        <p style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; margin-bottom: 5px;">Username</p>
+                        <p style="font-weight: 700; color: var(--text-main);">{{ user[1] }}</p>
+                    </div>
+                    <div style="padding: 15px; border: 1px solid var(--gray-border); border-radius: 12px; background: rgba(255,255,255,0.03);">
+                        <p style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; margin-bottom: 5px;">Email</p>
+                        <p style="font-weight: 700; color: var(--text-main);">{{ user[2] or 'Not Set' }}</p>
+                    </div>
+                    <div style="padding: 15px; border: 1px solid var(--gray-border); border-radius: 12px; background: rgba(255,255,255,0.03);">
+                        <p style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; margin-bottom: 5px;">Official Role</p>
+                        <p style="font-weight: 700; color: var(--secondary);">{{ user[3] }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Update Profile Form -->
+            <div style="margin-bottom: 40px;">
+                <h3 style="font-size: 1.2rem; color: var(--text-main); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px;">Update Information</h3>
+                <form action="{{ url_for('api_settings_update') }}" method="POST">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                        <div>
+                            <label style="display: block; font-size: 0.8rem; color: var(--text-dim); margin-bottom: 8px;">New Username</label>
+                            <input type="text" name="username" value="{{ user[1] }}" required
+                                style="width: 100%; padding: 12px; background: var(--bg-card); border: 1px solid var(--gray-border); border-radius: 10px; color: var(--text-main); outline: none;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 0.8rem; color: var(--text-dim); margin-bottom: 8px;">Email Address</label>
+                            <input type="email" name="email" value="{{ user[2] or '' }}" required
+                                style="width: 100%; padding: 12px; background: var(--bg-card); border: 1px solid var(--gray-border); border-radius: 10px; color: var(--text-main); outline: none;">
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 25px;">
+                        <label style="display: block; font-size: 0.8rem; color: var(--text-dim); margin-bottom: 8px;">Change Password (Leave blank to keep current)</label>
+                        <input type="password" name="password" placeholder="New Security Key"
+                            style="width: 100%; padding: 12px; background: var(--bg-card); border: 1px solid var(--gray-border); border-radius: 10px; color: var(--text-main); outline: none;">
+                    </div>
+                    <button type="submit" class="gradient-btn" style="width: 100%;">Update Profile Matrix</button>
+                </form>
+            </div>
+
+            <!-- Danger Zone -->
+            <div style="border-top: 1px solid rgba(255, 77, 77, 0.2); padding-top: 30px;">
+                <h3 style="font-size: 1rem; color: #ff4d4d; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">Danger Zone</h3>
+                <p style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 20px;">Once you delete your account, there is no going back. Please be certain.</p>
+                <form id="delete-account-form" action="{{ url_for('api_settings_delete') }}" method="POST">
+                    <button type="button" id="delete-account-btn" class="gradient-btn" style="background: rgba(255, 77, 77, 0.1); border: 1px solid #ff4d4d; color: #ff4d4d;">Delete Account Permanently</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Theme Toggle
+    const settingsToggleBtn = document.getElementById('settings-theme-toggle');
+    if (settingsToggleBtn) {
+        settingsToggleBtn.addEventListener('click', () => {
+            let currentTheme = document.documentElement.getAttribute('data-theme');
+            let newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+    }
+
+    // Account Settings Toggle
+    const accountToggleBtn = document.getElementById('account-settings-toggle');
+    const accountContent = document.getElementById('account-settings-content');
+    
+    if (accountToggleBtn && accountContent) {
+        accountToggleBtn.addEventListener('click', () => {
+            if (accountContent.style.display === 'none') {
+                accountContent.style.display = 'block';
+                accountToggleBtn.textContent = 'Close Account Settings';
+                accountToggleBtn.style.background = 'var(--gray-medium)';
+            } else {
+                accountContent.style.display = 'none';
+                accountToggleBtn.textContent = 'Open Account Settings';
+                accountToggleBtn.style.background = 'var(--aurora-gradient)';
+            }
+        });
+    }
+
+    // Delete Account Confirmation
+    const deleteBtn = document.getElementById('delete-account-btn');
+    const deleteForm = document.getElementById('delete-account-form');
+    
+    if (deleteBtn && deleteForm) {
+        deleteBtn.addEventListener('click', () => {
+            if (confirm('WARNING: Are you absolutely sure you want to delete your account? All progress, points, and data will be permanently removed.')) {
+                if (confirm('FINAL CONFIRMATION: This action is irreversible. Proceed anyway?')) {
+                    deleteForm.submit();
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}

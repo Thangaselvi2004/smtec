@@ -1,0 +1,229 @@
+{% extends 'layout.html' %}
+
+{% block title %}Predictive Intelligence - Student AI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .predictor-section {
+        padding: 150px 80px 100px;
+        background: var(--gray-light);
+    }
+
+    .form-container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .input-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 40px;
+        margin-bottom: 60px;
+    }
+
+    .input-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .input-group label {
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        font-weight: 800;
+        margin-bottom: 15px;
+        color: var(--gray-medium);
+    }
+
+    .input-group input {
+        padding: 25px;
+        border: 1px solid var(--gray-border);
+        background: var(--bg-card);
+        transition: var(--transition);
+        font-size: 1.1rem;
+        font-weight: 600;
+        letter-spacing: -0.5px;
+    }
+
+    .input-group input:focus {
+        border-color: #000;
+        outline: none;
+        transform: translateY(-2px);
+    }
+
+    .submit-btn {
+        width: 100%;
+        padding: 30px;
+        background: #000;
+        color: var(--text-heading);
+        border: none;
+        text-transform: uppercase;
+        letter-spacing: 4px;
+        font-weight: 800;
+        cursor: pointer;
+        transition: var(--transition);
+        font-size: 0.8rem;
+    }
+
+    .submit-btn:hover {
+        background: #333;
+        letter-spacing: 6px;
+    }
+
+    .submit-btn:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+    }
+
+    .result-container {
+        margin-top: 100px;
+        padding: 80px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--gray-border);
+        text-align: center;
+        animation: fadeIn 1s cubic-bezier(0.19, 1, 0.22, 1);
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .prediction-value {
+        font-size: 8rem;
+        font-weight: 800;
+        font-family: 'Outfit';
+        margin-bottom: 20px;
+        letter-spacing: -8px;
+        line-height: 1;
+    }
+
+    .recommendation-item {
+        padding: 25px 0;
+        border-bottom: 1px solid var(--gray-border);
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--gray-medium);
+        display: flex;
+        align-items: center;
+    }
+
+    .recommendation-item::before {
+        content: '→';
+        margin-right: 20px;
+        font-weight: 800;
+        color: #000;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="predictor-section"
+    style="background: var(--bg-deep); color: var(--text-main); padding-top: 150px; padding-bottom: 100px;">
+    <div class="form-container">
+        <h1 class="section-title">Performance <br> Analytics</h1>
+        <p style="margin-bottom: 80px; color: var(--text-dim); max-width: 700px; font-size: 1.1rem;">
+            Advanced predictive intelligence to optimize your learning growth.
+        </p>
+
+        {% if not model_ready %}
+        <div
+            style="padding: 25px; background: rgba(255, 2, 102, 0.1); border: 1px solid var(--accent); color: var(--accent); font-weight: 800; text-transform: uppercase; letter-spacing: 2px; font-size: 0.7rem; margin-bottom: 60px; border-radius: 12px; text-align: center;">
+            Institutional Warning: AI Prediction Core Offline. Contact System Administrator.
+        </div>
+        {% endif %}
+
+        <div class="glass-card" style="padding: 60px; border-radius: 30px;">
+            <form method="POST">
+                <div class="input-grid"
+                    style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; margin-bottom: 50px;">
+                    <div class="input-group">
+                        <label
+                            style="display: block; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 3px; font-weight: 800; color: var(--text-dim); margin-bottom: 12px;">Weekly
+                            Study hours</label>
+                        <input type="number" name="study_hours" step="0.1" value="5" min="0" max="100"
+                            style="width: 100%; padding: 18px; background: rgba(255,255,255,0.05); border: 1px solid var(--gray-border); border-radius: 12px; color: var(--text-heading); font-size: 1rem; outline: none; transition: var(--transition);">
+                    </div>
+                    <div class="input-group">
+                        <label
+                            style="display: block; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 3px; font-weight: 800; color: var(--text-dim); margin-bottom: 12px;">Attendance
+                            Coefficient (%)</label>
+                        <input type="number" name="attendance" value="85" min="0" max="100"
+                            style="width: 100%; padding: 18px; background: rgba(255,255,255,0.05); border: 1px solid var(--gray-border); border-radius: 12px; color: var(--text-heading); font-size: 1rem; outline: none; transition: var(--transition);">
+                    </div>
+                    <div class="input-group">
+                        <label
+                            style="display: block; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 3px; font-weight: 800; color: var(--text-dim); margin-bottom: 12px;">Circadian
+                            Rest Cycle (Daily)</label>
+                        <input type="number" name="sleep_hours" step="0.1" value="7" min="0" max="24"
+                            style="width: 100%; padding: 18px; background: rgba(255,255,255,0.05); border: 1px solid var(--gray-border); border-radius: 12px; color: var(--text-heading); font-size: 1rem; outline: none; transition: var(--transition);">
+                    </div>
+                    <div class="input-group">
+                        <label
+                            style="display: block; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 3px; font-weight: 800; color: var(--text-dim); margin-bottom: 12px;">Scholarly
+                            Participation Index</label>
+                        <input type="number" name="participation" value="60" min="0" max="100"
+                            style="width: 100%; padding: 18px; background: rgba(255,255,255,0.05); border: 1px solid var(--gray-border); border-radius: 12px; color: var(--text-heading); font-size: 1rem; outline: none; transition: var(--transition);">
+                    </div>
+                    <div class="input-group">
+                        <label
+                            style="display: block; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 3px; font-weight: 800; color: var(--text-dim); margin-bottom: 12px;">Historical
+                            Grade Datum</label>
+                        <input type="number" name="previous_grade" step="0.1" value="75" min="0" max="100"
+                            style="width: 100%; padding: 18px; background: rgba(255,255,255,0.05); border: 1px solid var(--gray-border); border-radius: 12px; color: var(--text-heading); font-size: 1rem; outline: none; transition: var(--transition);">
+                    </div>
+                    <div class="input-group">
+                        <label
+                            style="display: block; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 3px; font-weight: 800; color: var(--text-dim); margin-bottom: 12px;">System
+                            Engagement Points</label>
+                        <input type="number" name="points" value="{{ points }}"
+                            style="width: 100%; padding: 18px; background: rgba(255,255,255,0.05); border: 1px solid var(--gray-border); border-radius: 12px; color: var(--text-heading); font-size: 1rem; outline: none; transition: var(--transition);">
+                    </div>
+                </div>
+                <button type="submit" class="gradient-btn"
+                    style="width: 100%; padding: 25px; border-radius: 15px; font-size: 0.85rem; letter-spacing: 4px;" {%
+                    if not model_ready %}disabled{% endif %}>Execute
+                    Forecast</button>
+            </form>
+        </div>
+
+        {% if prediction is not none %}
+        <div class="glass-card result-container"
+            style="margin-top: 60px; padding: 80px; text-align: center; border-radius: 30px;">
+            <h3
+                style="text-transform: uppercase; letter-spacing: 4px; font-size: 0.75rem; margin-bottom: 40px; font-weight: 800; color: var(--text-dim);">
+                Forecasted Outcome Index</h3>
+            <div class="prediction-value"
+                style="font-size: 8rem; font-weight: 800; font-family: 'Outfit'; background: var(--aurora-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 30px;">
+                {{ prediction }}</div>
+
+            {% if recommendations %}
+            <div style="margin-top: 60px; text-align: left;">
+                <h4
+                    style="text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem; margin-bottom: 30px; color: var(--secondary); border-bottom: 1px solid var(--secondary); display: inline-block; padding-bottom: 8px;">
+                    Strategic Recommendations</h4>
+                {% for rec in recommendations %}
+                <div class="recommendation-item"
+                    style="padding: 20px 0; border-bottom: 1px solid var(--gray-border); display: flex; align-items: center; color: var(--text-main);">
+                    <span style="color: var(--primary); margin-right: 15px; font-weight: 800;">→</span> {{ rec }}
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p
+                style="margin-top: 50px; color: var(--secondary); font-weight: 800; text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem;">
+                System Status: Peak Performance Maintained.
+            </p>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

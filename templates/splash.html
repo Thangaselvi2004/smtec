@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome | SMTEC EDUPREDICT</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f1f5f9;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .splash-card {
+            width: 850px;
+            background: white;
+            padding: 80px 40px;
+            border-radius: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+        }
+
+        .logo-circle {
+            width: 120px;
+            height: 120px;
+            background: white;
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            border: 1px solid #f1f5f9;
+        }
+
+        .logo-circle img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+        }
+
+        .welcome-to {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: #64748b;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .main-title {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: #0f172a;
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #64748b;
+            line-height: 1.6;
+            max-width: 600px;
+            margin: 0 auto 50px;
+            font-weight: 500;
+        }
+
+        .next-btn {
+            display: inline-block;
+            background: linear-gradient(to right, #4338ca, #0d9488);
+            color: white;
+            padding: 18px 80px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 800;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 10px 20px rgba(67, 56, 202, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .next-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(67, 56, 202, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="splash-card">
+        <div class="logo-circle">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo">
+        </div>
+        <p class="welcome-to">Welcome To</p>
+        <h1 class="main-title">SMTEC EDUPREDICT</h1>
+        <p class="subtitle">
+            Unlock predictive insights, academic clarity, and powerful student success tools in one elegant portal.
+        </p>
+        <a href="{{ url_for('login') }}" class="next-btn">Next</a>
+    </div>
+</body>
+</html>

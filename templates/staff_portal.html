@@ -1,0 +1,143 @@
+{% extends "layout.html" %}
+
+{% block title %}Dashboard | EduPredict Staff{% endblock %}
+
+{% block extra_css %}
+<style>
+    .welcome-section {
+        margin-bottom: 45px;
+    }
+
+    .welcome-section h1 {
+        font-size: 2.8rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .welcome-section p {
+        font-size: 1.1rem;
+        color: #64748b;
+        font-weight: 500;
+    }
+
+    /* Stats Grid */
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 25px;
+        margin-bottom: 45px;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 35px 30px;
+        border-radius: 24px;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04);
+        border: 1px solid rgba(0, 0, 0, 0.02);
+    }
+
+    .stat-card .val {
+        font-size: 3rem;
+        font-weight: 800;
+        color: #0f172a;
+        display: block;
+        margin-bottom: 12px;
+    }
+
+    .stat-card .tag {
+        font-size: 0.7rem;
+        font-weight: 800;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* Action Grid */
+    .action-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 25px;
+    }
+
+    .action-card {
+        background: white;
+        padding: 45px 40px;
+        border-radius: 30px;
+        text-decoration: none;
+        display: block;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04);
+        border: 1px solid rgba(0, 0, 0, 0.02);
+        transition: transform 0.2s;
+    }
+
+    .action-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .action-card h3 {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin-bottom: 15px;
+    }
+
+    .action-card p {
+        color: #64748b;
+        font-size: 1.05rem;
+        line-height: 1.6;
+        font-weight: 500;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <h1>Welcome, {{ session.get('username', 'User') }} 👋</h1>
+    <p>Welcome to the management dashboard. Here's what's happening today.</p>
+</div>
+
+<div class="stats-row">
+    <div class="stat-card">
+        <span class="val">{{ stats.total_students or '5' }}</span>
+        <span class="tag">TOTAL STUDENTS 👨‍🏫</span>
+    </div>
+    <div class="stat-card">
+        <span class="val">{{ stats.pending_tasks or '1' }}</span>
+        <span class="tag">PENDING TASKS 📝</span>
+    </div>
+    <div class="stat-card">
+        <span class="val">{{ stats.assignments_to_review or '0' }}</span>
+        <span class="tag">ASSIGNMENTS TO REVIEW 📄</span>
+    </div>
+    <div class="stat-card">
+        <span class="val">{{ stats.class_performance or '78%' }}</span>
+        <span class="tag">CLASS PERFORMANCE 📊</span>
+    </div>
+</div>
+
+<div class="action-grid">
+    <a href="#" class="action-card">
+        <h3>Subjects</h3>
+        <p>View the complete course structure and detailed syllabus.</p>
+    </a>
+    <a href="{{ url_for('library') }}" class="action-card">
+        <h3>Upload Material</h3>
+        <p>Upload PDFs, links, and study materials to the global library.</p>
+    </a>
+    <a href="#" class="action-card">
+        <h3>Create Assignment</h3>
+        <p>Allocate tasks or assignments with specific deadlines.</p>
+    </a>
+    <a href="#" class="action-card">
+        <h3>View Reports</h3>
+        <p>Access ML performance predictions and class analytics.</p>
+    </a>
+</div>
+{% endblock %}

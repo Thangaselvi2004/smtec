@@ -1,0 +1,474 @@
+{% extends "layout.html" %}
+
+{% block title %}Student Monitoring | Staff Portal{% endblock %}
+
+{% block extra_css %}
+<style>
+    .monitoring-container {
+        padding-top: 120px;
+        padding-bottom: 60px;
+    }
+
+    .monitoring-card {
+        background: var(--bg-card);
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--gray-border);
+        padding: 40px;
+        border-radius: 20px;
+    }
+
+    .search-bar {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--gray-border);
+        color: var(--text-heading);
+        padding: 12px 20px;
+        border-radius: 30px;
+        width: 100%;
+        margin-bottom: 30px;
+        font-family: inherit;
+    }
+
+    .search-bar:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 15px rgba(187, 134, 252, 0.2);
+    }
+
+    .student-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    .student-table th {
+        text-align: left;
+        padding: 15px;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--text-dim);
+        border-bottom: 2px solid var(--gray-border);
+    }
+
+    .student-table td {
+        padding: 20px 15px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        font-size: 0.9rem;
+    }
+
+    .rank-badge {
+        width: 30px;
+        height: 30px;
+        background: var(--aurora-gradient);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 0.8rem;
+        color: var(--text-heading);
+    }
+
+    .xp-tag {
+        background: rgba(187, 134, 252, 0.1);
+        color: var(--primary);
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-weight: 800;
+        font-size: 0.7rem;
+    }
+
+    .progress-mini {
+        height: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 4px;
+        overflow: hidden;
+        width: 100px;
+        display: inline-block;
+        vertical-align: middle;
+        margin-right: 10px;
+    }
+
+    .progress-fill-mini {
+        height: 100%;
+        background: var(--aurora-gradient);
+        width: var(--progress-per, 0%);
+    }
+
+    .btn-detail {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--gray-border);
+        color: var(--text-heading);
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .btn-detail:hover {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: white;
+    }
+
+    /* Modal Styles */
+    #detail-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(10px);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background: var(--bg-card);
+        width: 90%;
+        max-width: 600px;
+        max-height: 80vh;
+        border-radius: 25px;
+        border: 1px solid var(--gray-border);
+        padding: 40px;
+        overflow-y: auto;
+        position: relative;
+    }
+
+    .task-status-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.01);
+    }
+
+    .prediction-res-box {
+        margin-top: 30px;
+        padding: 40px;
+        background: var(--aurora-gradient);
+        border-radius: 20px;
+        text-align: center;
+        display: none;
+    }
+
+    .prediction-val {
+        font-size: 5rem;
+        font-weight: 800;
+        line-height: 1;
+        letter-spacing: -4px;
+        margin-bottom: 15px;
+        color: white;
+    }
+
+    .form-group-p {
+        margin-bottom: 20px;
+    }
+
+    .form-group-p label {
+        display: block;
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 2.5px;
+        font-weight: 800;
+        color: var(--text-main);
+        margin-bottom: 10px;
+        opacity: 0.8;
+    }
+
+    .form-group-p input {
+        width: 100%;
+        padding: 12px;
+        background: rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--gray-border);
+        border-radius: 10px;
+        color: var(--text-heading);
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="monitoring-container">
+    <div class="header-section" style="margin-bottom: 60px;">
+        <h1 class="section-title">Student Engagement</h1>
+        <p class="subtitle">Monitor progress and task completion across all scholars</p>
+    </div>
+
+    <div class="monitoring-card">
+        <input type="text" id="studentSearch" class="search-bar" placeholder="🔍 Search student name or email..." onkeyup="filterTable()">
+
+        <div style="overflow-x: auto;">
+            <table class="student-table" id="studentTable">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Scholar</th>
+                        <th>Total Points</th>
+                        <th>Task Completion</th>
+                        <th>Analytics</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in students %}
+                    <tr>
+                        <td><div class="rank-badge">{{ loop.index }}</div></td>
+                        <td>
+                            <div style="font-weight: 800;">{{ s.username }}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-dim);">{{ s.email }}</div>
+                        </td>
+                        <td><span class="xp-tag">{{ s.points }} XP</span></td>
+                        <td>
+                            {% set total = s.total_tasks %}
+                            {% set done = s.tasks_finished %}
+                            {% set opened = s.tasks_opened %}
+                            {% set percent = (done / total * 100)|round(0)|int if total > 0 else 0 %}
+                            
+                            <div class="progress-mini">
+                                <div class="progress-fill-mini" style="--progress-per: {{ percent }}%;"></div>
+                            </div>
+                            <span style="font-size: 0.8rem; font-weight: 800;">{{ percent }}%</span>
+                            <div style="font-size: 0.6rem; color: var(--text-dim); margin-top: 5px;">
+                                {{ done }} Done | {{ opened }} Started | {{ total - done - opened }} Not Started
+                            </div>
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 10px;">
+                                <button class="btn-detail" 
+                                        data-student-id="{{ s.id }}" 
+                                        data-student-name="{{ s.username }}" 
+                                        onclick="handleViewDetail(this)">Status Matrix</button>
+                                <button class="btn-detail" style="border-color: var(--primary); color: var(--primary);" 
+                                        data-student-id="{{ s.id }}" 
+                                        data-student-name="{{ s.username }}" 
+                                        data-points="{{ s.points }}"
+                                        onclick="handleOpenPredictor(this)">AI Analysis</button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Modal -->
+<div id="detail-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 1500; justify-content: center; align-items: center;">
+    <div class="modal-content" style="max-width: 600px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+            <div>
+                <h4 style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-dim); letter-spacing: 2px;">Scholar Performance</h4>
+                <h2 id="modal-student-name" style="margin: 0;">Student Name</h2>
+            </div>
+            <button onclick="closeModal()" class="btn-detail" style="border-radius: 50%; width: 40px; height: 40px; padding: 0;">✕</button>
+        </div>
+        <div id="modal-body">
+             <p style="text-align: center; color: var(--text-dim);">Loading engagement matrix...</p>
+        </div>
+    </div>
+</div>
+
+<!-- Prediction Modal -->
+<div id="prediction-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(15px); z-index: 2000; justify-content: center; align-items: center;">
+    <div class="modal-content" style="max-width: 800px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
+            <div>
+                <h4 style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-dim); letter-spacing: 2px;">Predictive Intelligence</h4>
+                <h2 id="predict-student-name" style="margin: 0;">Scholar Name</h2>
+            </div>
+            <button onclick="closePredictor()" class="btn-detail" style="border-radius: 50%; width: 40px; height: 40px; padding: 0;">✕</button>
+        </div>
+
+        <div id="predict-form">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group-p">
+                    <label>Weekly Study Hours</label>
+                    <input type="number" id="p_study" value="10" step="0.5">
+                </div>
+                <div class="form-group-p">
+                    <label>Attendance (%)</label>
+                    <input type="number" id="p_attendance" value="90">
+                </div>
+                <div class="form-group-p">
+                    <label>Rest Cycle (Sleep Hours)</label>
+                    <input type="number" id="p_sleep" value="7" step="0.5">
+                </div>
+                <div class="form-group-p">
+                    <label>Class Participation (0-100)</label>
+                    <input type="number" id="p_part" value="70">
+                </div>
+                <div class="form-group-p">
+                    <label>Previous Performance Score</label>
+                    <input type="number" id="p_prev" value="75">
+                </div>
+                <div class="form-group-p">
+                    <label>System Engagement (XP Points)</label>
+                    <input type="number" id="p_points" readonly style="background: rgba(187,134,252,0.1); border-color: var(--primary);">
+                </div>
+            </div>
+            <button onclick="runAIPrediction()" class="gradient-btn" style="width: 100%; padding: 20px; border-radius: 12px; margin-top: 20px;">Execute Forecast</button>
+        </div>
+
+        <div id="prediction-results" class="prediction-res-box">
+             <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; color: rgba(255,255,255,0.8);">Predicted Outcome</div>
+             <div id="res-val" class="prediction-val">--</div>
+             <div id="res-recs" style="text-align: left; margin-top: 20px; font-size: 0.85rem; color: white;"></div>
+             <button onclick="resetPredictor()" class="btn-detail" style="margin-top: 30px; background: white; color: black; border: none;">New Scan</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function filterTable() {
+        const input = document.getElementById("studentSearch");
+        const filter = input.value.toUpperCase();
+        const table = document.getElementById("studentTable");
+        const tr = table.getElementsByTagName("tr");
+
+        for (let i = 1; i < tr.length; i++) {
+            const td = tr[i].getElementsByTagName("td")[1];
+            if (td) {
+                const textValue = td.textContent || td.innerText;
+                if (textValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
+
+    /* Bridge functions for data attributes */
+    function handleViewDetail(btn) {
+        const id = btn.getAttribute('data-student-id');
+        const name = btn.getAttribute('data-student-name');
+        viewStudentDetail(id, name);
+    }
+
+    function handleOpenPredictor(btn) {
+        const id = btn.getAttribute('data-student-id');
+        const name = btn.getAttribute('data-student-name');
+        const points = btn.getAttribute('data-points');
+        openPredictor(id, name, points);
+    }
+
+    async function viewStudentDetail(studentId, name) {
+        document.getElementById('modal-student-name').innerText = name;
+        document.getElementById('detail-modal').style.display = 'flex';
+        const body = document.getElementById('modal-body');
+        body.innerHTML = '<p style="text-align: center; color: var(--text-dim);">Analyzing task engagement...</p>';
+
+        try {
+            const resp = await fetch(`/api/staff/student_stats/${studentId}`);
+            const data = await resp.json();
+
+            if (data.length === 0) {
+                body.innerHTML = '<p style="text-align: center;">No tasks assigned yet.</p>';
+                return;
+            }
+
+            let html = '<div class="task-list">';
+            data.forEach(task => {
+                let statusColor = 'var(--text-dim)';
+                if (task.status.includes('✅')) statusColor = 'var(--secondary)';
+                if (task.status.includes('👁️')) statusColor = 'var(--primary)';
+                if (task.status.includes('⏳')) statusColor = 'var(--accent)';
+
+                html += `
+                    <div class="task-status-row">
+                        <div>
+                            <div style="font-weight: 800; font-size: 0.85rem;">${task.title}</div>
+                            <div style="font-size: 0.65rem; color: var(--text-dim);">Due: ${task.due_date}</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <span style="font-size: 0.75rem; font-weight: 800; color: ${statusColor};">${task.status}</span>
+                            <div style="font-size: 0.6rem; color: var(--text-dim); margin-top: 2px;">
+                                ${task.completed_at ? 'Done: ' + task.completed_at.split(' ')[0] : (task.viewed_at ? 'Opened: ' + task.viewed_at.split(' ')[0] : '')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            body.innerHTML = html;
+        } catch (e) {
+            body.innerHTML = '<p style="color: #ff4444; text-align: center;">Error loading statistics.</p>';
+        }
+    }
+
+    function closeModal() {
+        document.getElementById('detail-modal').style.display = 'none';
+    }
+
+    /* Predictor Logic */
+    let currentPredictUser = null;
+
+    function openPredictor(id, name, points) {
+        currentPredictUser = id;
+        document.getElementById('predict-student-name').innerText = name;
+        document.getElementById('p_points').value = points;
+        document.getElementById('prediction-modal').style.display = 'flex';
+        resetPredictor();
+    }
+
+    function closePredictor() {
+        document.getElementById('prediction-modal').style.display = 'none';
+    }
+
+    function resetPredictor() {
+        document.getElementById('predict-form').style.display = 'block';
+        document.getElementById('prediction-results').style.display = 'none';
+    }
+
+    async function runAIPrediction() {
+        const btn = event.target;
+        const originalText = btn.innerText;
+        btn.innerText = "Analyzing data...";
+        btn.disabled = true;
+
+        const payload = {
+            study_hours: document.getElementById('p_study').value,
+            attendance: document.getElementById('p_attendance').value,
+            sleep_hours: document.getElementById('p_sleep').value,
+            participation: document.getElementById('p_part').value,
+            previous_grade: document.getElementById('p_prev').value,
+            points: document.getElementById('p_points').value
+        };
+
+        try {
+            const resp = await fetch('/api/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await resp.json();
+
+            if (data.status === 'success') {
+                document.getElementById('predict-form').style.display = 'none';
+                document.getElementById('prediction-results').style.display = 'block';
+                document.getElementById('res-val').innerText = data.prediction;
+                
+                let recsHtml = '';
+                if(data.recommendations.length > 0) {
+                    recsHtml = '<ul style="margin-left: 20px;">' + data.recommendations.map(r => `<li style="margin-bottom: 5px;">${r}</li>`).join('') + '</ul>';
+                }
+                document.getElementById('res-recs').innerHTML = recsHtml;
+            } else {
+                alert("Prediction failed: " + data.message);
+            }
+        } catch (e) {
+            alert("Error connecting to AI engine.");
+        } finally {
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }
+    }
+</script>
+{% endblock %}

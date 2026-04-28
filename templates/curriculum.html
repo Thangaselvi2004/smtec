@@ -1,0 +1,196 @@
+{% extends "layout.html" %}
+
+{% block title %}Academic Hub | Student AI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .curriculum-container {
+        padding: 120px 60px 80px;
+    }
+
+    .hub-grid {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 40px;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .card-title {
+        font-size: 1.2rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--text-heading);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    /* Exam Cards */
+    .exam-item {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--gray-border);
+        border-radius: 20px;
+        padding: 20px;
+        margin-bottom: 20px;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .exam-item:hover {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: var(--secondary);
+    }
+
+    .exam-date-box {
+        background: var(--aurora-gradient);
+        color: white;
+        padding: 10px;
+        border-radius: 12px;
+        text-align: center;
+        min-width: 70px;
+    }
+
+    .exam-day { font-size: 1.2rem; font-weight: 800; display: block; }
+    .exam-month { font-size: 0.7rem; text-transform: uppercase; font-weight: 700; opacity: 0.9; }
+
+    /* Material Cards */
+    .materials-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+    }
+
+    .material-card {
+        background: var(--bg-card);
+        border: 1px solid var(--gray-border);
+        border-radius: 20px;
+        padding: 25px;
+        transition: var(--transition);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .material-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--primary);
+    }
+
+    .material-type {
+        font-size: 0.65rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: var(--primary);
+        letter-spacing: 1px;
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    .material-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-heading);
+        margin-bottom: 15px;
+        line-height: 1.3;
+    }
+
+    .material-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 1px solid var(--gray-border);
+    }
+
+    .download-btn {
+        background: rgba(187, 134, 252, 0.1);
+        color: var(--primary);
+        padding: 8px 15px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-size: 0.8rem;
+        font-weight: 800;
+        transition: var(--transition);
+    }
+
+    .download-btn:hover {
+        background: var(--primary);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="curriculum-container">
+    <div class="header-section" style="margin-bottom: 60px;">
+        <h1 class="section-title">Academic Hub</h1>
+        <p class="subtitle">Access all exams and learning materials provided by your staff in one place.</p>
+    </div>
+
+    <div class="hub-grid">
+        <!-- Exams Left Column -->
+        <div class="exams-column">
+            <div class="section-header">
+                <h3 class="card-title"><i class="fas fa-calendar-alt"></i> Upcoming Exams</h3>
+            </div>
+            {% if exams %}
+                {% for exam in exams %}
+                <div class="exam-item">
+                    <div class="exam-date-box">
+                        <span class="exam-day">{{ exam[2].split('-')[2] }}</span>
+                        <span class="exam-month">{{ exam[2].split('-')[1] }}</span>
+                    </div>
+                    <div>
+                        <h4 style="color: var(--text-heading); font-size: 1.1rem; margin-bottom: 5px;">{{ exam[1] }}</h4>
+                        <span style="color: var(--text-dim); font-size: 0.8rem;">Full Curriculum Assessment</span>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="glass-card" style="padding: 40px; text-align: center; color: var(--text-dim);">
+                    No upcoming exams scheduled.
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Materials Right Column -->
+        <div class="materials-column">
+            <div class="section-header">
+                <h3 class="card-title"><i class="fas fa-book-open"></i> Study Materials</h3>
+            </div>
+            <div class="materials-grid">
+                {% if resources %}
+                    {% for resource in resources %}
+                    <div class="material-card">
+                        <span class="material-type">{{ resource.type }}</span>
+                        <h4 class="material-title">{{ resource.title }}</h4>
+                        <p style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 20px;">
+                            <i class="fas fa-user-edit"></i> {{ resource.author or 'Staff Member' }}
+                        </p>
+                        <div class="material-footer">
+                            <span style="font-size: 0.7rem; color: var(--text-dim);">{{ resource.file_size }} PDF</span>
+                            <a href="{{ url_for('static', filename=resource.file_path) }}" class="download-btn" download>
+                                <i class="fas fa-download"></i> DOWNLOAD
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="glass-card" style="grid-column: 1 / -1; padding: 60px; text-align: center; color: var(--text-dim);">
+                        Learning materials will appear here once uploaded by staff.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

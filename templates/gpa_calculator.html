@@ -1,0 +1,339 @@
+{% extends "layout.html" %}
+
+{% block title %}GPA Calculator | Student AI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .gpa-container {
+        padding-top: 120px;
+        padding-bottom: 60px;
+    }
+
+    .gpa-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+    }
+
+    .gpa-card {
+        background: var(--bg-card);
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--gray-border);
+        padding: 40px;
+        border-radius: 20px;
+        transition: var(--transition);
+    }
+
+    .gpa-card:hover {
+        border-color: rgba(255, 255, 255, 0.2);
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    }
+
+    .tab-btn {
+        background: none;
+        border: none;
+        padding: 10px 20px;
+        font-weight: 800;
+        text-transform: uppercase;
+        font-size: 0.7rem;
+        letter-spacing: 2px;
+        cursor: pointer;
+        opacity: 0.5;
+        color: var(--text-heading);
+        transition: var(--transition);
+        border-bottom: 2px solid transparent;
+    }
+
+    .tab-btn.active {
+        opacity: 1;
+        border-bottom-color: var(--primary);
+        color: var(--primary);
+    }
+
+    .subject-row {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr;
+        gap: 15px;
+        align-items: center;
+        padding: 15px 0;
+        border-bottom: 1px solid var(--gray-border);
+    }
+
+    .subject-row:last-child {
+        border-bottom: none;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px;
+        background: rgba(230, 225, 240, 0.799);
+        border: 1px solid var(--gray-border);
+        color: #070707;
+        border-radius: 10px;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary);
+        outline: none;
+        box-shadow: 0 0 10px rgba(187, 134, 252, 0.2);
+    }
+
+    .result-box {
+        margin-top: 30px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--gray-border);
+        padding: 30px;
+        border-radius: 20px;
+        text-align: center;
+    }
+
+    .gpa-value {
+        font-size: 3.5rem;
+        font-weight: 800;
+        font-family: 'Outfit', sans-serif;
+        background: var(--aurora-gradient);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .btn-aurora {
+        background: var(--aurora-gradient);
+        color: var(--text-heading);
+        border: none;
+        padding: 15px 25px;
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        cursor: pointer;
+        border-radius: 30px;
+        transition: var(--transition);
+        width: 100%;
+        margin-top: 20px;
+        box-shadow: 0 4px 15px rgba(98, 0, 238, 0.3);
+    }
+
+    .btn-aurora:hover {
+        transform: scale(1.02);
+        box-shadow: 0 6px 20px rgba(98, 0, 238, 0.5);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="gpa-container">
+    <div class="header-section" style="margin-bottom: 60px;">
+        <h1 class="section-title">GPA Calculator</h1>
+        <p class="subtitle">Smart Performance Tracker</p>
+    </div>
+
+    <div style="margin-bottom: 40px; display: flex; gap: 20px;">
+        <button id="sgpa-tab" class="tab-btn active" onclick="switchTab('sgpa')">SGPA Calculator</button>
+        <button id="cgpa-tab" class="tab-btn" onclick="switchTab('cgpa')">CGPA Calculator</button>
+    </div>
+
+    <!-- SGPA Section -->
+    <div id="sgpa-section" class="gpa-grid">
+        <div class="gpa-card">
+            <h3 style="text-transform: uppercase; letter-spacing: 2px; margin-bottom: 30px;">Semester Choice</h3>
+
+            <div style="margin-bottom: 25px;">
+                <label
+                    style="display: block; font-weight: 800; font-size: 0.7rem; text-transform: uppercase; margin-bottom: 10px; color: var(--text-dim);">Department</label>
+                <select id="dept-select" class="form-control" onchange="updateSemesters()">
+                    <option value="">Select Department</option>
+                    {% for dept in syllabus.keys() %}
+                    <option value="{{ dept }}">{{ dept }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div style="margin-bottom: 25px;">
+                <label
+                    style="display: block; font-weight: 800; font-size: 0.7rem; text-transform: uppercase; margin-bottom: 10px; color: var(--text-dim);">Semester</label>
+                <select id="sem-select" class="form-control" onchange="loadSubjects()">
+                    <option value="">Select Semester</option>
+                </select>
+            </div>
+
+            <div id="subjects-container" style="margin-top: 40px;">
+                <!-- Subjects will be loaded here -->
+            </div>
+        </div>
+
+        <div class="gpa-card" style="display: flex; flex-direction: column; justify-content: center;">
+            <h3 style="text-align: center; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 30px;">Your
+                Semester Result</h3>
+            <div class="result-box">
+                <div id="sgpa-result" class="gpa-value">0.00</div>
+                <p id="sgpa-message"
+                    style="margin-top: 15px; font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 1px;">
+                </p>
+            </div>
+            <button class="btn-aurora" onclick="calculateSGPA()">Calculate SGPA</button>
+        </div>
+    </div>
+
+    <!-- CGPA Section -->
+    <div id="cgpa-section" class="gpa-grid" style="display: none;">
+        <div class="gpa-card">
+            <h3 style="text-transform: uppercase; letter-spacing: 2px; margin-bottom: 30px;">Cumulative Progress</h3>
+            <p style="color: var(--gray-medium); font-size: 0.8rem; margin-bottom: 30px;">Enter your SGPA for each
+                completed semester.</p>
+
+            <div id="cgpa-inputs">
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label
+                        style="display: block; font-weight: 800; font-size: 0.7rem; text-transform: uppercase; margin-bottom: 10px;">How
+                        many semesters completed?</label>
+                    <input type="number" id="num-sems" class="form-control" min="1" max="8" value="1"
+                        onchange="generateCGPAInputs()">
+                </div>
+
+                <div id="sem-sgpa-list">
+                    <!-- Dynamic inputs -->
+                </div>
+            </div>
+        </div>
+
+        <div class="gpa-card" style="display: flex; flex-direction: column; justify-content: center;">
+            <h3 style="text-align: center; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 30px;">Your
+                Cumulative CGPA</h3>
+            <div class="result-box">
+                <div id="cgpa-result" class="gpa-value">0.00</div>
+                <p id="cgpa-message"
+                    style="margin-top: 15px; font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 1px;">
+                </p>
+            </div>
+            <button class="btn-aurora" onclick="calculateCGPA()">Calculate CGPA</button>
+            <p
+                style="margin-top: 20px; text-align: center; font-size: 0.7rem; color: var(--gray-medium); text-transform: uppercase;">
+                Based on university weighted average</p>
+        </div>
+    </div>
+</div>
+
+<!-- Inject Data safely for JS -->
+<script type="application/json" id="syllabus-json">
+        {{ syllabus | tojson | safe }}
+    </script>
+<script>
+    const syllabusData = JSON.parse(document.getElementById('syllabus-json').textContent);
+    const gradePoints = {
+        "O": 10, "A+": 9, "A": 8, "B+": 7, "B": 6, "C": 5, "U": 0
+    };
+
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(`${tab}-tab`).classList.add('active');
+
+        if (tab === 'sgpa') {
+            document.getElementById('sgpa-section').style.display = 'grid';
+            document.getElementById('cgpa-section').style.display = 'none';
+        } else {
+            document.getElementById('sgpa-section').style.display = 'none';
+            document.getElementById('cgpa-section').style.display = 'grid';
+            generateCGPAInputs();
+        }
+    }
+
+    function updateSemesters() {
+        const dept = document.getElementById('dept-select').value;
+        const semSelect = document.getElementById('sem-select');
+        semSelect.innerHTML = '<option value="">Select Semester</option>';
+
+        if (dept && syllabusData[dept]) {
+            Object.keys(syllabusData[dept]).forEach(sem => {
+                const opt = document.createElement('option');
+                opt.value = sem;
+                opt.textContent = sem;
+                semSelect.appendChild(opt);
+            });
+        }
+    }
+
+    function loadSubjects() {
+        const dept = document.getElementById('dept-select').value;
+        const sem = document.getElementById('sem-select').value;
+        const container = document.getElementById('subjects-container');
+        container.innerHTML = '';
+
+        if (dept && sem && syllabusData[dept][sem]) {
+            const subjects = syllabusData[dept][sem];
+            subjects.forEach(sub => {
+                const row = document.createElement('div');
+                row.className = 'subject-row';
+                row.innerHTML = `
+                    <div style="font-size: 0.8rem; font-weight: 800; text-transform: uppercase;">${sub.Code} - ${sub.Name}</div>
+                    <div style="font-size: 0.7rem; color: var(--gray-medium);">Credits: ${sub.Credits || 3}</div>
+                    <select class="grade-input form-control" data-credits="${sub.Credits || 3}">
+                        <option value="O">O</option>
+                        <option value="A+">A+</option>
+                        <option value="A">A</option>
+                        <option value="B+">B+</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                        <option value="U">U</option>
+                    </select>
+                `;
+                container.appendChild(row);
+            });
+        }
+    }
+
+    function calculateSGPA() {
+        let totalPoints = 0;
+        let totalCredits = 0;
+        const inputs = document.querySelectorAll('.grade-input');
+
+        if (inputs.length === 0) return;
+
+        inputs.forEach(input => {
+            const credits = parseInt(input.dataset.credits);
+            const grade = gradePoints[input.value];
+            totalPoints += (credits * grade);
+            totalCredits += credits;
+        });
+
+        const sgpa = totalPoints / totalCredits;
+        document.getElementById('sgpa-result').innerText = sgpa.toFixed(2);
+
+        let msg = "";
+        if (sgpa >= 9) msg = "Outstanding Performace! 🌟";
+        else if (sgpa >= 8) msg = "Excellent Job! 🚀";
+        else if (sgpa >= 7) msg = "Good Performance! 📈";
+        else msg = "Keep Working Hard! 💪";
+        document.getElementById('sgpa-message').innerText = msg;
+    }
+
+    function generateCGPAInputs() {
+        const num = parseInt(document.getElementById('num-sems').value);
+        const container = document.getElementById('sem-sgpa-list');
+        container.innerHTML = '';
+
+        for (let i = 1; i <= num; i++) {
+            const div = document.createElement('div');
+            div.style.marginBottom = '15px';
+            div.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <label style="font-weight: 800; font-size: 0.75rem;">Semester ${i} SGPA</label>
+                    <input type="number" class="cgpa-input form-control" step="0.01" min="0" max="10" value="8.0" style="width: 120px;">
+                </div>
+            `;
+            container.appendChild(div);
+        }
+    }
+
+    function calculateCGPA() {
+        const inputs = document.querySelectorAll('.cgpa-input');
+        let sum = 0;
+        inputs.forEach(i => sum += parseFloat(i.value));
+        const cgpa = sum / inputs.length;
+
+        document.getElementById('cgpa-result').innerText = cgpa.toFixed(2);
+        document.getElementById('cgpa-message').innerText = cgpa >= 8 ? "Eligible for Top Tier Placements!" : "Keep Aiming Higher!";
+    }
+</script>
+{% endblock %}

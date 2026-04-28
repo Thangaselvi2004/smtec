@@ -1,0 +1,73 @@
+{% extends 'layout.html' %}
+
+{% block title %}{{ subject.name }} - Student AI{% endblock %}
+
+{% block content %}
+<section class="services-section" style="padding-top: 150px; background: var(--gray-light);">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 40px;">
+        <div style="margin-bottom: 60px;">
+            <a href="{{ url_for('learning') }}"
+                style="color: #000; text-decoration: none; font-weight: 800; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px;">←
+                Back to Repository</a>
+        </div>
+
+        <h1 class="section-title">{{ subject.name }}</h1>
+        <p style="color: var(--gray-medium); margin-bottom: 80px; max-width: 800px; font-size: 1.1rem;">
+            {{ subject.description }}
+        </p>
+
+        <div style="display: grid; grid-template-columns: 1fr; gap: 60px; padding-bottom: 150px;">
+            {% if units %}
+            {% for unit in units %}
+            <div class="service-card" style="padding: 80px;">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 50px; border-bottom: 2px solid #000; padding-bottom: 20px;">
+                    <div>
+                        <p
+                            style="font-size: 0.65rem; color: var(--gray-medium); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 10px; font-weight: 800;">
+                            Unit {{ loop.index }}</p>
+                        <h2 style="font-size: 2.5rem; text-transform: uppercase; letter-spacing: -1px;">{{ unit.title }}
+                        </h2>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px;">
+                    {% if unit.topics %}
+                    {% for topic in unit.topics %}
+                    <a href="{{ url_for('learning_topic', topic_id=topic.id) }}"
+                        style="text-decoration: none; color: inherit;">
+                        <div
+                            style="padding: 30px; border: 1px solid var(--gray-border); transition: var(--transition); background: var(--bg-card);">
+                            <p
+                                style="font-size: 0.6rem; color: var(--gray-medium); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 15px; font-weight: 800;">
+                                Topic {{ loop.index }}</p>
+                            <h4 style="font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px;">{{
+                                topic.title }}</h4>
+                        </div>
+                    </a>
+                    {% endfor %}
+                    {% else %}
+                    <p style="color: var(--gray-medium); font-size: 0.9rem; font-style: italic;">No topics mapped for
+                        this unit.</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="service-card" style="padding: 100px; text-align: center;">
+                <p style="color: var(--gray-medium); text-transform: uppercase; letter-spacing: 2px; font-weight: 700;">
+                    No units registered for this subject.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<style>
+    div[style*="border: 1px solid var(--gray-border)"]:hover {
+        border-color: #000 !important;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+    }
+</style>
+{% endblock %}

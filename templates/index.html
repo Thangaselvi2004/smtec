@@ -1,0 +1,116 @@
+{% extends "layout.html" %}
+
+{% block title %}Welcome | EduPredict{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        height: calc(100vh - var(--navbar-height));
+        display: flex;
+        align-items: center;
+        padding: 0 40px;
+        position: relative;
+    }
+
+    .hero-content {
+        flex: 1;
+        z-index: 10;
+    }
+
+    .hero-image {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        position: relative;
+    }
+
+    .hero-title {
+        font-size: 5rem;
+        line-height: 1.1;
+        font-weight: 900;
+        color: #0f172a;
+        margin-bottom: 25px;
+        text-transform: uppercase;
+        letter-spacing: -2px;
+    }
+
+    .hero-subtitle {
+        font-size: 1.25rem;
+        color: #475569;
+        max-width: 600px;
+        margin-bottom: 45px;
+        line-height: 1.6;
+        font-weight: 500;
+    }
+
+    .cta-button {
+        background: linear-gradient(135deg, #4f46e5 0%, #0ea5e9 100%);
+        color: white;
+        padding: 20px 50px;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        font-weight: 800;
+        text-decoration: none;
+        display: inline-block;
+        box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+        transition: transform 0.3s ease;
+    }
+
+    .cta-button:hover {
+        transform: translateY(-3px);
+    }
+
+    .illustration-card {
+        width: 100%;
+        max-width: 500px;
+        border-radius: 30px;
+        box-shadow: var(--shadow-lg);
+        transform: rotate(2deg);
+        border: 8px solid white;
+    }
+
+    .glow-effect {
+        position: absolute;
+        width: 150%;
+        height: 150%;
+        background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+        top: -25%;
+        left: -25%;
+        z-index: -1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+    <div class="hero-content">
+        <h1 class="hero-title">Elevate Your <br> <span class="logo-gradient">Learning</span></h1>
+        <p class="hero-subtitle">
+            Experience the next-generation learning ecosystem designed to amplify your growth and celebrate your success. SMTEC EduPredict helps you track, analyze, and improve your performance seamlessly.
+        </p>
+        
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+            {% if session.get('user_id') %}
+                <a href="{{ url_for('student_hub') }}" class="cta-button">GO TO DASHBOARD</a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="cta-button">GET STARTED NOW</a>
+            {% endif %}
+            
+            {% if pending_task_count > 0 %}
+                <div style="background: #fee2e2; border: 1px solid #fecaca; color: #991b1b; padding: 12px 20px; border-radius: 12px; font-weight: 700; width: fit-content; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-exclamation-circle"></i>
+                    YOU HAVE {{ pending_task_count }} PENDING TASKS!
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="hero-image">
+        <div class="glow-effect"></div>
+        <img src="https://i.pinimg.com/736x/17/7a/ab/177aab444567ad287a2056bd48a63a3c.jpg" 
+             alt="Learning Illustration" 
+             class="illustration-card"
+             onerror="this.src='https://www.theartofimprovement.com/wp-content/uploads/2019/07/Small-Progress-Every-Day-Leads-to-Big-Results.jpg';">
+    </div>
+</section>
+{% endblock %}

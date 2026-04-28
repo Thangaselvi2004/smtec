@@ -1,0 +1,77 @@
+{% extends 'layout.html' %}
+
+{% block title %}User Profile - SMTEC EduPredict{% endblock %}
+
+{% block content %}
+<section
+    style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: white; overflow: hidden; position: relative;">
+    <div
+        style="position: absolute; inset: 0; background-image: repeating-linear-gradient(135deg, rgba(0,0,0,0.02) 0, rgba(0,0,0,0.02) 1px, transparent 1px, transparent 20px); opacity: 0.45; pointer-events: none;">
+    </div>
+
+    <div class="glass-card" style="position: relative; z-index: 10; width: 600px; padding: 48px; border-radius: 32px; background: rgba(255, 255, 255, 0.95); border: 1px solid rgba(0,0,0,0.08); box-shadow: 0 30px 80px rgba(0, 0, 0, 0.1); backdrop-filter: blur(18px);">
+        <div style="text-align: center; margin-bottom: 40px;">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="College Logo" style="width: 100px; height: auto; border-radius: 16px; box-shadow: 0 12px 30px rgba(0,0,0,0.1); margin-bottom: 22px;">
+            <h1 style="font-size: 2rem; font-weight: 800; letter-spacing: 1px; color: #1f2937; margin-bottom: 8px;">SELECT YOUR DETAILS</h1>
+        </div>
+
+        <form method="POST" style="display: grid; gap: 18px;">
+            <!-- YEAR SECTION -->
+            <div class="selection-section">
+                <label class="field-label" for="year">Year</label>
+                <select id="year" name="year" required
+                    style="width: 100%; padding: 18px; background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%); border: 1px solid #93c5fd; border-radius: 18px; color: #1f2937; font-size: 0.95rem; font-weight: 700; outline: none; cursor: pointer;">
+                    <option value="" disabled selected>Select Your Year</option>
+                    <option value="First Year">First Year</option>
+                    <option value="Second Year">Second Year</option>
+                    <option value="Third Year">Third Year</option>
+                    <option value="Final Year">Final Year</option>
+                </select>
+            </div>
+
+            <!-- DEPARTMENT SECTION -->
+            <div class="selection-section">
+                <label class="field-label" for="department">Department</label>
+                <select id="department" name="department" required
+                    style="width: 100%; padding: 18px; background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%); border: 1px solid #93c5fd; border-radius: 18px; color: #1f2937; font-size: 0.95rem; font-weight: 700; outline: none; cursor: pointer;">
+                    <option value="" disabled selected>Select Your Department</option>
+                    <option value="CSE">CSE</option>
+                    <option value="ECE">ECE</option>
+                    <option value="EEE">EEE</option>
+                    <option value="MECH">MECH</option>
+                </select>
+            </div>
+
+            <!-- CLASS SECTION -->
+            <div class="selection-section">
+                <label class="field-label" for="class_section">Class</label>
+                <select id="class_section" name="class_section" required
+                    style="width: 100%; padding: 18px; background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%); border: 1px solid #93c5fd; border-radius: 18px; color: #1f2937; font-size: 0.95rem; font-weight: 700; outline: none; cursor: pointer;">
+                    <option value="" disabled selected>Select Your Class</option>
+                    <option value="A Class">A Class</option>
+                    <option value="B Class">B Class</option>
+                </select>
+            </div>
+
+            <button type="submit" style="width: 100%; padding: 16px 0; border: none; border-radius: 999px; background: linear-gradient(90deg, #4f46e5 0%, #0f766e 100%); color: #ffffff; text-transform: uppercase; font-size: 0.98rem; font-weight: 700; letter-spacing: 1px; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease;">Submit</button>
+        </form>
+    </div>
+</section>
+
+<style>
+    .selection-section {
+        border-radius: 18px;
+        border: none;
+        background: transparent;
+    }
+    .field-label {
+        display: block;
+        margin-bottom: 10px;
+        color: #334155;
+        font-size: 0.88rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+</style>
+{% endblock %}

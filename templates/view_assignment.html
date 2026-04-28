@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+{% block title %}Assignment: {{ assignment.title }}{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 120px; padding-bottom: 80px; max-width: 900px;">
+    <div class="glass-card" style="padding: 40px; border-radius: 24px; border: 1px solid var(--gray-border); background: var(--bg-card); backdrop-filter: blur(20px);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+            <div>
+                <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 10px;">{{ assignment.title }}</h1>
+                <p style="color: var(--text-dim);"><i class="fas fa-calendar-alt mr-2"></i> Created on: {{ assignment.created_at }}</p>
+            </div>
+            <a href="{{ url_for('student_hub') }}" class="btn-glass"><i class="fas fa-arrow-left mr-2"></i> Back to Hub</a>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.02); padding: 25px; border-radius: 15px; margin-bottom: 40px; border: 1px solid rgba(255,255,255,0.05);">
+            <h3 style="margin-bottom: 15px; color: var(--primary);">Description</h3>
+            <p style="line-height: 1.6; color: var(--text-main);">{{ assignment.description or 'No description provided.' }}</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px;">
+            {% if assignment.file_path %}
+            <div class="glass-card" style="padding: 20px; border-radius: 15px; text-align: center; border: 1px dashed var(--secondary);">
+                <i class="fas fa-file-pdf fa-3x" style="color: var(--secondary); margin-bottom: 15px; display: block;"></i>
+                <h4 style="margin-bottom: 10px;">Assignment Document</h4>
+                <a href="{{ url_for('api_view_assignment_doc', id=assignment.id) }}" target="_blank" class="btn-aurora" style="width: 100%;">DOWNLOAD PDF</a>
+            </div>
+            {% endif %}
+
+            {% if assignment.task_url %}
+            <div class="glass-card" style="padding: 20px; border-radius: 15px; text-align: center; border: 1px dashed var(--primary);">
+                <i class="fas fa-link fa-3x" style="color: var(--primary); margin-bottom: 15px; display: block;"></i>
+                <h4 style="margin-bottom: 10px;">Online Resource</h4>
+                <a href="{{ assignment.task_url }}" target="_blank" class="btn-aurora" style="width: 100%; background: var(--primary-gradient);">OPEN LINK</a>
+            </div>
+            {% endif %}
+        </div>
+
+        <div style="text-align: center; padding-top: 30px; border-top: 1px solid var(--gray-border);">
+            <h3 style="margin-bottom: 20px;">Ready to Submit?</h3>
+            <p style="color: var(--text-dim); margin-bottom: 30px;">Once you have completed the task, click the button below to claim your <strong>20 XP</strong>.</p>
+            <form action="{{ url_for('submit_assignment_route', id=assignment.id) }}" method="POST">
+                <button type="submit" class="btn-aurora" style="padding: 15px 40px; font-size: 1.2rem; border-radius: 15px; box-shadow: 0 10px 30px rgba(3, 218, 198, 0.3);">
+                    <i class="fas fa-check-circle mr-2"></i> MARK AS COMPLETED & CLAIM XP
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

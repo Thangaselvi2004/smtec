@@ -1,0 +1,429 @@
+{% extends 'layout.html' %}
+
+{% block title %}{{ topic.title }} - Student AI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .topic-container {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 0;
+        min-height: 100vh;
+        padding-top: 100px;
+    }
+
+    .topic-sidebar {
+        background: var(--bg-card);
+        border-right: 1px solid var(--gray-border);
+        padding: 40px;
+        position: sticky;
+        top: 100px;
+        height: calc(100vh - 100px);
+        overflow-y: auto;
+    }
+
+    .topic-content-area {
+        background: var(--gray-light);
+        padding: 60px 100px 150px;
+    }
+
+    .breadcrumb-nav {
+        margin-bottom: 40px;
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-weight: 800;
+        color: var(--gray-medium);
+    }
+
+    .breadcrumb-nav a {
+        color: #000;
+        text-decoration: none;
+        border-bottom: 1px solid transparent;
+        transition: var(--transition);
+    }
+
+    .breadcrumb-nav a:hover {
+        border-color: #000;
+    }
+
+    .video-wrapper {
+        aspect-ratio: 16/9;
+        background: #000;
+        margin-bottom: 60px;
+        border: 1px solid #000;
+    }
+
+    .content-card {
+        background: var(--bg-card);
+        padding: 80px;
+        border: 1px solid var(--gray-border);
+        margin-bottom: 40px;
+    }
+
+    .editorial-body {
+        font-size: 1.15rem;
+        line-height: 1.8;
+        color: #333;
+    }
+
+    .editorial-body h2,
+    .editorial-body h3 {
+        margin: 60px 0 30px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .note-area {
+        width: 100%;
+        height: 300px;
+        padding: 40px;
+        border: 1px solid var(--gray-border);
+        background: #fafafa;
+        font-family: inherit;
+        font-size: 1rem;
+        margin-bottom: 20px;
+        transition: var(--transition);
+    }
+
+    .note-area:focus {
+        background: var(--bg-card);
+        border-color: #000;
+        outline: none;
+    }
+
+    .btn-noir {
+        background: #000;
+        color: var(--text-heading);
+        border: none;
+        padding: 20px 40px;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        font-weight: 800;
+        font-size: 0.75rem;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .btn-noir:hover {
+        background: #333;
+        letter-spacing: 5px;
+    }
+
+    .quiz-question {
+        padding: 60px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .quiz-question:last-child {
+        border-bottom: none;
+    }
+
+    .option-row {
+        margin-bottom: 15px;
+    }
+
+    .option-label {
+        display: block;
+        padding: 20px 30px;
+        border: 1px solid var(--gray-border);
+        cursor: pointer;
+        transition: var(--transition);
+        font-weight: 600;
+    }
+
+    .option-label:hover {
+        border-color: #000;
+    }
+
+    input[type="radio"]:checked+.option-label {
+        background: #000;
+        color: var(--text-heading);
+        border-color: #000;
+    }
+
+    .discussion-card {
+        padding: 40px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .complete-banner {
+        background: #000;
+        color: var(--text-heading);
+        padding: 60px;
+        text-align: center;
+        margin-top: 100px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="text-align: center; margin-bottom: 20px;">
+    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" style="height: 60px; width: auto;">
+</div>
+<div class="topic-container" data-topic-id="{{ topic.id }}">
+    <!-- Sidebar Navigation -->
+    <aside class="topic-sidebar">
+        <p
+            style="font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 3px; color: var(--gray-medium); margin-bottom: 30px;">
+            Institutional Unit</p>
+        <h4
+            style="font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 40px; line-height: 1.4;">
+            {{ unit.title }}</h4>
+
+        <nav>
+            <p
+                style="font-size: 0.55rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: var(--gray-medium); margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+                Jump to section</p>
+            <ul style="list-style: none;">
+                <li style="margin-bottom: 15px;"><a href="#content"
+                        style="color: #000; text-decoration: none; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Editorial
+                        Content</a></li>
+                <li style="margin-bottom: 15px;"><a href="#notes"
+                        style="color: #000; text-decoration: none; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Study
+                        Notes</a></li>
+                <li style="margin-bottom: 15px;"><a href="#quiz"
+                        style="color: #000; text-decoration: none; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Knowledge
+                        Validation</a></li>
+                <li style="margin-bottom: 15px;"><a href="#discussions"
+                        style="color: #000; text-decoration: none; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Doubts
+                        & Discussions</a></li>
+            </ul>
+        </nav>
+
+        <div style="margin-top: 100px;">
+            <button class="btn-noir" style="width: 100%; border: 1px solid #000; background: transparent; color: #000;"
+                onclick="markComplete()">Mark as Finished</button>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="topic-content-area">
+        <nav class="breadcrumb-nav">
+            <a href="{{ url_for('learning') }}">Repository</a> /
+            <a href="{{ url_for('learning_subject', subject_id=subject.id) }}">{{ subject.name }}</a> /
+            {{ unit.title }}
+        </nav>
+
+        <h1 class="section-title" style="margin-bottom: 60px;">{{ topic.title }}</h1>
+
+        {% if topic.video_url %}
+        <section id="video" class="video-wrapper">
+            <iframe width="100%" height="100%" src="{{ topic.video_url.replace('watch?v=', 'embed/') }}" frameborder="0"
+                allowfullscreen></iframe>
+        </section>
+        {% endif %}
+
+        <section id="content" class="content-card">
+            <div class="editorial-body">
+                {{ topic.content | safe }}
+            </div>
+
+            {% if topic.pdf_path %}
+            <div style="margin-top: 80px; padding-top: 40px; border-top: 1px solid var(--gray-border);">
+                <a href="#" class="service-link">Download Technical Manual (PDF) →</a>
+            </div>
+            {% endif %}
+        </section>
+
+        <!-- Notes Section -->
+        <section id="notes" class="content-card">
+            <h3 style="font-size: 1.5rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 40px;">
+                Study Notes</h3>
+            <p style="color: var(--gray-medium); margin-bottom: 30px; font-size: 0.9rem;">Record key theoretical
+                concepts and heuristics for future retrieval.</p>
+            <textarea id="noteText" class="note-area"
+                placeholder="Enter your personal summary here...">{{ note }}</textarea>
+            <div style="text-align: right;">
+                <button class="btn-noir" onclick="saveNotes()">Persist Notes</button>
+            </div>
+        </section>
+
+        <!-- Quiz Section -->
+        <section id="quiz" class="content-card" style="padding: 0;">
+            <div style="padding: 60px 80px; border-bottom: 2px solid #000;">
+                <h3 style="font-size: 1.5rem; text-transform: uppercase; letter-spacing: 2px;">Knowledge Validation</h3>
+            </div>
+
+            {% if questions %}
+            {% for q in questions %}
+            <div class="quiz-question" id="q-container-{{ q.id }}">
+                <p
+                    style="font-size: 0.65rem; color: var(--gray-medium); text-transform: uppercase; letter-spacing: 3px; font-weight: 800; margin-bottom: 30px;">
+                    Diagnostic Q{{ loop.index }}</p>
+                <h4 style="font-size: 1.4rem; margin-bottom: 40px; line-height: 1.4;">{{ q.question_text }}</h4>
+
+                {% if q.link %}
+                <div style="margin-top: 20px;">
+                    <a href="{{ q.link }}" target="_blank" class="btn-glass" style="display: block; width: 100%; text-align: center; background: rgba(187, 134, 252, 0.1); border-color: var(--primary); color: var(--primary);">
+                        🔗 OPEN QUESTION LINK / PAPER
+                    </a>
+                </div>
+                {% endif %}
+
+                {% if q.type == 'MCQ' %}
+                <div class="mcq-options" style="margin-top: 30px;">
+                    {% for opt in q.options %}
+                    <div class="option-row">
+                        <input type="radio" name="q-{{ q.id }}" value="{{ opt }}" id="opt-{{ q.id }}-{{ loop.index }}"
+                            style="display: none;">
+                        <label for="opt-{{ q.id }}-{{ loop.index }}" class="option-label">{{ opt }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div style="margin-top: 40px;">
+                    <button class="btn-noir quiz-submit-btn" data-q-id="{{ q.id }}" data-type="MCQ">Validate Answer</button>
+                </div>
+                {% else %}
+                <textarea id="ans-{{ q.id }}" class="note-area" style="height: 150px; margin-top: 30px;"
+                    placeholder="Submit your technical response..."></textarea>
+                <div style="margin-top: 20px;">
+                    <button class="btn-noir quiz-submit-btn" data-q-id="{{ q.id }}" data-type="Short">Submit for Review</button>
+                </div>
+                {% endif %}
+
+                <div id="result-{{ q.id }}" style="margin-top: 40px; display: none;"></div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div style="padding: 80px; text-align: center; color: var(--gray-medium);">
+                Assessment matrix not available for this topic.
+            </div>
+            {% endif %}
+        </section>
+
+        <!-- Discussions Section -->
+        <section id="discussions" class="content-card" style="padding: 0;">
+            <div style="padding: 60px 80px; border-bottom: 1px solid var(--gray-border);">
+                <h3 style="font-size: 1.5rem; text-transform: uppercase; letter-spacing: 2px;">Doubts & Discussions</h3>
+            </div>
+
+            <div id="discussion-list">
+                {% for disc in discussions %}
+                <div class="discussion-card">
+                    <p
+                        style="font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px;">
+                        {{ disc[3] }} <span style="color: var(--gray-medium); font-weight: 400;">({{ disc[4] }})</span>
+                    </p>
+                    <p style="color: #444; line-height: 1.7;">{{ disc[1] }}</p>
+                    <p style="font-size: 0.65rem; color: var(--gray-medium); margin-top: 15px;">{{ disc[2] }}</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div style="padding: 60px 80px; background: #fafafa;">
+                <h4 style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 30px;">
+                    Contribute to stream</h4>
+                <textarea id="discussionInput" class="note-area" style="height: 150px;"
+                    placeholder="Enter your doubt or observation..."></textarea>
+                <button class="btn-noir" onclick="postDiscussion()">Post Entry</button>
+            </div>
+        </section>
+
+        <section class="complete-banner">
+            <h2 style="font-size: 3rem; text-transform: uppercase; letter-spacing: -2px; margin-bottom: 20px;">End of
+                Protocol</h2>
+            <p
+                style="letter-spacing: 2px; text-transform: uppercase; font-size: 0.8rem; color: #888; margin-bottom: 40px;">
+                Have you institutionalized all core concepts?</p>
+            <button class="btn-noir" style="background: var(--bg-card); color: #000;" onclick="markComplete()">Finalize
+                Module</button>
+        </section>
+    </main>
+</div>
+
+<script>
+    async function saveNotes() {
+        const topicId = document.querySelector('.topic-container').dataset.topicId;
+        const content = document.getElementById('noteText').value;
+        const resp = await fetch('/api/save_note', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ topic_id: topicId, content: content })
+        });
+        if (resp.ok) {
+            alert('Notes persisted to institutional archive.');
+        }
+    }
+
+    async function submitQuiz(qId, type) {
+        let answer = '';
+        if (type === 'MCQ') {
+            const selected = document.querySelector(`input[name="q-${qId}"]:checked`);
+            if (!selected) { alert('Please select an option.'); return; }
+            answer = selected.value;
+        } else {
+            answer = document.getElementById(`ans-${qId}`).value;
+            if (!answer) { alert('Please enter a response.'); return; }
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const taskId = urlParams.get('task_id');
+
+        const resp = await fetch('/api/submit_quiz', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ question_id: qId, answer: answer, task_id: taskId })
+        });
+        const result = await resp.json();
+
+        const resBox = document.getElementById(`result-${qId}`);
+        resBox.style.display = 'block';
+        resBox.style.padding = '30px';
+        resBox.style.fontWeight = '800';
+        resBox.style.textTransform = 'uppercase';
+        resBox.style.fontSize = '0.75rem';
+        resBox.style.letterSpacing = '2px';
+
+        if (type === 'MCQ') {
+            if (result.is_correct) {
+                resBox.style.background = '#10b98122';
+                resBox.style.color = '#10b981';
+                resBox.innerHTML = `✓ Verified. Points Earned: ${result.score}`;
+            } else {
+                resBox.style.background = '#ff3e3e22';
+                resBox.style.color = '#ff3e3e';
+                resBox.innerHTML = `✗ Deviation detected. Correct sequence: ${result.correct_answer}`;
+            }
+        } else {
+            resBox.style.background = '#000';
+            resBox.style.color = '#fff';
+            resBox.innerHTML = 'Submission cached for manual verification.';
+        }
+    }
+
+    async function postDiscussion() {
+        const topicId = document.querySelector('.topic-container').dataset.topicId;
+        const comment = document.getElementById('discussionInput').value;
+        if (!comment) return;
+
+        const resp = await fetch('/api/post_discussion', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ topic_id: topicId, comment: comment })
+        });
+        if (resp.ok) {
+            location.reload();
+        }
+    }
+
+    async function markComplete() {
+        const topicId = document.querySelector('.topic-container').dataset.topicId;
+        const urlParams = new URLSearchParams(window.location.search);
+        const taskId = urlParams.get('task_id');
+        let apiUrl = `/api/mark_complete/${topicId}`;
+        if (taskId) apiUrl += `?task_id=${taskId}`;
+
+        await fetch(apiUrl, { method: 'POST' });
+        alert('Learning variables finalized. Topic marked as completed.');
+        location.href = "{{ url_for('learning') }}";
+    }
+
+    // Attach listeners to quiz buttons
+    document.querySelectorAll('.quiz-submit-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            submitQuiz(this.dataset.qId, this.dataset.type);
+        });
+    });
+</script>
+{% endblock %}

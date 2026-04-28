@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}EduPredict{% endblock %}</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --sidebar-width: 280px;
+            --topbar-height: 80px;
+            --primary: #2563eb;
+            --primary-gradient: linear-gradient(135deg, #1d4ed8 0%, #0891b2 100%);
+            --bg-light: #f8fafc;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #f1f5f9 0%, #e0e7ff 100%);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: white;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding: 40px 25px;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+        }
+
+        .sidebar-brand {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #4338ca;
+            margin-bottom: 50px;
+            padding-left: 10px;
+        }
+
+        .nav-list {
+            list-style: none;
+            flex-grow: 1;
+        }
+
+        .nav-item {
+            margin-bottom: 8px;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 14px 20px;
+            text-decoration: none;
+            color: #1e293b;
+            font-weight: 700;
+            font-size: 0.95rem;
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover {
+            background: #f1f5f9;
+        }
+
+        .nav-link.active {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2);
+        }
+
+        /* Top Bar */
+        .topbar {
+            position: fixed;
+            top: 0;
+            left: var(--sidebar-width);
+            right: 0;
+            height: var(--topbar-height);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 50px;
+            z-index: 900;
+        }
+
+        .brand-text {
+            font-size: 0.9rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #4338ca;
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .logout-link {
+            color: #ef4444;
+            text-decoration: none;
+            font-weight: 800;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .user-badge {
+            background: white;
+            padding: 6px 20px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid #f1f5f9;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: #4338ca;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        .user-meta {
+            text-align: left;
+        }
+
+        .user-name {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .user-role {
+            display: block;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+        }
+
+        /* Main Content */
+        .main-wrapper {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 100px 50px 50px 50px;
+        }
+
+        /* Flash Messages */
+        .flash-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+        }
+        .alert {
+            padding: 15px 25px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            font-weight: 700;
+            font-size: 0.9rem;
+            min-width: 300px;
+            animation: slideIn 0.3s ease;
+        }
+        .alert-success { background: #dcfce7; color: #166534; border-left: 5px solid #22c55e; }
+        .alert-error { background: #fee2e2; color: #991b1b; border-left: 5px solid #ef4444; }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Footer Student View Button */
+        .student-view-btn {
+            margin-top: auto;
+            display: block;
+            padding: 14px;
+            background: #f8fafc;
+            color: #0ea5e9;
+            text-decoration: none;
+            text-align: center;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-brand">Staff Portal</div>
+        
+        <ul class="nav-list">
+            <li class="nav-item">
+                <a href="{{ url_for('staff_portal') }}" class="nav-link {% if request.endpoint == 'staff_portal' %}active{% endif %}">Dashboard</a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('staff_marks') }}" class="nav-link {% if request.endpoint == 'staff_marks' %}active{% endif %}">Students</a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">Courses</a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">Assignments</a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">Evaluation</a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">Analytics</a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('library') }}" class="nav-link {% if request.endpoint == 'library' %}active{% endif %}">Resources</a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">Exams Schedule</a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">Leaderboard</a>
+            </li>
+        </ul>
+
+        <a href="{{ url_for('student_hub') }}" class="student-view-btn">Student View</a>
+    </div>
+
+    <div class="topbar">
+        <div class="brand-text">SMTEC EDUPREDICT</div>
+        
+        <div class="user-actions">
+            <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+            <div class="user-badge">
+                <div class="user-avatar">
+                    {{ session.get('username', 'U')[0] | upper }}
+                </div>
+                <div class="user-meta">
+                    <span class="user-name">{{ session.get('username', 'User') }}</span>
+                    <span class="user-role">{{ session.get('role', 'Staff') }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flash-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category if category != 'message' else 'success' }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <main class="main-wrapper">
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

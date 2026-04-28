@@ -1,0 +1,120 @@
+{% extends "layout.html" %}
+
+{% block title %}Student Feedback | Staff Portal{% endblock %}
+
+{% block extra_css %}
+<style>
+    .feedback-container {
+        padding-bottom: 50px;
+    }
+
+    .feedback-card {
+        background: white;
+        padding: 30px;
+        border-radius: 24px;
+        border: 1px solid rgba(0,0,0,0.05);
+        box-shadow: var(--shadow-md);
+        margin-bottom: 25px;
+        transition: transform 0.3s ease;
+    }
+
+    .feedback-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .feedback-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 20px;
+    }
+
+    .student-name {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .timestamp {
+        font-size: 0.8rem;
+        color: #94a3b8;
+        font-weight: 600;
+    }
+
+    .subject-tag {
+        background: rgba(99, 102, 241, 0.1);
+        color: #6366f1;
+        padding: 4px 12px;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .rating-box {
+        margin: 15px 0;
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #f59e0b;
+    }
+
+    .comment-bubble {
+        background: #f8fafc;
+        padding: 20px;
+        border-radius: 16px;
+        color: #475569;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        position: relative;
+        border-left: 4px solid #e2e8f0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="feedback-container">
+    <div style="margin-bottom: 40px;">
+        <h1 style="font-size: 2.5rem; font-weight: 900; color: #0f172a; margin-bottom: 5px;">Student Feedback</h1>
+        <p style="color: #64748b; font-size: 1.1rem; font-weight: 500;">Hear what students are saying about the courses and materials.</p>
+    </div>
+
+    {% if feedback_data %}
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 25px;">
+            {% for feedback in feedback_data %}
+            <div class="feedback-card">
+                <div class="feedback-header">
+                    <div class="student-name">
+                        <i class="fas fa-user-circle" style="color: #cbd5e1; font-size: 1.8rem;"></i>
+                        {{ feedback.student_name }}
+                    </div>
+                    <span class="timestamp">{{ feedback.created_at }}</span>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <span class="subject-tag">{{ feedback.subject_name }}</span>
+                </div>
+
+                <div class="rating-box">
+                    {% for i in range(feedback.rating) %}⭐{% endfor %}
+                    <span style="color: #64748b; margin-left: 5px;">({{ feedback.rating }}/5)</span>
+                </div>
+
+                <div class="comment-bubble">
+                    {{ feedback.comment }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 100px 0;">
+            <i class="fas fa-comment-slash" style="font-size: 4rem; color: #e2e8f0; margin-bottom: 20px;"></i>
+            <h3 style="color: #94a3b8; font-weight: 700;">No feedback received yet.</h3>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
