@@ -27,7 +27,7 @@
     .gpa-card:hover {
         border-color: rgba(255, 255, 255, 0.2);
         transform: translateY(-5px);
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        box-shadow: var(--shadow-lg);
     }
 
     .tab-btn {
@@ -67,7 +67,7 @@
     .form-control {
         width: 100%;
         padding: 12px;
-        background: rgba(230, 225, 240, 0.799);
+        background: #f8fafc;
         border: 1px solid var(--gray-border);
         color: #070707;
         border-radius: 10px;
@@ -100,7 +100,7 @@
 
     .btn-aurora {
         background: var(--aurora-gradient);
-        color: var(--text-heading);
+        color: white;
         border: none;
         padding: 15px 25px;
         font-size: 0.75rem;
@@ -301,7 +301,7 @@
         document.getElementById('sgpa-result').innerText = sgpa.toFixed(2);
 
         let msg = "";
-        if (sgpa >= 9) msg = "Outstanding Performace! 🌟";
+        if (sgpa >= 9) msg = "Outstanding Performance! 🌟";
         else if (sgpa >= 8) msg = "Excellent Job! 🚀";
         else if (sgpa >= 7) msg = "Good Performance! 📈";
         else msg = "Keep Working Hard! 💪";

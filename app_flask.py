@@ -32,27 +32,6 @@ else:
     with open(_secret_key_file, 'w') as f:
         f.write(app.secret_key)
 
-# Mock AI Interview Data
-INTERVIEW_DATA = {
-    "Software Engineer": [
-        "Explain the concept of time complexity (Big O notation).",
-        "What is the difference between a process and a thread?",
-        "How does a hash map work internally?",
-        "Describe a challenging bug you fixed and how you approached it."
-    ],
-    "Data Analyst": [
-        "What is the difference between supervised and unsupervised learning?",
-        "How do you handle missing data in a dataset?",
-        "Explain the concept of p-value.",
-        "What is SQL injection and how do you prevent it?"
-    ],
-    "HR/Behavioral": [
-        "Tell me about yourself.",
-        "What is your greatest strength and weakness?",
-        "Describe a time you had a conflict with a team member.",
-        "Where do you see yourself in 5 years?"
-    ]
-}
 
 # Decorators
 def staff_only(f):

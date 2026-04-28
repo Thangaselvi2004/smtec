@@ -60,7 +60,7 @@
         padding-bottom: 10px;
     }
 
-    .nav-item {
+    .hub-tab {
         padding: 10px 25px;
         border-radius: 12px;
         background: #f1f5f9;
@@ -72,7 +72,7 @@
         transition: var(--transition-fast);
     }
 
-    .nav-item.active {
+    .hub-tab.active {
         background: var(--primary-gradient);
         color: white;
     }
@@ -157,9 +157,9 @@
 {% block content %}
 <div class="dashboard-wrapper">
     <!-- Header -->
-    <header style="margin-bottom: 40px; display: flex; justify-content: space-between; align-items: flex-end;">
+    <header style="margin-bottom: 40px; display: flex; justify-content: space-between; align-items: center;">
         <div>
-            <h1 style="font-size: 2.5rem; font-weight: 900; margin-bottom: 5px; color: #0f172a;">Student Hub</h1>
+            <h1 style="font-size: 2.5rem; font-weight: 900; margin-bottom: 5px; color: var(--text-heading);">Student Hub</h1>
             <p style="color: #64748b; font-weight: 600;">{{ session.get('year', 'First Year') }} {{ session.get('department', 'CSE') }}</p>
         </div>
         <div style="text-align: right;">
@@ -172,13 +172,13 @@
 
     <!-- Nav Tabs -->
     <nav class="nav-tabs">
-        <a class="nav-item active" onclick="switchTab(event, 'tab-dashboard')">Overview</a>
-        <a class="nav-item" onclick="switchTab(event, 'tab-assignments')">Assignments</a>
-        <a class="nav-item" onclick="switchTab(event, 'tab-tasks')">Study Plan</a>
-        <a class="nav-item" onclick="switchTab(event, 'tab-materials')">Library</a>
-        <a class="nav-item" onclick="switchTab(event, 'tab-exams')">Exams</a>
-        <a class="nav-item" onclick="switchTab(event, 'tab-performance')">Analytics</a>
-        <a class="nav-item" onclick="switchTab(event, 'tab-leaderboard')">Leaderboard</a>
+        <a class="hub-tab active" onclick="switchTab(event, 'tab-dashboard')">Overview</a>
+        <a class="hub-tab" onclick="switchTab(event, 'tab-assignments')">Assignments</a>
+        <a class="hub-tab" onclick="switchTab(event, 'tab-tasks')">Study Plan</a>
+        <a class="hub-tab" onclick="switchTab(event, 'tab-materials')">Library</a>
+        <a class="hub-tab" onclick="switchTab(event, 'tab-exams')">Exams</a>
+        <a class="hub-tab" onclick="switchTab(event, 'tab-performance')">Analytics</a>
+        <a class="hub-tab" onclick="switchTab(event, 'tab-leaderboard')">Leaderboard</a>
     </nav>
 
     <!-- Tab Contents -->
@@ -388,7 +388,7 @@
     function switchTab(event, tabId) {
         if (event) event.preventDefault();
         document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        document.querySelectorAll('.hub-tab').forEach(i => i.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
         if (event) event.currentTarget.classList.add('active');
         sessionStorage.setItem('lastHubTab', tabId);

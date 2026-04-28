@@ -82,7 +82,7 @@
         </div>
 
         <!-- Section for Recent Activity -->
-        <div class="glass-card" style="margin-bottom: 100px; border-radius: 20px;">
+        <div class="glass-card" style="margin-bottom: 40px; padding: 30px; border-radius: 20px;">
             <h4 style="font-size: 1.2rem; margin-bottom: 40px; text-transform: uppercase; letter-spacing: 2px;">Recent
                 Assessment Matrix</h4>
             {% if scores %}
@@ -106,7 +106,7 @@
                 <tbody>
                     {% for score in scores %}
                     <tr style="border-bottom: 1px solid var(--gray-border);">
-                        <td style="padding: 25px 0; font-size: 0.9rem; font-weight: 600; color: var(--text-heading);">{{
+                        <td style="padding: 25px 20px; font-size: 0.9rem; font-weight: 600; color: var(--text-heading);">{{
                             score.question_text }}</td>
                         <td style="padding: 25px 0; font-size: 0.75rem; color: var(--text-dim);">Internal Assessment
                         </td>

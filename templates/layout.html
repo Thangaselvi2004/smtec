@@ -91,7 +91,7 @@
             padding: 30px 20px;
             display: flex;
             flex-direction: column;
-            z-index: 1000;
+            z-index: 1001;
             border-right: 1px solid var(--gray-border);
             overflow-y: auto;
         }
@@ -188,7 +188,7 @@
             align-items: center;
             justify-content: space-between;
             padding: 0 40px;
-            z-index: 900;
+            z-index: 1000;
             background: rgba(248, 250, 252, 0.8);
             backdrop-filter: blur(10px);
             border-bottom: 1px solid var(--gray-border);
@@ -449,11 +449,47 @@
         /* Utility: margin-right shorthand */
         .mr-2 { margin-right: 8px; }
 
+        /* ===== MOBILE HAMBURGER ===== */
+        .hamburger-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.4rem;
+            color: var(--text-heading);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: var(--transition-fast);
+        }
+        .hamburger-btn:hover {
+            background: rgba(99, 102, 241, 0.08);
+        }
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+        .sidebar-overlay.active { display: block; }
+
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
-            .sidebar { display: none; }
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+            .hamburger-btn { display: block; }
             .topbar { left: 0; }
             .main-wrapper { margin-left: 0; padding: 90px 20px 30px; }
+        }
+        @media (max-width: 480px) {
+            .main-wrapper { padding: 85px 15px 25px; }
+            .section-title { font-size: 2rem; }
         }
     </style>
     {% block extra_css %}{% endblock %}
@@ -626,8 +662,16 @@
     </div>
 
     <!-- TOP BAR -->
+    <!-- MOBILE OVERLAY -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileNav()"></div>
+
     <div class="topbar">
-        <div class="brand-text">SMTEC EDUPREDICT</div>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleMobileNav()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="brand-text">SMTEC EDUPREDICT</div>
+        </div>
         
         <div class="user-actions">
             {% if session.get('user_id') %}
@@ -672,6 +716,16 @@
                 setTimeout(() => el.remove(), 500);
             });
         }, 5000);
+
+        // Mobile navigation toggle
+        function toggleMobileNav() {
+            document.querySelector('.sidebar').classList.toggle('mobile-open');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        }
+        function closeMobileNav() {
+            document.querySelector('.sidebar').classList.remove('mobile-open');
+            document.getElementById('sidebarOverlay').classList.remove('active');
+        }
     </script>
 </body>
 </html>

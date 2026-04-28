@@ -9,7 +9,7 @@
         grid-template-columns: 280px 1fr;
         gap: 0;
         min-height: 100vh;
-        padding-top: 100px;
+        padding-top: 0;
     }
 
     .topic-sidebar {
@@ -24,7 +24,7 @@
 
     .topic-content-area {
         background: var(--gray-light);
-        padding: 60px 100px 150px;
+        padding: 40px 60px 80px;
     }
 
     .breadcrumb-nav {
@@ -56,7 +56,7 @@
 
     .content-card {
         background: var(--bg-card);
-        padding: 80px;
+        padding: 40px;
         border: 1px solid var(--gray-border);
         margin-bottom: 40px;
     }
@@ -94,7 +94,7 @@
 
     .btn-noir {
         background: #000;
-        color: var(--text-heading);
+        color: white;
         border: none;
         padding: 20px 40px;
         text-transform: uppercase;
@@ -149,7 +149,7 @@
 
     .complete-banner {
         background: #000;
-        color: var(--text-heading);
+        color: white;
         padding: 60px;
         text-align: center;
         margin-top: 100px;
@@ -158,9 +158,6 @@
 {% endblock %}
 
 {% block content %}
-<div style="text-align: center; margin-bottom: 20px;">
-    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" style="height: 60px; width: auto;">
-</div>
 <div class="topic-container" data-topic-id="{{ topic.id }}">
     <!-- Sidebar Navigation -->
     <aside class="topic-sidebar">
