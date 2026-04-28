@@ -8,18 +8,62 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modern.css') }}">
     
     <style>
+        /* ===== CSS VARIABLES (used across all templates) ===== */
         :root {
             --sidebar-width: 280px;
             --topbar-height: 80px;
-            --primary: #2563eb;
-            --primary-gradient: linear-gradient(135deg, #1d4ed8 0%, #0891b2 100%);
+
+            /* Primary palette */
+            --primary: #6366f1;
+            --primary-gradient: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+            --primary-glow: rgba(99, 102, 241, 0.15);
+            --secondary: #06b6d4;
+            --accent: #f43f5e;
+
+            /* Aurora gradient (used in many templates) */
+            --aurora-gradient: linear-gradient(135deg, #6366f1 0%, #06b6d4 50%, #10b981 100%);
+
+            /* Backgrounds */
+            --bg-base: #f8fafc;
+            --bg-deep: #f1f5f9;
+            --bg-card: #ffffff;
+            --bg-surface: #ffffff;
             --bg-light: #f8fafc;
+            --gray-light: #f8fafc;
+
+            /* Text */
+            --text-heading: #0f172a;
+            --text-main: #1e293b;
+            --text-dim: #94a3b8;
             --text-dark: #0f172a;
             --text-muted: #64748b;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --gray-medium: #64748b;
+
+            /* Borders */
+            --gray-border: #e2e8f0;
+            --border-subtle: rgba(0, 0, 0, 0.05);
+
+            /* Shadows */
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-md: 0 10px 25px -5px rgba(0,0,0,0.04), 0 8px 10px -6px rgba(0,0,0,0.04);
+            --shadow-lg: 0 20px 50px -12px rgba(0,0,0,0.08);
+            --shadow-color: rgba(0, 0, 0, 0.05);
+
+            /* Transitions */
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+            /* Radii */
+            --radius-sm: 8px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
         }
 
         * {
@@ -33,9 +77,10 @@
             background: linear-gradient(135deg, #f1f5f9 0%, #e0e7ff 100%);
             min-height: 100vh;
             display: flex;
+            color: var(--text-main);
         }
 
-        /* Sidebar */
+        /* ===== SIDEBAR ===== */
         .sidebar {
             width: var(--sidebar-width);
             background: white;
@@ -43,18 +88,31 @@
             position: fixed;
             left: 0;
             top: 0;
-            padding: 40px 25px;
+            padding: 30px 20px;
             display: flex;
             flex-direction: column;
             z-index: 1000;
+            border-right: 1px solid var(--gray-border);
+            overflow-y: auto;
         }
 
         .sidebar-brand {
-            font-size: 1.8rem;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
             font-weight: 800;
-            color: #4338ca;
-            margin-bottom: 50px;
-            padding-left: 10px;
+            color: var(--primary);
+            margin-bottom: 10px;
+            padding-left: 12px;
+        }
+
+        .sidebar-role-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-dim);
+            padding-left: 12px;
+            margin-bottom: 30px;
         }
 
         .nav-list {
@@ -62,32 +120,64 @@
             flex-grow: 1;
         }
 
+        .nav-section-title {
+            font-size: 0.6rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-dim);
+            padding: 20px 12px 8px;
+        }
+
         .nav-item {
-            margin-bottom: 8px;
+            margin-bottom: 4px;
         }
 
         .nav-link {
-            display: block;
-            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
             text-decoration: none;
-            color: #1e293b;
-            font-weight: 700;
-            font-size: 0.95rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.9rem;
             border-radius: 12px;
-            transition: all 0.2s;
+            transition: var(--transition-fast);
         }
 
         .nav-link:hover {
-            background: #f1f5f9;
+            background: rgba(99, 102, 241, 0.06);
+            color: var(--primary);
         }
 
         .nav-link.active {
             background: var(--primary-gradient);
             color: white;
-            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2);
+            box-shadow: 0 4px 12px var(--primary-glow);
         }
 
-        /* Top Bar */
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+            font-size: 0.85rem;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: 15px;
+            border-top: 1px solid var(--gray-border);
+        }
+
+        .sidebar-footer .nav-link {
+            color: #ef4444;
+        }
+        .sidebar-footer .nav-link:hover {
+            background: rgba(239, 68, 68, 0.06);
+            color: #dc2626;
+        }
+
+        /* ===== TOP BAR ===== */
         .topbar {
             position: fixed;
             top: 0;
@@ -97,48 +187,42 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 50px;
+            padding: 0 40px;
             z-index: 900;
+            background: rgba(248, 250, 252, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--gray-border);
         }
 
         .brand-text {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #4338ca;
+            letter-spacing: 1.5px;
+            color: var(--primary);
         }
 
         .user-actions {
             display: flex;
             align-items: center;
-            gap: 30px;
-        }
-
-        .logout-link {
-            color: #ef4444;
-            text-decoration: none;
-            font-weight: 800;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            gap: 25px;
         }
 
         .user-badge {
             background: white;
-            padding: 6px 20px;
+            padding: 6px 18px;
             border-radius: 50px;
             display: flex;
             align-items: center;
-            gap: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            border: 1px solid #f1f5f9;
+            gap: 10px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--gray-border);
         }
 
         .user-avatar {
             width: 32px;
             height: 32px;
-            background: #4338ca;
+            background: var(--primary-gradient);
             color: white;
             border-radius: 50%;
             display: flex;
@@ -148,133 +232,424 @@
             font-size: 0.8rem;
         }
 
-        .user-meta {
-            text-align: left;
-        }
+        .user-meta { text-align: left; }
+        .user-name { display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-heading); line-height: 1.2; }
+        .user-role { display: block; font-size: 0.6rem; font-weight: 700; color: var(--primary); text-transform: uppercase; }
 
-        .user-name {
-            display: block;
-            font-size: 0.85rem;
-            font-weight: 800;
-            color: #0f172a;
-        }
-
-        .user-role {
-            display: block;
-            font-size: 0.65rem;
-            font-weight: 700;
-            color: #94a3b8;
-            text-transform: uppercase;
-        }
-
-        /* Main Content */
+        /* ===== MAIN CONTENT ===== */
         .main-wrapper {
             flex: 1;
             margin-left: var(--sidebar-width);
-            padding: 100px 50px 50px 50px;
+            padding: 100px 40px 50px 40px;
+            min-height: 100vh;
         }
 
-        /* Flash Messages */
+        /* ===== FLASH MESSAGES ===== */
         .flash-container {
             position: fixed;
             top: 20px;
             right: 20px;
             z-index: 2000;
+            max-width: 420px;
         }
         .alert {
             padding: 15px 25px;
             border-radius: 12px;
             margin-bottom: 10px;
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow-md);
             font-weight: 700;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             min-width: 300px;
             animation: slideIn 0.3s ease;
         }
         .alert-success { background: #dcfce7; color: #166534; border-left: 5px solid #22c55e; }
-        .alert-error { background: #fee2e2; color: #991b1b; border-left: 5px solid #ef4444; }
+        .alert-error   { background: #fee2e2; color: #991b1b; border-left: 5px solid #ef4444; }
+        .alert-warning { background: #fef9c3; color: #854d0e; border-left: 5px solid #eab308; }
+        .alert-info    { background: #dbeafe; color: #1e40af; border-left: 5px solid #3b82f6; }
 
         @keyframes slideIn {
             from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+            to   { transform: translateX(0); opacity: 1; }
         }
 
-        /* Footer Student View Button */
-        .student-view-btn {
-            margin-top: auto;
-            display: block;
-            padding: 14px;
-            background: #f8fafc;
-            color: #0ea5e9;
-            text-decoration: none;
-            text-align: center;
+        /* ===== REUSABLE CLASSES (used across many templates) ===== */
+
+        /* Glass Card */
+        .glass-card {
+            background: var(--bg-card);
+            border: 1px solid var(--gray-border);
+            border-radius: 20px;
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Gradient Button */
+        .gradient-btn {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
             border-radius: 12px;
+            transition: var(--transition);
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        .gradient-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px var(--primary-glow);
+        }
+        .gradient-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Aurora Button */
+        .btn-aurora {
+            background: var(--aurora-gradient);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: var(--transition);
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        .btn-aurora:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Glass Button */
+        .btn-glass {
+            background: rgba(99, 102, 241, 0.08);
+            color: var(--primary);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            padding: 10px 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+        .btn-glass:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Save Button */
+        .save-btn {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 16px 30px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: var(--transition);
+            margin-top: 20px;
+        }
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px var(--primary-glow);
+        }
+
+        /* Section Title */
+        .section-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.8rem;
+            font-weight: 900;
+            color: var(--text-heading);
+            letter-spacing: -1px;
+            line-height: 1.1;
+            margin-bottom: 15px;
+        }
+
+        /* Subtitle */
+        .subtitle {
+            font-size: 1.05rem;
+            color: var(--text-dim);
+            font-weight: 500;
+            max-width: 600px;
+        }
+
+        /* Service Card (used in learning/guide pages) */
+        .service-card {
+            background: white;
+            padding: 50px;
+            border-radius: 24px;
+            border: 1px solid var(--gray-border);
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+        }
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Service Link */
+        .service-link {
+            display: inline-block;
+            color: var(--primary);
             font-weight: 800;
             font-size: 0.85rem;
-            transition: all 0.2s;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding-top: 20px;
+            border-top: 1px solid var(--gray-border);
+            margin-top: 30px;
+            transition: var(--transition);
+        }
+        .service-link:hover {
+            color: var(--secondary);
+            letter-spacing: 2px;
+        }
+
+        /* Logo Gradient */
+        .logo-gradient {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Premium Card */
+        .premium-card {
+            background: white;
+            border-radius: var(--radius-md);
+            padding: 30px;
+            border: 1px solid var(--border-subtle);
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+        }
+        .premium-card:hover { box-shadow: var(--shadow-lg); }
+
+        /* Services Section (used in guide and learning pages) */
+        .services-section {
+            background: var(--bg-base);
+            min-height: 80vh;
+        }
+
+        /* Utility: margin-right shorthand */
+        .mr-2 { margin-right: 8px; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .topbar { left: 0; }
+            .main-wrapper { margin-left: 0; padding: 90px 20px 30px; }
         }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
+    <!-- SIDEBAR: Role-based navigation -->
     <div class="sidebar">
-        <div class="sidebar-brand">Staff Portal</div>
+        <div class="sidebar-brand">EduPredict</div>
+        <div class="sidebar-role-label">
+            {{ session.get('role', 'Portal') }} Portal
+        </div>
         
         <ul class="nav-list">
-            <li class="nav-item">
-                <a href="{{ url_for('staff_portal') }}" class="nav-link {% if request.endpoint == 'staff_portal' %}active{% endif %}">Dashboard</a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ url_for('staff_marks') }}" class="nav-link {% if request.endpoint == 'staff_marks' %}active{% endif %}">Students</a>
-            </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link">Courses</a>
-            </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link">Assignments</a>
-            </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link">Evaluation</a>
-            </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link">Analytics</a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ url_for('library') }}" class="nav-link {% if request.endpoint == 'library' %}active{% endif %}">Resources</a>
-            </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link">Exams Schedule</a>
-            </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link">Leaderboard</a>
-            </li>
+            {% if session.get('role') == 'Admin' %}
+                <!-- ADMIN SIDEBAR -->
+                <li class="nav-item">
+                    <a href="{{ url_for('admin_portal') }}" class="nav-link {% if request.endpoint == 'admin_portal' %}active{% endif %}">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('staff_portal') }}" class="nav-link {% if request.endpoint == 'staff_portal' %}active{% endif %}">
+                        <i class="fas fa-chalkboard-teacher"></i> Staff Portal
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('student_monitoring') }}" class="nav-link {% if request.endpoint == 'student_monitoring' %}active{% endif %}">
+                        <i class="fas fa-users"></i> Students
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('library') }}" class="nav-link {% if request.endpoint == 'library' %}active{% endif %}">
+                        <i class="fas fa-book"></i> Resources
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('settings') }}" class="nav-link {% if request.endpoint == 'settings' %}active{% endif %}">
+                        <i class="fas fa-cog"></i> Settings
+                    </a>
+                </li>
+
+            {% elif session.get('role') == 'Staff' %}
+                <!-- STAFF SIDEBAR -->
+                <li class="nav-item">
+                    <a href="{{ url_for('staff_portal') }}" class="nav-link {% if request.endpoint == 'staff_portal' %}active{% endif %}">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('student_monitoring') }}" class="nav-link {% if request.endpoint == 'student_monitoring' %}active{% endif %}">
+                        <i class="fas fa-users"></i> Students
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('staff_marks') }}" class="nav-link {% if request.endpoint == 'staff_marks' %}active{% endif %}">
+                        <i class="fas fa-pen-alt"></i> Internal Marks
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('staff_attendance') }}" class="nav-link {% if request.endpoint == 'staff_attendance' %}active{% endif %}">
+                        <i class="fas fa-clipboard-check"></i> Attendance
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('library') }}" class="nav-link {% if request.endpoint == 'library' %}active{% endif %}">
+                        <i class="fas fa-book"></i> Resources
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('staff_feedback') }}" class="nav-link {% if request.endpoint == 'staff_feedback' %}active{% endif %}">
+                        <i class="fas fa-comments"></i> Feedback
+                    </a>
+                </li>
+
+                <div class="nav-section-title">Quick Access</div>
+                <li class="nav-item">
+                    <a href="{{ url_for('syllabus') }}" class="nav-link {% if request.endpoint == 'syllabus' %}active{% endif %}">
+                        <i class="fas fa-sitemap"></i> Syllabus
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('settings') }}" class="nav-link {% if request.endpoint == 'settings' %}active{% endif %}">
+                        <i class="fas fa-cog"></i> Settings
+                    </a>
+                </li>
+
+            {% elif session.get('role') == 'Student' %}
+                <!-- STUDENT SIDEBAR -->
+                <li class="nav-item">
+                    <a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">
+                        <i class="fas fa-home"></i> Home
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('student_hub') }}" class="nav-link {% if request.endpoint == 'student_hub' %}active{% endif %}">
+                        <i class="fas fa-th-large"></i> Student Hub
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('dashboard') }}" class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
+                        <i class="fas fa-chart-line"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('predictor') }}" class="nav-link {% if request.endpoint == 'predictor' %}active{% endif %}">
+                        <i class="fas fa-brain"></i> AI Predictor
+                    </a>
+                </li>
+
+                <div class="nav-section-title">Academics</div>
+                <li class="nav-item">
+                    <a href="{{ url_for('syllabus') }}" class="nav-link {% if request.endpoint == 'syllabus' %}active{% endif %}">
+                        <i class="fas fa-sitemap"></i> Syllabus
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('gpa_calculator') }}" class="nav-link {% if request.endpoint == 'gpa_calculator' %}active{% endif %}">
+                        <i class="fas fa-calculator"></i> GPA Calculator
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('library') }}" class="nav-link {% if request.endpoint == 'library' %}active{% endif %}">
+                        <i class="fas fa-book"></i> Library
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('learning') }}" class="nav-link {% if request.endpoint in ['learning', 'learning_subject', 'learning_topic'] %}active{% endif %}">
+                        <i class="fas fa-graduation-cap"></i> Learning Center
+                    </a>
+                </li>
+
+                <div class="nav-section-title">More</div>
+                <li class="nav-item">
+                    <a href="{{ url_for('student_feedback') }}" class="nav-link {% if request.endpoint == 'student_feedback' %}active{% endif %}">
+                        <i class="fas fa-comment-dots"></i> Feedback
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('guide') }}" class="nav-link {% if request.endpoint == 'guide' %}active{% endif %}">
+                        <i class="fas fa-question-circle"></i> Guide
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('settings') }}" class="nav-link {% if request.endpoint == 'settings' %}active{% endif %}">
+                        <i class="fas fa-cog"></i> Settings
+                    </a>
+                </li>
+            {% else %}
+                <!-- GUEST / UNAUTHENTICATED -->
+                <li class="nav-item">
+                    <a href="{{ url_for('login') }}" class="nav-link">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('register') }}" class="nav-link">
+                        <i class="fas fa-user-plus"></i> Register
+                    </a>
+                </li>
+            {% endif %}
         </ul>
 
-        <a href="{{ url_for('student_hub') }}" class="student-view-btn">Student View</a>
+        <div class="sidebar-footer">
+            {% if session.get('user_id') %}
+            <a href="{{ url_for('logout') }}" class="nav-link">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+            {% endif %}
+        </div>
     </div>
 
+    <!-- TOP BAR -->
     <div class="topbar">
         <div class="brand-text">SMTEC EDUPREDICT</div>
         
         <div class="user-actions">
-            <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+            {% if session.get('user_id') %}
             <div class="user-badge">
                 <div class="user-avatar">
                     {{ session.get('username', 'U')[0] | upper }}
                 </div>
                 <div class="user-meta">
                     <span class="user-name">{{ session.get('username', 'User') }}</span>
-                    <span class="user-role">{{ session.get('role', 'Staff') }}</span>
+                    <span class="user-role">{{ session.get('role', 'Guest') }}</span>
                 </div>
             </div>
+            {% endif %}
         </div>
     </div>
 
+    <!-- FLASH MESSAGES -->
     <div class="flash-container">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ category if category != 'message' else 'success' }}">
+                    <div class="alert alert-{{ category if category not in ['message'] else 'success' }}">
                         {{ message }}
                     </div>
                 {% endfor %}
@@ -282,8 +657,21 @@
         {% endwith %}
     </div>
 
+    <!-- MAIN CONTENT -->
     <main class="main-wrapper">
         {% block content %}{% endblock %}
     </main>
+
+    <script>
+        // Auto-dismiss flash messages after 5 seconds
+        setTimeout(() => {
+            document.querySelectorAll('.alert').forEach(el => {
+                el.style.transition = 'opacity 0.5s, transform 0.5s';
+                el.style.opacity = '0';
+                el.style.transform = 'translateX(100%)';
+                setTimeout(() => el.remove(), 500);
+            });
+        }, 5000);
+    </script>
 </body>
 </html>

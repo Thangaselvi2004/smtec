@@ -15,13 +15,22 @@ from src.database import (
     add_feedback, get_feedback_list,
     add_global_exam, get_global_exams, delete_global_exam, get_pending_task_count,
     mark_assigned_task_complete, get_user_by_id, update_user_profile, delete_user, change_user_role, update_password_by_email,
-    add_question_pdf, get_question_pdfs, delete_question_pdf
+    add_question_pdf, get_question_pdfs, delete_question_pdf,
+    update_user_class_details
 )
 from src.auth import login_user, register_user
 from src.syllabus_data import SYLLABUS_DATA
 
 app = Flask(__name__)
-app.secret_key = secrets.token_hex(16)
+# Use a persistent secret key so sessions survive restarts
+_secret_key_file = os.path.join(os.path.dirname(__file__), '.flask_secret')
+if os.path.exists(_secret_key_file):
+    with open(_secret_key_file, 'r') as f:
+        app.secret_key = f.read().strip()
+else:
+    app.secret_key = secrets.token_hex(16)
+    with open(_secret_key_file, 'w') as f:
+        f.write(app.secret_key)
 
 # Mock AI Interview Data
 INTERVIEW_DATA = {
@@ -185,6 +194,9 @@ def user_profile():
         session['user_year'] = year
         session['user_department'] = department
         session['class_section'] = class_section
+        
+        # Persist year and department to database
+        update_user_class_details(session['user_id'], year, department)
         
         # Redirect based on role
         role = session.get('role')
@@ -390,7 +402,14 @@ def api_add_resource_route():
             file_path = os.path.join(upload_dir, f"{secrets.token_hex(4)}_{file.filename}")
             file.save(file_path)
             
-    add_resource(title, author, edition, res_type, subject_id, file_path, resource_url)
+    file_size = "0 MB"
+    if file_path:
+        try:
+            file_size = f"{os.path.getsize(file_path) / (1024*1024):.2f} MB"
+        except:
+            pass
+            
+    add_resource(subject_id, title, author, edition, file_path, file_size, res_type, session.get('user_id', 0), resource_url)
     flash("Resource added successfully!", "success")
     return redirect(url_for('library'))
 
@@ -1231,14 +1250,14 @@ def admin_portal():
     # Dashboard Statistics
     stats = {
         'total': len(users),
-        'pending': len([u for u in users if u[4] == 0]),
-        'students': len([u for u in users if u[3] == 'Student']),
-        'staff': len([u for u in users if u[3] == 'Staff']),
-        'admins': len([u for u in users if u[3] == 'Admin'])
+        'pending': len([u for u in users if u.get('is_approved') == 0]),
+        'students': len([u for u in users if u.get('role') == 'Student']),
+        'staff': len([u for u in users if u.get('role') == 'Staff']),
+        'admins': len([u for u in users if u.get('role') == 'Admin'])
     }
     
     # Filter out current admin so they don't delete themselves
-    users = [u for u in users if u[0] != session['user_id']]
+    users = [u for u in users if u.get('id') != session['user_id']]
     return render_template('admin_portal.html', users=users, stats=stats)
 
 @app.route('/api/admin/user_action', methods=['POST'])

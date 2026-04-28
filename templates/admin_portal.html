@@ -156,43 +156,47 @@
         <div id="tab-dashboard" class="tab-pane active">
             <div class="stats-grid">
                 <div class="stat-card">
-                    <span class="stat-val">{{ stats.total_users }}</span>
+                    <span class="stat-val">{{ stats.total }}</span>
                     <span class="stat-label">Total Users</span>
                 </div>
                 <div class="stat-card">
-                    <span class="stat-val" style="color: #6366f1;">{{ stats.active_today }}</span>
-                    <span class="stat-label">Active Today</span>
+                    <span class="stat-val" style="color: #6366f1;">{{ stats.students }}</span>
+                    <span class="stat-label">Students</span>
                 </div>
                 <div class="stat-card">
-                    <span class="stat-val" style="color: #f59e0b;">{{ stats.pending_approvals }}</span>
+                    <span class="stat-val" style="color: #f59e0b;">{{ stats.pending }}</span>
                     <span class="stat-label">Pending</span>
                 </div>
                 <div class="stat-card">
-                    <span class="stat-val" style="color: #ef4444;">{{ stats.upcoming_exams }}</span>
-                    <span class="stat-label">Upcoming Exams</span>
+                    <span class="stat-val" style="color: #06b6d4;">{{ stats.staff }}</span>
+                    <span class="stat-label">Staff</span>
                 </div>
             </div>
 
             <div class="table-card">
                 <div style="padding: 25px; border-bottom: 1px solid #f1f5f9;">
-                    <h3 style="font-size: 1.2rem; font-weight: 800; color: #1e293b;">Recent Activity</h3>
+                    <h3 style="font-size: 1.2rem; font-weight: 800; color: #1e293b;">User Summary</h3>
                 </div>
                 <table class="admin-table">
                     <thead>
                         <tr>
-                            <th>User</th>
-                            <th>Action</th>
-                            <th style="text-align: right;">Time</th>
+                            <th>Role</th>
+                            <th style="text-align: right;">Count</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for log in logs[:5] %}
                         <tr>
-                            <td style="font-weight: 700;">{{ log.username }}</td>
-                            <td>{{ log.action }}</td>
-                            <td style="text-align: right; color: #94a3b8; font-size: 0.85rem;">{{ log.created_at }}</td>
+                            <td style="font-weight: 700;">Students</td>
+                            <td style="text-align: right;">{{ stats.students }}</td>
                         </tr>
-                        {% endfor %}
+                        <tr>
+                            <td style="font-weight: 700;">Staff</td>
+                            <td style="text-align: right;">{{ stats.staff }}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 700;">Admins</td>
+                            <td style="text-align: right;">{{ stats.admins }}</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -242,41 +246,15 @@
         <div id="tab-broadcast" class="tab-pane">
             <div class="table-card" style="padding: 40px; max-width: 700px; margin: 0 auto;">
                 <h3 style="margin-bottom: 25px; color: #1e293b; font-weight: 800;">Global Broadcast</h3>
-                <form action="{{ url_for('api_admin_broadcast') }}" method="POST">
-                    <div style="margin-bottom: 20px;">
-                        <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #64748b; margin-bottom: 8px;">Subject</label>
-                        <input type="text" name="title" placeholder="Important Announcement" required style="width: 100%; padding: 15px; border-radius: 12px; border: 2px solid #f1f5f9; background: #f8fafc; font-weight: 600;">
-                    </div>
-                    <div style="margin-bottom: 25px;">
-                        <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #64748b; margin-bottom: 8px;">Message</label>
-                        <textarea name="message" rows="5" placeholder="Details here..." required style="width: 100%; padding: 15px; border-radius: 12px; border: 2px solid #f1f5f9; background: #f8fafc; font-weight: 600; font-family: inherit;"></textarea>
-                    </div>
-                    <button type="submit" class="save-btn" style="margin-top: 0;">Send to All Users</button>
-                </form>
+                <p style="color: #64748b; margin-bottom: 20px;">Broadcast feature coming soon. Announcements will be sent to all users.</p>
             </div>
         </div>
 
         <!-- 4. LOGS -->
         <div id="tab-logs" class="tab-pane">
-            <div class="table-card">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Time</th>
-                            <th>User</th>
-                            <th>Activity</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for log in logs %}
-                        <tr>
-                            <td style="color: #64748b; font-size: 0.85rem; width: 200px;">{{ log.created_at }}</td>
-                            <td style="font-weight: 700; color: #1e293b; width: 150px;">{{ log.username }}</td>
-                            <td>{{ log.action }}: {{ log.details }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <div class="table-card" style="padding: 40px; text-align: center;">
+                <i class="fas fa-history" style="font-size: 3rem; color: #e2e8f0; margin-bottom: 15px;"></i>
+                <h3 style="color: #94a3b8; font-weight: 700;">System logs will be available in the next update.</h3>
             </div>
         </div>
     </div>
@@ -295,9 +273,9 @@
         
         const formData = new FormData();
         formData.append('action', action);
-        formData.append('target_id', targetId);
+        formData.append('user_id', targetId);
         
-        fetch('/api/admin/action', {
+        fetch('/api/admin/user_action', {
             method: 'POST',
             body: formData
         }).then(res => res.json()).then(data => {

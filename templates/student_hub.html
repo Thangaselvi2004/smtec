@@ -166,7 +166,7 @@
             <div id="level-badge" style="background: rgba(99, 102, 241, 0.1); color: var(--primary); padding: 5px 15px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; display: inline-block; margin-bottom: 10px; border: 1px solid rgba(99, 102, 241, 0.2);">
                 <i class="fas fa-medal mr-2"></i> LEVEL: NOVICE
             </div>
-            <div style="font-size: 0.8rem; color: #64748b;">XP: <strong>{{ xp }}</strong> / 500</div>
+            <div style="font-size: 0.8rem; color: #64748b;">XP: <strong>{{ points }}</strong> / 500</div>
         </div>
     </header>
 
@@ -187,7 +187,7 @@
         <div id="tab-dashboard" class="tab-pane active">
             <div class="stats-grid">
                 <div class="stat-item">
-                    <span class="stat-value">{{ xp }}</span>
+                    <span class="stat-value">{{ points }}</span>
                     <span class="stat-label">Total XP</span>
                 </div>
                 <div class="stat-item">
@@ -251,6 +251,62 @@
             </div>
         </div>
 
+        <!-- 3. STUDY PLAN (Todos) -->
+        <div id="tab-tasks" class="tab-pane">
+            <h2 style="margin-bottom: 30px; color: #1e293b;"><i class="fas fa-clipboard-list mr-2" style="color: var(--primary);"></i> Study Plan</h2>
+            <div class="hub-card">
+                <form action="{{ url_for('api_add_todo') }}" method="POST" style="display: flex; gap: 15px; margin-bottom: 25px;">
+                    <input type="text" name="task" placeholder="Add a study goal..." required style="flex: 1; padding: 14px 20px; border: 2px solid #f1f5f9; border-radius: 12px; font-weight: 600; outline: none; font-family: inherit;">
+                    <button type="submit" class="gradient-btn" style="white-space: nowrap;">Add Goal</button>
+                </form>
+                {% if todos %}
+                    {% for todo in todos %}
+                    <div class="list-item">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <form action="{{ url_for('api_toggle_todo', todo_id=todo[0]) }}" method="POST" style="margin: 0;">
+                                <button type="submit" style="background: none; border: none; font-size: 1.2rem; cursor: pointer;">
+                                    {% if todo[2] %}✅{% else %}⬜{% endif %}
+                                </button>
+                            </form>
+                            <span style="{% if todo[2] %}text-decoration: line-through; color: #94a3b8;{% else %}color: #1e293b;{% endif %} font-weight: 600;">{{ todo[1] }}</span>
+                        </div>
+                        <form action="{{ url_for('api_delete_todo', todo_id=todo[0]) }}" method="POST" style="margin: 0;">
+                            <button type="submit" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 0.8rem; font-weight: 700;">Remove</button>
+                        </form>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="color: #94a3b8; text-align: center;">No study goals yet. Add one above!</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 4. LIBRARY -->
+        <div id="tab-materials" class="tab-pane">
+            <h2 style="margin-bottom: 30px; color: #1e293b;"><i class="fas fa-book-open mr-2" style="color: var(--primary);"></i> Study Materials</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+                {% if resources %}
+                    {% for res in resources %}
+                    <div class="hub-card" style="margin-bottom: 0;">
+                        <span style="font-size: 0.65rem; font-weight: 800; text-transform: uppercase; color: var(--primary); letter-spacing: 1px;">{{ res.type }}</span>
+                        <h3 style="font-size: 1.1rem; font-weight: 800; color: #1e293b; margin: 10px 0;">{{ res.title }}</h3>
+                        <p style="font-size: 0.8rem; color: #64748b; margin-bottom: 15px;">by {{ res.author }}</p>
+                        <div style="display: flex; gap: 10px;">
+                            {% if res.resource_url %}
+                            <a href="{{ res.resource_url }}" target="_blank" class="btn-glass" style="flex: 1; text-align: center;"><i class="fas fa-external-link-alt mr-2"></i>Open</a>
+                            {% endif %}
+                            {% if res.file_path %}
+                            <a href="{{ url_for('api_download_resource', resource_id=res.id) }}" class="gradient-btn" style="flex: 1; text-align: center; padding: 10px;"><i class="fas fa-download mr-2"></i>Download</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="color: #94a3b8; text-align: center; grid-column: 1 / -1; padding: 40px;">No study materials available yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
         <!-- 5. EXAMS (Dynamic Cards as requested) -->
         <div id="tab-exams" class="tab-pane">
             <h2 style="margin-bottom: 30px; color: #1e293b;"><i class="fas fa-clock mr-2" style="color: var(--primary);"></i> Exam Schedule</h2>
@@ -274,6 +330,29 @@
             {% endif %}
         </div>
 
+        <!-- 6. ANALYTICS -->
+        <div id="tab-performance" class="tab-pane">
+            <h2 style="margin-bottom: 30px; color: #1e293b;"><i class="fas fa-chart-bar mr-2" style="color: var(--primary);"></i> Performance Analytics</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
+                <div class="hub-card">
+                    <h3 style="margin-bottom: 15px; color: #1e293b;">Points Overview</h3>
+                    <div style="font-size: 3rem; font-weight: 900; color: var(--primary); margin-bottom: 10px;">{{ points }}</div>
+                    <p style="color: #64748b; font-size: 0.85rem;">Total XP earned from completing tasks, assignments, and quizzes.</p>
+                </div>
+                <div class="hub-card">
+                    <h3 style="margin-bottom: 15px; color: #1e293b;">Assignment Progress</h3>
+                    {% set total_tasks = assigned_tasks|length %}
+                    {% set done_tasks = assigned_tasks|selectattr('status', 'equalto', 'completed')|list|length %}
+                    {% set progress_pct = (done_tasks / total_tasks * 100)|round(0)|int if total_tasks > 0 else 0 %}
+                    <div style="font-size: 3rem; font-weight: 900; color: #10b981; margin-bottom: 10px;">{{ progress_pct }}%</div>
+                    <p style="color: #64748b; font-size: 0.85rem;">{{ done_tasks }} of {{ total_tasks }} assignments completed.</p>
+                    <div class="progress-bar" style="margin-top: 15px;">
+                        <div class="progress-fill" style="width: {{ progress_pct }}%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- 7. LEADERBOARD (Dynamic Table as requested) -->
         <div id="tab-leaderboard" class="tab-pane">
             <h2 style="margin-bottom: 30px; color: #1e293b;"><i class="fas fa-trophy mr-2" style="color: #f59e0b;"></i> Leaderboard</h2>
@@ -287,14 +366,14 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for i, (username, xp_val) in enumerate(leaderboard) %}
-                        <tr style="border-bottom: 1px solid #f8fafc; {% if username == session['username'] %}background: #f1f5f9;{% endif %}">
-                            <td style="padding: 18px; color: #1e293b; font-weight: 700;">#{{ i + 1 }}</td>
+                        {% for entry in leaderboard %}
+                        <tr style="border-bottom: 1px solid #f8fafc; {% if entry[0] == session.get('username') %}background: rgba(99, 102, 241, 0.05);{% endif %}">
+                            <td style="padding: 18px; color: #1e293b; font-weight: 700;">#{{ loop.index }}</td>
                             <td style="padding: 18px; color: #1e293b; font-weight: 600;">
-                                {{ username }} 
-                                {% if username == session['username'] %}(You){% endif %}
+                                {{ entry[0] }}
+                                {% if entry[0] == session.get('username') %}<span style="color: var(--primary); font-weight: 800;"> (You)</span>{% endif %}
                             </td>
-                            <td style="padding: 18px; text-align: right; color: var(--primary); font-weight: 800;">{{ xp_val }} XP</td>
+                            <td style="padding: 18px; text-align: right; color: var(--primary); font-weight: 800;">{{ entry[1] }} XP</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -315,22 +394,20 @@
         sessionStorage.setItem('lastHubTab', tabId);
     }
 
-    // Auto-reload data without UI change (Requested)
-    setInterval(() => {
-        location.reload();
-    }, 10000);
-
     document.addEventListener('DOMContentLoaded', () => {
+        // Restore last active tab
         const lastTab = sessionStorage.getItem('lastHubTab');
         if (lastTab) {
             const tabBtn = document.querySelector(`[onclick*="${lastTab}"]`);
             if (tabBtn) tabBtn.click();
         }
 
-        const xp = parseInt("{{ xp }}" || "0");
+        // Animate XP progress bar
+        const xp = parseInt("{{ points }}" || "0");
         const progress = Math.min((xp / 500) * 100, 100);
         setTimeout(() => {
-            document.getElementById('xp-progress').style.width = progress + '%';
+            const bar = document.getElementById('xp-progress');
+            if (bar) bar.style.width = progress + '%';
         }, 300);
     });
 </script>

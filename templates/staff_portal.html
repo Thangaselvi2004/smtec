@@ -105,25 +105,25 @@
 
 <div class="stats-row">
     <div class="stat-card">
-        <span class="val">{{ stats.total_students or '5' }}</span>
+        <span class="val">{{ student_count }}</span>
         <span class="tag">TOTAL STUDENTS 👨‍🏫</span>
     </div>
     <div class="stat-card">
-        <span class="val">{{ stats.pending_tasks or '1' }}</span>
-        <span class="tag">PENDING TASKS 📝</span>
+        <span class="val">{{ task_count }}</span>
+        <span class="tag">ASSIGNED TASKS 📝</span>
     </div>
     <div class="stat-card">
-        <span class="val">{{ stats.assignments_to_review or '0' }}</span>
-        <span class="tag">ASSIGNMENTS TO REVIEW 📄</span>
+        <span class="val">{{ subject_count }}</span>
+        <span class="tag">SUBJECTS 📄</span>
     </div>
     <div class="stat-card">
-        <span class="val">{{ stats.class_performance or '78%' }}</span>
-        <span class="tag">CLASS PERFORMANCE 📊</span>
+        <span class="val">{{ resource_count }}</span>
+        <span class="tag">RESOURCES 📊</span>
     </div>
 </div>
 
 <div class="action-grid">
-    <a href="#" class="action-card">
+    <a href="{{ url_for('syllabus') }}" class="action-card">
         <h3>Subjects</h3>
         <p>View the complete course structure and detailed syllabus.</p>
     </a>
@@ -131,12 +131,12 @@
         <h3>Upload Material</h3>
         <p>Upload PDFs, links, and study materials to the global library.</p>
     </a>
-    <a href="#" class="action-card">
-        <h3>Create Assignment</h3>
-        <p>Allocate tasks or assignments with specific deadlines.</p>
+    <a href="{{ url_for('staff_marks') }}" class="action-card">
+        <h3>Internal Marks</h3>
+        <p>Upload and manage student internal assessment marks.</p>
     </a>
-    <a href="#" class="action-card">
-        <h3>View Reports</h3>
+    <a href="{{ url_for('student_monitoring') }}" class="action-card">
+        <h3>Student Monitoring</h3>
         <p>Access ML performance predictions and class analytics.</p>
     </a>
 </div>

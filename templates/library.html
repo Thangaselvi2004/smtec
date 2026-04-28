@@ -3,13 +3,13 @@
 {% block title %}Digital Hub - Student AI{% endblock %}
 
 {% block content %}
-<section style="padding-top: 150px; background: #0b0f1a; min-height: 100vh; color: #f8fafc;">
+<section style="padding-top: 20px; min-height: 80vh;">
     <div style="max-width: 1400px; margin: 0 auto; padding: 0 40px;">
         <div style="margin-bottom: 60px;">
-            <h1 style="font-size: 4rem; font-weight: 900; text-transform: uppercase; letter-spacing: -2px; line-height: 0.9; margin-bottom: 20px; color: #ffffff;">
-                Digital <br> <span style="color: var(--secondary);">Hub</span>
+            <h1 style="font-size: 3.5rem; font-weight: 900; text-transform: uppercase; letter-spacing: -2px; line-height: 0.9; margin-bottom: 20px; color: var(--text-heading);">
+                Digital <br> <span style="background: var(--primary-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">Hub</span>
             </h1>
-            <p style="color: #94a3b8; max-width: 600px; font-weight: 600; font-size: 1.1rem; border-left: 4px solid var(--secondary); padding-left: 20px;">
+            <p style="color: #64748b; max-width: 600px; font-weight: 600; font-size: 1.1rem; border-left: 4px solid var(--secondary); padding-left: 20px;">
                 Direct access to specialized technical documentation, lecture notes, and learning resources.
             </p>
         </div>
@@ -17,23 +17,23 @@
         {% if session.get('role') in ['Staff', 'Admin'] %}
         <!-- Staff Upload Section -->
         <div style="margin-bottom: 80px;">
-            <div class="glass-card" style="padding: 40px; border-radius: 24px; border-top: 4px solid var(--secondary); background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1);">
-                <h4 style="margin-bottom: 30px; font-size: 1.25rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: #ffffff; display: flex; align-items: center; gap: 12px;">
+            <div style="padding: 40px; border-radius: 24px; border-top: 4px solid var(--secondary); background: white; border: 1px solid var(--gray-border); box-shadow: var(--shadow-md);">
+                <h4 style="margin-bottom: 30px; font-size: 1.25rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-heading); display: flex; align-items: center; gap: 12px;">
                     <i class="fas fa-file-upload" style="color: var(--secondary);"></i> Upload New Study Material
                 </h4>
                 <form action="{{ url_for('api_add_resource_route') }}" method="POST" enctype="multipart/form-data">
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px; margin-bottom: 30px;">
                         <div>
-                            <label style="font-size: 0.8rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; display: block;">Material Title</label>
-                            <input type="text" name="title" placeholder="e.g. Advanced Java Notes" required style="width: 100%; background: #0f172a; color: #ffffff; border: 2px solid #334155; padding: 14px; border-radius: 12px; font-weight: 600; outline: none;">
+                            <label style="font-size: 0.8rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; display: block;">Material Title</label>
+                            <input type="text" name="title" placeholder="e.g. Advanced Java Notes" required style="width: 100%; background: #f8fafc; color: #1e293b; border: 2px solid #e2e8f0; padding: 14px; border-radius: 12px; font-weight: 600; outline: none; font-family: inherit; transition: border-color 0.3s;" onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e2e8f0'">
                         </div>
                         <div>
-                            <label style="font-size: 0.8rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; display: block;">Author / Publisher</label>
-                            <input type="text" name="author" placeholder="e.g. Dept. of CSE" required style="width: 100%; background: #0f172a; color: #ffffff; border: 2px solid #334155; padding: 14px; border-radius: 12px; font-weight: 600; outline: none;">
+                            <label style="font-size: 0.8rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; display: block;">Author / Publisher</label>
+                            <input type="text" name="author" placeholder="e.g. Dept. of CSE" required style="width: 100%; background: #f8fafc; color: #1e293b; border: 2px solid #e2e8f0; padding: 14px; border-radius: 12px; font-weight: 600; outline: none; font-family: inherit; transition: border-color 0.3s;" onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e2e8f0'">
                         </div>
                         <div>
-                            <label style="font-size: 0.8rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; display: block;">Material Type</label>
-                            <select name="type" required style="width: 100%; background: #0f172a; color: #ffffff; border: 2px solid #334155; padding: 14px; border-radius: 12px; font-weight: 600; cursor: pointer; outline: none;">
+                            <label style="font-size: 0.8rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; display: block;">Material Type</label>
+                            <select name="type" required style="width: 100%; background: #f8fafc; color: #1e293b; border: 2px solid #e2e8f0; padding: 14px; border-radius: 12px; font-weight: 600; cursor: pointer; outline: none; font-family: inherit;">
                                 <option value="Notes">Lecture Notes</option>
                                 <option value="Book">Textbook</option>
                                 <option value="Manual">Lab Manual</option>
@@ -42,8 +42,8 @@
                             </select>
                         </div>
                         <div>
-                            <label style="font-size: 0.8rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; display: block;">Related Subject</label>
-                            <select name="subject_id" required style="width: 100%; background: #0f172a; color: #ffffff; border: 2px solid #334155; padding: 14px; border-radius: 12px; font-weight: 600; cursor: pointer; outline: none;">
+                            <label style="font-size: 0.8rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; display: block;">Related Subject</label>
+                            <select name="subject_id" required style="width: 100%; background: #f8fafc; color: #1e293b; border: 2px solid #e2e8f0; padding: 14px; border-radius: 12px; font-weight: 600; cursor: pointer; outline: none; font-family: inherit;">
                                 <option value="" disabled selected>Select Subject</option>
                                 {% for s in subjects %}
                                 <option value="{{ s.id }}">{{ s.name }}</option>
@@ -53,15 +53,15 @@
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 30px;">
                         <div>
-                            <label style="font-size: 0.8rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; display: block;">External URL (Optional)</label>
-                            <input type="url" name="resource_url" placeholder="https://example.com" style="width: 100%; background: #0f172a; color: #ffffff; border: 2px solid #334155; padding: 14px; border-radius: 12px; font-weight: 600; outline: none;">
+                            <label style="font-size: 0.8rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; display: block;">External URL (Optional)</label>
+                            <input type="url" name="resource_url" placeholder="https://example.com" style="width: 100%; background: #f8fafc; color: #1e293b; border: 2px solid #e2e8f0; padding: 14px; border-radius: 12px; font-weight: 600; outline: none; font-family: inherit; transition: border-color 0.3s;" onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e2e8f0'">
                         </div>
                         <div>
-                            <label style="font-size: 0.8rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; display: block;">Upload PDF File</label>
-                            <input type="file" name="file" accept=".pdf" style="width: 100%; background: rgba(255,255,255,0.02); border: 2px dashed #334155; padding: 10px; border-radius: 12px; color: #cbd5e1; cursor: pointer;">
+                            <label style="font-size: 0.8rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; display: block;">Upload PDF File</label>
+                            <input type="file" name="file" accept=".pdf" style="width: 100%; background: #f8fafc; border: 2px dashed #cbd5e1; padding: 10px; border-radius: 12px; color: #64748b; cursor: pointer; font-family: inherit;">
                         </div>
                     </div>
-                    <button type="submit" class="btn-aurora" style="width: 100%; padding: 18px; font-size: 1.1rem; font-weight: 800; border-radius: 15px; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);">
+                    <button type="submit" class="btn-aurora" style="width: 100%; padding: 18px; font-size: 1.1rem; font-weight: 800; border-radius: 15px; box-shadow: 0 10px 25px rgba(99, 102, 241, 0.2);">
                         <i class="fas fa-check-circle" style="margin-right: 10px;"></i> CONFIRM & UPLOAD RESOURCE
                     </button>
                 </form>
@@ -70,7 +70,7 @@
         {% endif %}
 
         <div style="margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center;">
-            <h4 style="font-size: 1.1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #ffffff; display: flex; align-items: center; gap: 12px;">
+            <h4 style="font-size: 1.1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: var(--text-heading); display: flex; align-items: center; gap: 12px;">
                 <i class="fas fa-archive" style="color: var(--secondary);"></i> Resource Repository
             </h4>
         </div>
@@ -78,41 +78,41 @@
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 30px; padding-bottom: 100px;">
             {% if resources %}
             {% for res in resources %}
-            <div class="glass-card" style="padding: 35px; border-radius: 24px; background: #1e293b; border: 1px solid rgba(255, 255, 255, 0.1); display: flex; flex-direction: column; justify-content: space-between; min-height: 350px; transition: all 0.3s ease; border-left: 6px solid var(--secondary);">
+            <div style="padding: 35px; border-radius: 24px; background: white; border: 1px solid var(--gray-border); display: flex; flex-direction: column; justify-content: space-between; min-height: 330px; transition: all 0.3s ease; border-left: 6px solid var(--secondary); box-shadow: var(--shadow-md);" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 20px 40px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-md)'">
                 <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-                        <span style="font-size: 0.7rem; color: var(--secondary); text-transform: uppercase; letter-spacing: 2px; font-weight: 900; background: rgba(0, 229, 255, 0.1); padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(0, 229, 255, 0.2);">
+                        <span style="font-size: 0.7rem; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; font-weight: 900; background: rgba(99, 102, 241, 0.08); padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(99, 102, 241, 0.15);">
                             {{ res.type }}
                         </span>
                         <span style="font-size: 0.75rem; color: #94a3b8; font-weight: 700;">{{ res.file_size or 'PDF' }}</span>
                     </div>
-                    <h3 style="font-size: 1.5rem; font-weight: 800; color: #ffffff; margin-bottom: 12px; line-height: 1.2; text-transform: uppercase; letter-spacing: 0.5px;">
+                    <h3 style="font-size: 1.4rem; font-weight: 800; color: var(--text-heading); margin-bottom: 12px; line-height: 1.2; letter-spacing: 0.5px;">
                         {{ res.title }}
                     </h3>
-                    <p style="color: #94a3b8; font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                    <p style="color: #64748b; font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 8px;">
                         <i class="fas fa-user-edit" style="font-size: 0.8rem; color: var(--secondary);"></i> by {{ res.author }}
                     </p>
                 </div>
 
                 <div>
-                    <div style="margin-bottom: 25px; padding: 15px; background: rgba(15, 23, 42, 0.4); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.05);">
-                        <div style="font-size: 0.65rem; color: #64748b; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; margin-bottom: 5px;">Subject Context</div>
-                        <div style="font-weight: 700; color: #cbd5e1; font-size: 0.9rem;">{{ res.subject_name or 'General Resource' }}</div>
+                    <div style="margin-bottom: 25px; padding: 15px; background: #f8fafc; border-radius: 12px; border: 1px solid var(--gray-border);">
+                        <div style="font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; margin-bottom: 5px;">Subject Context</div>
+                        <div style="font-weight: 700; color: var(--text-main); font-size: 0.9rem;">{{ res.subject_name or 'General Resource' }}</div>
                     </div>
                     <div style="display: flex; gap: 12px; align-items: center;">
                         {% if session.get('role') in ['Staff', 'Admin'] %}
-                        <button onclick="openEditModal(this)" data-resource='{{ res | tojson | forceescape }}' class="btn-aurora" style="padding: 10px 15px; font-size: 0.8rem; background: rgba(255, 255, 255, 0.05); color: #ffffff; border: 1px solid #334155;">
+                        <button onclick="openEditModal(this)" data-resource='{{ res | tojson | forceescape }}' class="btn-glass" style="padding: 10px 15px; font-size: 0.8rem;">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <form action="{{ url_for('api_delete_resource', resource_id=res.id) }}" method="POST" onsubmit="return confirm('Archive this resource forever?');" style="margin: 0;">
-                            <button type="submit" class="btn-aurora" style="padding: 10px 15px; font-size: 0.8rem; background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2);">
+                        <form action="{{ url_for('api_delete_resource', resource_id=res.id) }}" method="POST" onsubmit="return confirm('Delete this resource permanently?');" style="margin: 0;">
+                            <button type="submit" style="padding: 10px 15px; font-size: 0.8rem; background: rgba(239, 68, 68, 0.08); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 12px; cursor: pointer; font-weight: 700; transition: all 0.3s;" onmouseover="this.style.background='#ef4444'; this.style.color='white'" onmouseout="this.style.background='rgba(239, 68, 68, 0.08)'; this.style.color='#ef4444'">
                                 <i class="fas fa-trash-alt"></i>
                             </button>
                         </form>
                         {% endif %}
                         
                         {% if res.resource_url %}
-                        <a href="{{ res.resource_url }}" target="_blank" class="btn-aurora" style="flex: 1; padding: 12px; font-size: 0.8rem; text-decoration: none; text-align: center; background: rgba(0, 229, 255, 0.15); border-color: rgba(0, 229, 255, 0.3);">
+                        <a href="{{ res.resource_url }}" target="_blank" class="btn-glass" style="flex: 1; padding: 12px; font-size: 0.8rem; text-decoration: none; text-align: center;">
                             <i class="fas fa-external-link-alt" style="margin-right: 8px;"></i> OPEN LINK
                         </a>
                         {% endif %}
@@ -127,31 +127,32 @@
             </div>
             {% endfor %}
             {% else %}
-            <div style="grid-column: 1 / -1; text-align: center; padding: 100px; color: #64748b; border: 2px dashed #334155; border-radius: 30px; background: rgba(15, 23, 42, 0.3);">
+            <div style="grid-column: 1 / -1; text-align: center; padding: 100px; color: #94a3b8; border: 2px dashed #e2e8f0; border-radius: 30px; background: #f8fafc;">
                 <i class="fas fa-folder-open" style="font-size: 3rem; margin-bottom: 20px; display: block; opacity: 0.5;"></i>
-                <h3 style="font-weight: 800; letter-spacing: 2px; text-transform: uppercase;">Zero assets found in current repository cycle</h3>
+                <h3 style="font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #94a3b8;">No resources found in the library</h3>
+                <p style="margin-top: 10px; font-size: 0.9rem; color: #cbd5e1;">Staff members can upload study materials using the form above.</p>
             </div>
             {% endif %}
         </div>
     </div>
 </section>
 
-<!-- Edit Resource Modal (Styled) -->
-<div id="edit-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; backdrop-filter: blur(15px);">
-    <div class="glass-card" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 550px; padding: 45px; border-radius: 28px; background: #0f172a; border: 1px solid rgba(255,255,255,0.1); border-top: 4px solid var(--secondary);">
-        <h2 style="text-transform: uppercase; letter-spacing: 2px; margin-bottom: 35px; color: #ffffff; font-weight: 800; font-size: 1.5rem;">Edit Resource</h2>
+<!-- Edit Resource Modal -->
+<div id="edit-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; backdrop-filter: blur(8px);">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 550px; padding: 45px; border-radius: 28px; background: white; border: 1px solid var(--gray-border); border-top: 4px solid var(--secondary); box-shadow: 0 30px 80px rgba(0,0,0,0.15);">
+        <h2 style="text-transform: uppercase; letter-spacing: 2px; margin-bottom: 35px; color: var(--text-heading); font-weight: 800; font-size: 1.5rem;">Edit Resource</h2>
         <form id="edit-form" method="POST">
             <div style="margin-bottom: 25px;">
-                <label style="display: block; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: #94a3b8; margin-bottom: 10px; letter-spacing: 1px;">Title</label>
-                <input type="text" name="title" id="edit-title" required style="width: 100%; padding: 14px; background: #0b0f1a; border: 2px solid #334155; border-radius: 12px; color: #ffffff; font-weight: 600; outline: none;">
+                <label style="display: block; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: #64748b; margin-bottom: 10px; letter-spacing: 1px;">Title</label>
+                <input type="text" name="title" id="edit-title" required style="width: 100%; padding: 14px; background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; color: #1e293b; font-weight: 600; outline: none; font-family: inherit;">
             </div>
             <div style="margin-bottom: 25px;">
-                <label style="display: block; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: #94a3b8; margin-bottom: 10px; letter-spacing: 1px;">Author</label>
-                <input type="text" name="author" id="edit-author" required style="width: 100%; padding: 14px; background: #0b0f1a; border: 2px solid #334155; border-radius: 12px; color: #ffffff; font-weight: 600; outline: none;">
+                <label style="display: block; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: #64748b; margin-bottom: 10px; letter-spacing: 1px;">Author</label>
+                <input type="text" name="author" id="edit-author" required style="width: 100%; padding: 14px; background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; color: #1e293b; font-weight: 600; outline: none; font-family: inherit;">
             </div>
             <div style="margin-bottom: 35px;">
-                <label style="display: block; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: #94a3b8; margin-bottom: 10px; letter-spacing: 1px;">Type</label>
-                <select name="type" id="edit-type" style="width: 100%; padding: 14px; background: #0b0f1a; border: 2px solid #334155; border-radius: 12px; color: #ffffff; font-weight: 600; outline: none; cursor: pointer;">
+                <label style="display: block; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: #64748b; margin-bottom: 10px; letter-spacing: 1px;">Type</label>
+                <select name="type" id="edit-type" style="width: 100%; padding: 14px; background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; color: #1e293b; font-weight: 600; outline: none; cursor: pointer; font-family: inherit;">
                     <option value="Notes">Lecture Notes</option>
                     <option value="Book">Textbook</option>
                     <option value="Manual">Lab Manual</option>
@@ -163,7 +164,7 @@
             <input type="hidden" name="subject_id" id="edit-subject-id">
 
             <div style="display: flex; gap: 20px;">
-                <button type="button" onclick="closeEditModal()" class="btn-aurora" style="flex: 1; padding: 15px; border-radius: 15px; background: rgba(255,255,255,0.05); color: #ffffff; border: 1px solid #334155; font-weight: 800;">CANCEL</button>
+                <button type="button" onclick="closeEditModal()" class="btn-glass" style="flex: 1; padding: 15px; border-radius: 15px; font-weight: 800;">CANCEL</button>
                 <button type="submit" class="btn-aurora" style="flex: 1; padding: 15px; border-radius: 15px; font-weight: 800;">SAVE CHANGES</button>
             </div>
         </form>

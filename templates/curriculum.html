@@ -5,7 +5,7 @@
 {% block extra_css %}
 <style>
     .curriculum-container {
-        padding: 120px 60px 80px;
+        padding: 20px 40px 80px;
     }
 
     .hub-grid {
@@ -178,7 +178,7 @@
                         </p>
                         <div class="material-footer">
                             <span style="font-size: 0.7rem; color: var(--text-dim);">{{ resource.file_size }} PDF</span>
-                            <a href="{{ url_for('static', filename=resource.file_path) }}" class="download-btn" download>
+                            <a href="{{ url_for('api_download_resource', resource_id=resource.id) }}" class="download-btn" download>
                                 <i class="fas fa-download"></i> DOWNLOAD
                             </a>
                         </div>

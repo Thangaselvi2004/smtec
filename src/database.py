@@ -4,6 +4,12 @@ import os
 
 DB_NAME = "student.db"
 
+def get_db_connection():
+    """Helper to get a database connection with Row factory."""
+    conn = sqlite3.connect(DB_NAME)
+    conn.row_factory = sqlite3.Row
+    return conn
+
 def init_db():
     """Initializes the database with users and user_data tables."""
     conn = get_db_connection()
@@ -608,17 +614,23 @@ def change_user_role(user_id, role):
     conn.commit()
     conn.close()
 
-def approve_user(user_id):
-    """Approves a pending user."""
+def update_user_class_details(user_id, year, department):
+    """Persists year and department to the users table."""
     conn = get_db_connection()
     c = conn.cursor()
-    c.execute('UPDATE users SET is_approved = 1 WHERE id = ?', (user_id,))
+    # Add columns if they don't exist
+    try:
+        c.execute('ALTER TABLE users ADD COLUMN year TEXT')
+    except:
+        pass
+    try:
+        c.execute('ALTER TABLE users ADD COLUMN department TEXT')
+    except:
+        pass
+    c.execute('UPDATE users SET year = ?, department = ? WHERE id = ?', (year, department, user_id))
     conn.commit()
     conn.close()
 
-def reject_user(user_id):
-    """Deletes a rejected user."""
-    delete_user(user_id)
 
 def get_managed_users():
     """Retrieves all registered users for admin approval and role management."""
@@ -959,12 +971,6 @@ def get_discussions(topic_id):
     return data
 
 # --- Admin Helpers ---
-def get_db_connection():
-    """Helper to get a database connection with Row factory."""
-    conn = sqlite3.connect(DB_NAME)
-    conn.row_factory = sqlite3.Row
-    return conn
-
 def update_user_role(user_id, new_role):
     """Updates the role of a user."""
     conn = get_db_connection()

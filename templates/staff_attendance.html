@@ -184,7 +184,9 @@
                     <tr>
                         <td style="text-align: center;">
                             <label class="checkbox-wrapper">
-                                <input type="checkbox" name="attendance" value="{{ student.id }}" checked>
+                                <!-- Hidden field sends 'Absent' if unchecked -->
+                                <input type="hidden" name="status_{{ student.id }}" value="Absent">
+                                <input type="checkbox" name="status_{{ student.id }}" value="Present" checked>
                                 <span class="checkmark"></span>
                             </label>
                         </td>
