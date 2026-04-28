@@ -18,6 +18,7 @@
         body {
             height: 100vh;
             width: 100vw;
+            overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -27,62 +28,62 @@
 
         .login-card {
             width: 100%;
-            max-width: 480px;
+            max-width: 440px;
             background: white;
-            padding: 60px 45px;
-            border-radius: 40px;
+            padding: 30px 40px;
+            border-radius: 30px;
             box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.12);
             text-align: center;
         }
 
         /* Larger, more visible Logo Circle */
         .logo-circle {
-            width: 140px;
-            height: 140px;
-            margin: 0 auto 30px;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 14px;
             background: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.06);
             border: 2px solid #e2e8f0;
         }
 
         .logo-circle img {
-            width: 90px;
+            width: 52px;
             height: auto;
             object-fit: contain;
         }
 
         /* Heading change to SMTEC EDUPREDICT */
         h1 {
-            font-size: 2.2rem;
+            font-size: 1.5rem;
             font-weight: 900;
             color: #0f172a;
-            margin-bottom: 12px;
+            margin-bottom: 6px;
             text-transform: uppercase;
             letter-spacing: -0.5px;
         }
 
         p.subtitle {
             color: #64748b;
-            font-size: 1rem;
-            margin-bottom: 40px;
+            font-size: 0.88rem;
+            margin-bottom: 20px;
             font-weight: 500;
         }
 
         .form-group {
             text-align: left;
-            margin-bottom: 22px;
+            margin-bottom: 14px;
         }
 
         .form-group label {
             display: block;
-            font-size: 0.85rem;
+            font-size: 0.78rem;
             font-weight: 700;
             color: #475569;
-            margin-bottom: 8px;
+            margin-bottom: 5px;
             padding-left: 5px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -91,11 +92,11 @@
         /* Consistent blue box style for inputs */
         .form-control {
             width: 100%;
-            padding: 16px 20px;
-            border-radius: 16px;
+            padding: 12px 16px;
+            border-radius: 12px;
             border: 2px solid #e2e8f0;
-            background: #f8faff; /* Hint of blue background */
-            font-size: 1rem;
+            background: #f8faff;
+            font-size: 0.92rem;
             font-family: inherit;
             color: #1e293b;
             outline: none;
@@ -119,20 +120,20 @@
 
         .login-btn {
             width: 100%;
-            padding: 18px;
+            padding: 14px;
             border: none;
-            border-radius: 16px;
+            border-radius: 12px;
             background: linear-gradient(to right, #4338ca, #0d9488);
             color: white;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 1px;
             cursor: pointer;
             box-shadow: 0 12px 24px rgba(67, 56, 202, 0.25);
             transition: all 0.3s ease;
-            margin-top: 15px;
-            margin-bottom: 30px;
+            margin-top: 10px;
+            margin-bottom: 16px;
         }
 
         .login-btn:hover {
@@ -142,7 +143,7 @@
 
         .footer-text {
             color: #64748b;
-            font-size: 0.95rem;
+            font-size: 0.88rem;
             font-weight: 500;
         }
 
@@ -172,6 +173,21 @@
             background: #fee2e2;
             color: #991b1b;
             border: 1px solid #fecaca;
+        }
+        .alert-success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+        .alert-warning {
+            background: #fef9c3;
+            color: #854d0e;
+            border: 1px solid #fde68a;
+        }
+        .alert-info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
         }
     </style>
 </head>

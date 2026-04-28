@@ -16,72 +16,72 @@
         }
 
         body {
-            min-height: 100vh;
+            height: 100vh;
             width: 100vw;
+            overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
             background-color: #f1f5f9;
             font-family: 'Plus Jakarta Sans', sans-serif;
-            padding: 40px 20px;
         }
 
         .register-card {
             width: 100%;
-            max-width: 480px;
+            max-width: 440px;
             background: white;
-            padding: 60px 45px;
-            border-radius: 40px;
+            padding: 28px 40px;
+            border-radius: 30px;
             box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.12);
             text-align: center;
         }
 
         .logo-circle {
-            width: 140px;
-            height: 140px;
-            margin: 0 auto 30px;
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 10px;
             background: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.06);
             border: 2px solid #e2e8f0;
         }
 
         .logo-circle img {
-            width: 90px;
+            width: 46px;
             height: auto;
             object-fit: contain;
         }
 
         h1 {
-            font-size: 2.2rem;
+            font-size: 1.4rem;
             font-weight: 900;
             color: #0f172a;
-            margin-bottom: 12px;
+            margin-bottom: 4px;
             text-transform: uppercase;
             letter-spacing: -0.5px;
         }
 
         p.subtitle {
             color: #64748b;
-            font-size: 1rem;
-            margin-bottom: 40px;
+            font-size: 0.85rem;
+            margin-bottom: 16px;
             font-weight: 500;
         }
 
         .form-group {
             text-align: left;
-            margin-bottom: 22px;
+            margin-bottom: 12px;
         }
 
         .form-group label {
             display: block;
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             font-weight: 700;
             color: #475569;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
             padding-left: 5px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -89,11 +89,11 @@
 
         .form-control {
             width: 100%;
-            padding: 16px 20px;
-            border-radius: 16px;
+            padding: 10px 16px;
+            border-radius: 12px;
             border: 2px solid #e2e8f0;
             background: #f8faff;
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-family: inherit;
             color: #1e293b;
             outline: none;
@@ -117,20 +117,20 @@
 
         .register-btn {
             width: 100%;
-            padding: 18px;
+            padding: 12px;
             border: none;
-            border-radius: 16px;
+            border-radius: 12px;
             background: linear-gradient(to right, #4338ca, #0d9488);
             color: white;
-            font-size: 1.1rem;
+            font-size: 0.95rem;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 1px;
             cursor: pointer;
             box-shadow: 0 12px 24px rgba(67, 56, 202, 0.25);
             transition: all 0.3s ease;
-            margin-top: 15px;
-            margin-bottom: 30px;
+            margin-top: 8px;
+            margin-bottom: 14px;
         }
 
         .register-btn:hover {
@@ -140,7 +140,7 @@
 
         .footer-text {
             color: #64748b;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             font-weight: 500;
         }
 
@@ -153,20 +153,28 @@
         .footer-text a:hover {
             text-decoration: underline;
         }
+
+        .flash-container {
+            position: fixed; top: 20px; right: 20px; z-index: 2000; max-width: 420px;
+        }
+        .alert {
+            padding: 15px 25px; border-radius: 12px; margin-bottom: 10px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); font-weight: 700;
+            font-size: 0.88rem; min-width: 300px; animation: slideIn 0.3s ease;
+        }
+        .alert-error { background: #fee2e2; color: #991b1b; border-left: 5px solid #ef4444; }
+        .alert-success { background: #dcfce7; color: #166534; border-left: 5px solid #22c55e; }
+        .alert-info { background: #dbeafe; color: #1e40af; border-left: 5px solid #3b82f6; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
     </style>
 </head>
 <body>
     <!-- Flash Messages -->
-    <div style="position: fixed; top: 20px; right: 20px; z-index: 2000; max-width: 420px;">
+    <div class="flash-container">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div style="padding: 15px 25px; border-radius: 12px; margin-bottom: 10px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); font-weight: 700; font-size: 0.88rem; min-width: 300px; animation: slideIn 0.3s ease;
-                        {% if category == 'error' %}background: #fee2e2; color: #991b1b; border-left: 5px solid #ef4444;
-                        {% elif category == 'success' %}background: #dcfce7; color: #166534; border-left: 5px solid #22c55e;
-                        {% else %}background: #dbeafe; color: #1e40af; border-left: 5px solid #3b82f6;{% endif %}">
-                        {{ message }}
-                    </div>
+                    <div class="alert alert-{{ category if category not in ['message'] else 'error' }}">{{ message }}</div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
