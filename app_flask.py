@@ -1413,8 +1413,11 @@ def api_add_assigned_task():
             safe_filename = f"task_{secrets.token_hex(4)}_{f.filename}".replace(" ", "_")
             file_path = os.path.join(task_dir, safe_filename)
             f.save(file_path)
+            
+    staff_dept = session.get('user_department', '')
+    staff_year = session.get('user_year', '')
     
-    add_assigned_task(session['user_id'], title, desc, due_date, task_url, file_path)
+    add_assigned_task(session['user_id'], title, desc, due_date, task_url, file_path, staff_year, staff_dept)
     
     # Notify students
     conn = get_db_connection()
@@ -1444,13 +1447,21 @@ def api_view_task_doc(task_id):
     conn.close()
     
     if task and task[0] and os.path.exists(task[0]):
-        # Auto-complete task
-        newly_done = mark_assigned_task_complete(task_id, user_id)
-        if newly_done:
-            update_points(user_id, 10)
-            flash(f"Task '{task[1]}' material viewed! +10 XP earned.", "success")
+        # Check if already viewed to prevent infinite XP
+        conn = get_db_connection()
+        viewed = conn.execute("SELECT viewed_at FROM student_task_completions WHERE task_id = ? AND student_id = ?", (task_id, user_id)).fetchone()
+        conn.close()
+        
+        # Mark as viewed instead of complete to show up in "Opened" list for Staff
+        from src.database import mark_task_viewed
+        mark_task_viewed(task_id, user_id)
+        
+        if not viewed or not viewed[0]:
+            update_points(user_id, 5)
+            flash(f"Task '{task[1]}' material opened! +5 XP earned.", "success")
         else:
             flash(f"Viewing material for '{task[1]}'.", "info")
+            
         return send_file(task[0], as_attachment=False)
     
     flash("Document not found.", "error")

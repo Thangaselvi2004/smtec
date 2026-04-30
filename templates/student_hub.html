@@ -298,7 +298,7 @@
                             {% endif %}
 
                             {% if task.task_url %}
-                            <a href="{{ task.task_url }}" target="_blank"
+                            <a href="{{ task.task_url }}" target="_blank" onclick="markTaskViewed({{ task.id }})"
                                style="display: inline-flex; align-items: center; gap: 6px; padding: 10px 20px; background: linear-gradient(135deg, #6366f1, #06b6d4); color: white; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 0.8rem; transition: all 0.2s;"
                                onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 15px rgba(99,102,241,0.3)'"
                                onmouseout="this.style.transform=''; this.style.boxShadow=''">
@@ -509,5 +509,9 @@
             if (bar) bar.style.width = progress + '%';
         }, 300);
     });
+
+    function markTaskViewed(taskId) {
+        fetch(`/api/tasks/mark_viewed/${taskId}`, { method: 'POST' });
+    }
 </script>
 {% endblock %}
