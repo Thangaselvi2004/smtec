@@ -1,0 +1,337 @@
+{% extends "layout.html" %}
+
+{% block title %}Exam Schedule | Staff Portal{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        margin-bottom: 35px;
+    }
+
+    .page-header h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-heading);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .page-header p {
+        color: #64748b;
+        font-size: 1rem;
+        font-weight: 500;
+        margin-top: 6px;
+    }
+
+    /* Add Exam Form */
+    .add-exam-card {
+        background: white;
+        border-radius: 24px;
+        padding: 30px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        border: 1px solid rgba(0,0,0,0.05);
+        margin-bottom: 30px;
+    }
+
+    .add-exam-card h2 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr auto;
+        gap: 15px;
+        align-items: end;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .form-group label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .form-group input,
+    .form-group select {
+        padding: 12px 16px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        font-family: inherit;
+        color: #1e293b;
+        transition: all 0.2s;
+        background: white;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .add-btn {
+        padding: 12px 28px;
+        background: linear-gradient(135deg, #6366f1, #06b6d4);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-family: inherit;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+    }
+
+    .add-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+    }
+
+    /* Exam List */
+    .exam-list-card {
+        background: white;
+        border-radius: 24px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        border: 1px solid rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+
+    .exam-list-header {
+        padding: 25px 30px;
+        border-bottom: 2px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .exam-list-header h2 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .exam-count {
+        background: rgba(99, 102, 241, 0.08);
+        color: #6366f1;
+        padding: 5px 14px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    .exam-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .exam-table th {
+        background: #f8fafc;
+        padding: 14px 25px;
+        text-align: left;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .exam-table td {
+        padding: 16px 25px;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 0.9rem;
+    }
+
+    .exam-table tbody tr:hover {
+        background: #f8fafc;
+    }
+
+    .exam-table tbody tr.past-exam {
+        opacity: 0.5;
+    }
+
+    .subject-badge {
+        background: rgba(99, 102, 241, 0.08);
+        color: #6366f1;
+        padding: 5px 14px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.8rem;
+    }
+
+    .date-display {
+        font-weight: 700;
+        color: #1e293b;
+        font-size: 0.9rem;
+    }
+
+    .days-badge {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 8px;
+        font-size: 0.72rem;
+        font-weight: 700;
+    }
+
+    .days-badge.upcoming {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+    }
+
+    .days-badge.today {
+        background: rgba(245, 158, 11, 0.1);
+        color: #f59e0b;
+    }
+
+    .days-badge.past {
+        background: rgba(148, 163, 184, 0.1);
+        color: #94a3b8;
+    }
+
+    .delete-exam-btn {
+        background: none;
+        border: 2px solid transparent;
+        cursor: pointer;
+        color: #ef4444;
+        font-size: 0.85rem;
+        padding: 6px 8px;
+        border-radius: 8px;
+        transition: all 0.2s;
+    }
+
+    .delete-exam-btn:hover {
+        background: rgba(239, 68, 68, 0.1);
+        border-color: rgba(239, 68, 68, 0.2);
+    }
+
+    @media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-calendar-alt" style="color: #6366f1;"></i> Exam Schedule</h1>
+    <p>Add and manage exam schedules for your students.</p>
+</div>
+
+<!-- Add Exam Form -->
+<div class="add-exam-card">
+    <h2><i class="fas fa-plus-circle" style="color: #10b981;"></i> Add New Exam</h2>
+    <form action="{{ url_for('api_add_exam') }}" method="POST">
+        <div class="form-row">
+            <div class="form-group">
+                <label>Subject / Exam Name</label>
+                <input type="text" name="subject" placeholder="e.g. Unit Test 1 - Maths" required>
+            </div>
+            <div class="form-group">
+                <label>Exam Date</label>
+                <input type="date" name="date" required>
+            </div>
+            <button type="submit" class="add-btn">
+                <i class="fas fa-plus"></i> Add Exam
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Exam List -->
+<div class="exam-list-card">
+    <div class="exam-list-header">
+        <h2><i class="fas fa-list-alt" style="color: #f59e0b;"></i> Scheduled Exams</h2>
+        <span class="exam-count">{{ exams|length }} Exams</span>
+    </div>
+    <div style="overflow-x: auto;">
+        <table class="exam-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Subject / Exam</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th style="width: 80px; text-align: center;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if exams %}
+                    {% for exam in exams %}
+                    <tr id="exam-row-{{ exam[0] }}">
+                        <td style="font-weight: 700; color: #94a3b8;">{{ loop.index }}</td>
+                        <td><span class="subject-badge">{{ exam[1] }}</span></td>
+                        <td class="date-display">{{ exam[2] }}</td>
+                        <td>
+                            <span class="days-badge" id="status-{{ exam[0] }}" data-date="{{ exam[2] }}"></span>
+                        </td>
+                        <td style="text-align: center;">
+                            <form action="{{ url_for('api_delete_exam', exam_id=exam[0]) }}" method="POST" style="display: inline;" onsubmit="return confirm('Delete this exam?')">
+                                <button type="submit" class="delete-exam-btn" title="Delete exam">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 50px; color: #94a3b8;">
+                            <i class="fas fa-calendar-times" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                            No exams scheduled yet. Add one above!
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // Calculate status badges (days remaining)
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.days-badge[data-date]').forEach(badge => {
+            const examDate = new Date(badge.dataset.date);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            examDate.setHours(0, 0, 0, 0);
+            
+            const diff = Math.ceil((examDate - today) / (1000 * 60 * 60 * 24));
+            
+            if (diff > 0) {
+                badge.textContent = `${diff} days left`;
+                badge.className = 'days-badge upcoming';
+            } else if (diff === 0) {
+                badge.textContent = 'Today!';
+                badge.className = 'days-badge today';
+            } else {
+                badge.textContent = `${Math.abs(diff)} days ago`;
+                badge.className = 'days-badge past';
+                badge.closest('tr').classList.add('past-exam');
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -122,7 +122,7 @@ def init_db():
     # Seed default years/depts if empty
     c.execute("SELECT COUNT(*) FROM academic_years")
     if c.fetchone()[0] == 0:
-        for y in ['1st Year', '2nd Year', '3rd Year', 'Final Year']:
+        for y in ['First Year', 'Second Year', 'Third Year', 'Final Year']:
             c.execute("INSERT INTO academic_years (name) VALUES (?)", (y,))
             
     c.execute("SELECT COUNT(*) FROM departments")
@@ -509,6 +509,24 @@ def init_db():
     except sqlite3.OperationalError:
         c.execute('ALTER TABLE users ADD COLUMN xp INTEGER DEFAULT 0')
 
+    # Create broadcasts table
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS broadcasts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            message TEXT NOT NULL,
+            year TEXT DEFAULT 'all',
+            department TEXT DEFAULT 'all',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+
+    # Migration: Add year and department columns to subjects table
+    try:
+        c.execute('SELECT year FROM subjects LIMIT 1')
+    except sqlite3.OperationalError:
+        c.execute('ALTER TABLE subjects ADD COLUMN year TEXT')
+        c.execute('ALTER TABLE subjects ADD COLUMN department TEXT')
+
     conn.commit()
     conn.close()
 
@@ -856,6 +874,38 @@ def add_announcement(title, message, target_role="All"):
     conn = get_db_connection()
     c = conn.cursor()
     c.execute("INSERT INTO announcements (title, message, target_role) VALUES (?, ?, ?)", (title, message, target_role))
+    conn.commit()
+    conn.close()
+
+def add_broadcast(message, year='all', department='all'):
+    """Adds a broadcast message."""
+    conn = get_db_connection()
+    c = conn.cursor()
+    c.execute("INSERT INTO broadcasts (message, year, department) VALUES (?, ?, ?)", (message, year, department))
+    conn.commit()
+    conn.close()
+
+def get_broadcasts(year=None, department=None):
+    """Retrieves broadcasts filtered by year/department. Shows targeted + global messages."""
+    conn = get_db_connection()
+    c = conn.cursor()
+    if year and department:
+        c.execute("""
+            SELECT id, message, year, department, created_at FROM broadcasts
+            WHERE (year = ? OR year = 'all') AND (department = ? OR department = 'all')
+            ORDER BY created_at DESC
+        """, (year, department))
+    else:
+        c.execute("SELECT id, message, year, department, created_at FROM broadcasts ORDER BY created_at DESC")
+    data = c.fetchall()
+    conn.close()
+    return data
+
+def delete_broadcast(broadcast_id):
+    """Deletes a broadcast message."""
+    conn = get_db_connection()
+    c = conn.cursor()
+    c.execute("DELETE FROM broadcasts WHERE id = ?", (broadcast_id,))
     conn.commit()
     conn.close()
 
@@ -1449,6 +1499,22 @@ def get_internal_marks(student_id=None, subject_id=None):
     conn.close()
     return df
 
+def delete_internal_mark(mark_id):
+    """Deletes an internal marks record by ID."""
+    conn = get_db_connection()
+    c = conn.cursor()
+    c.execute("DELETE FROM internal_marks WHERE id = ?", (mark_id,))
+    conn.commit()
+    conn.close()
+
+def update_internal_mark(mark_id, marks_obtained):
+    """Updates the marks_obtained for an internal marks record."""
+    conn = get_db_connection()
+    c = conn.cursor()
+    c.execute("UPDATE internal_marks SET marks_obtained = ? WHERE id = ?", (marks_obtained, mark_id))
+    conn.commit()
+    conn.close()
+
 def record_attendance(student_id, subject_id, date, status):
     """Records student attendance."""
     conn = get_db_connection()
@@ -1460,6 +1526,22 @@ def record_attendance(student_id, subject_id, date, status):
         c.execute("UPDATE attendance SET status = ? WHERE id = ?", (status, row[0]))
     else:
         c.execute("INSERT INTO attendance (student_id, subject_id, date, status) VALUES (?, ?, ?, ?)", (student_id, subject_id, date, status))
+    conn.commit()
+    conn.close()
+
+def update_attendance_status(att_id, new_status):
+    """Updates the status of an attendance record by ID."""
+    conn = get_db_connection()
+    c = conn.cursor()
+    c.execute("UPDATE attendance SET status = ? WHERE id = ?", (new_status, att_id))
+    conn.commit()
+    conn.close()
+
+def delete_attendance(att_id):
+    """Deletes an attendance record by ID."""
+    conn = get_db_connection()
+    c = conn.cursor()
+    c.execute("DELETE FROM attendance WHERE id = ?", (att_id,))
     conn.commit()
     conn.close()
 

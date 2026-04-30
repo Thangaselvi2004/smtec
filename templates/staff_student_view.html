@@ -1,0 +1,458 @@
+{% extends "layout.html" %}
+
+{% block title %}Student View | Staff Portal{% endblock %}
+
+{% block extra_css %}
+<style>
+    .preview-banner {
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(6, 182, 212, 0.08));
+        border: 2px solid rgba(99, 102, 241, 0.15);
+        border-radius: 16px;
+        padding: 18px 25px;
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .preview-banner i {
+        font-size: 1.2rem;
+        color: #6366f1;
+    }
+
+    .preview-banner span {
+        font-weight: 700;
+        color: #6366f1;
+        font-size: 0.85rem;
+    }
+
+    .preview-banner .dept-info {
+        margin-left: auto;
+        background: rgba(99, 102, 241, 0.1);
+        padding: 5px 14px;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #6366f1;
+    }
+
+    .page-header {
+        margin-bottom: 35px;
+    }
+
+    .page-header h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-heading);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .page-header p {
+        color: #64748b;
+        font-size: 1rem;
+        font-weight: 500;
+        margin-top: 6px;
+    }
+
+    /* Summary Stats */
+    .summary-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        margin-bottom: 35px;
+    }
+
+    .summary-stat {
+        background: white;
+        border-radius: 20px;
+        padding: 25px;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .summary-stat .val {
+        font-size: 2rem;
+        font-weight: 800;
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    .summary-stat .lbl {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #94a3b8;
+    }
+
+    /* Section Cards */
+    .view-section {
+        background: white;
+        border-radius: 24px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        border: 1px solid rgba(0,0,0,0.05);
+        overflow: hidden;
+        margin-bottom: 25px;
+    }
+
+    .section-head {
+        padding: 22px 28px;
+        border-bottom: 2px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .section-head h2 {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .section-head .count-badge {
+        background: rgba(99, 102, 241, 0.08);
+        color: #6366f1;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.72rem;
+        font-weight: 700;
+    }
+
+    .view-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .view-table th {
+        background: #f8fafc;
+        padding: 12px 22px;
+        text-align: left;
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .view-table td {
+        padding: 14px 22px;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 0.85rem;
+    }
+
+    .view-table tbody tr:hover {
+        background: #f8fafc;
+    }
+
+    .badge-sub {
+        background: rgba(99, 102, 241, 0.08);
+        color: #6366f1;
+        padding: 4px 12px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.75rem;
+    }
+
+    .absent-badge {
+        background: rgba(239,68,68,0.1);
+        color: #ef4444;
+        padding: 4px 12px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.75rem;
+    }
+
+    .status-present {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+        padding: 4px 10px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.72rem;
+    }
+
+    .days-badge {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 8px;
+        font-size: 0.72rem;
+        font-weight: 700;
+    }
+
+    .days-badge.upcoming { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+    .days-badge.today { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+    .days-badge.past { background: rgba(148, 163, 184, 0.1); color: #94a3b8; }
+
+    .empty-msg {
+        text-align: center;
+        padding: 40px;
+        color: #94a3b8;
+        font-weight: 600;
+    }
+
+    .resource-card {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 16px 22px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .resource-card:last-child { border-bottom: none; }
+
+    .resource-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+
+    .resource-info h4 {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 2px;
+    }
+
+    .resource-info span {
+        font-size: 0.75rem;
+        color: #94a3b8;
+        font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+        .summary-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-eye" style="color: #6366f1;"></i> Student View</h1>
+    <p>Preview what your students see in their portal — verify uploads are live.</p>
+</div>
+
+<div class="preview-banner">
+    <i class="fas fa-info-circle"></i>
+    <span>You are viewing the student perspective. All data shown below is what students in your class can access.</span>
+    <span class="dept-info">{{ staff_dept }} • {{ staff_year }}</span>
+</div>
+
+<!-- Summary Stats -->
+<div class="summary-stats">
+    <div class="summary-stat">
+        <span class="val" style="color: #6366f1;">{{ student_count }}</span>
+        <span class="lbl">Students</span>
+    </div>
+    <div class="summary-stat">
+        <span class="val" style="color: #f59e0b;">{{ exams|length }}</span>
+        <span class="lbl">Exams Scheduled</span>
+    </div>
+    <div class="summary-stat">
+        <span class="val" style="color: #10b981;">{{ marks_data|length }}</span>
+        <span class="lbl">Marks Uploaded</span>
+    </div>
+    <div class="summary-stat">
+        <span class="val" style="color: #ec4899;">{{ resources|length }}</span>
+        <span class="lbl">Resources</span>
+    </div>
+</div>
+
+<!-- 1. EXAM SCHEDULE -->
+<div class="view-section">
+    <div class="section-head">
+        <h2><i class="fas fa-calendar-alt" style="color: #6366f1;"></i> Exam Schedule (Student View)</h2>
+        <span class="count-badge">{{ exams|length }} Exams</span>
+    </div>
+    <div style="overflow-x: auto;">
+        <table class="view-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Subject / Exam</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if exams %}
+                    {% for exam in exams %}
+                    <tr>
+                        <td style="font-weight: 700; color: #94a3b8;">{{ loop.index }}</td>
+                        <td><span class="badge-sub">{{ exam[1] }}</span></td>
+                        <td style="font-weight: 700;">{{ exam[2] }}</td>
+                        <td><span class="days-badge" data-date="{{ exam[2] }}"></span></td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr><td colspan="4" class="empty-msg">No exams scheduled — students see "No upcoming exams"</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 2. INTERNAL MARKS -->
+<div class="view-section">
+    <div class="section-head">
+        <h2><i class="fas fa-pen-alt" style="color: #f59e0b;"></i> Internal Marks (Student View)</h2>
+        <span class="count-badge">{{ marks_data|length }} Records</span>
+    </div>
+    <div style="overflow-x: auto;">
+        <table class="view-table">
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Subject</th>
+                    <th>Test</th>
+                    <th>Score</th>
+                    <th>Percentage</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if marks_data %}
+                    {% for m in marks_data %}
+                    <tr style="{% if m.marks_obtained == -1 %}background: #fef2f2;{% endif %}">
+                        <td style="font-weight: 700;">{{ m.student_name }}</td>
+                        <td><span class="badge-sub">{{ m.subject_name }}</span></td>
+                        <td>{{ m.test_name }}</td>
+                        <td>
+                            {% if m.marks_obtained == -1 %}
+                                <span class="absent-badge">Absent</span>
+                            {% else %}
+                                <strong>{{ m.marks_obtained }}</strong> / {{ m.total_marks }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if m.marks_obtained == -1 %}
+                                <strong style="color: #ef4444;">AB</strong>
+                            {% else %}
+                                {% set pct = (m.marks_obtained / m.total_marks * 100)|round(1) %}
+                                <strong style="color: {% if pct >= 80 %}#10b981{% elif pct >= 50 %}#f59e0b{% else %}#ef4444{% endif %};">{{ pct }}%</strong>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr><td colspan="5" class="empty-msg">No marks uploaded yet — students see empty marks section</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 3. ATTENDANCE SUMMARY -->
+<div class="view-section">
+    <div class="section-head">
+        <h2><i class="fas fa-clipboard-check" style="color: #10b981;"></i> Attendance Summary (Student View)</h2>
+        <span class="count-badge">{{ attendance_summary|length }} Records</span>
+    </div>
+    <div style="overflow-x: auto;">
+        <table class="view-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Subject</th>
+                    <th>Present</th>
+                    <th>Absent</th>
+                    <th>Total</th>
+                    <th>Attendance %</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if attendance_summary %}
+                    {% for att in attendance_summary %}
+                    <tr>
+                        <td style="font-weight: 700;">{{ att.date }}</td>
+                        <td><span class="badge-sub">{{ att.subject_name }}</span></td>
+                        <td><span class="status-present">{{ att.present_count }}</span></td>
+                        <td>
+                            {% if att.absent_count > 0 %}
+                                <span class="absent-badge">{{ att.absent_count }}</span>
+                            {% else %}
+                                <span style="color: #94a3b8;">0</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ att.total }}</td>
+                        <td>
+                            {% set pct = (att.present_count / att.total * 100)|round(1) if att.total > 0 else 0 %}
+                            <strong style="color: {% if pct >= 80 %}#10b981{% elif pct >= 50 %}#f59e0b{% else %}#ef4444{% endif %};">{{ pct }}%</strong>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr><td colspan="6" class="empty-msg">No attendance recorded yet</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 4. RESOURCES -->
+<div class="view-section">
+    <div class="section-head">
+        <h2><i class="fas fa-book" style="color: #ec4899;"></i> Study Materials (Student View)</h2>
+        <span class="count-badge">{{ resources|length }} Resources</span>
+    </div>
+    {% if resources %}
+        {% for res in resources[:10] %}
+        <div class="resource-card">
+            <div class="resource-icon" style="background: rgba(236, 72, 153, 0.1); color: #ec4899;">
+                {% if res.type == 'PDF' %}
+                    <i class="fas fa-file-pdf"></i>
+                {% elif res.type == 'Link' %}
+                    <i class="fas fa-link"></i>
+                {% elif res.type == 'Video' %}
+                    <i class="fas fa-video"></i>
+                {% else %}
+                    <i class="fas fa-file"></i>
+                {% endif %}
+            </div>
+            <div class="resource-info">
+                <h4>{{ res.title }}</h4>
+                <span>{{ res.type }} • by {{ res.author }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-msg">No resources uploaded — students see "No study materials available"</div>
+    {% endif %}
+</div>
+
+<script>
+    // Calculate exam status badges
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.days-badge[data-date]').forEach(badge => {
+            const examDate = new Date(badge.dataset.date);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            examDate.setHours(0, 0, 0, 0);
+            
+            const diff = Math.ceil((examDate - today) / (1000 * 60 * 60 * 24));
+            
+            if (diff > 0) {
+                badge.textContent = `${diff} days left`;
+                badge.className = 'days-badge upcoming';
+            } else if (diff === 0) {
+                badge.textContent = 'Today!';
+                badge.className = 'days-badge today';
+            } else {
+                badge.textContent = `${Math.abs(diff)} days ago`;
+                badge.className = 'days-badge past';
+            }
+        });
+    });
+</script>
+{% endblock %}

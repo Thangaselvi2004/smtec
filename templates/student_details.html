@@ -149,60 +149,52 @@
         border-bottom: 1px solid rgba(255, 255, 255, 0.01);
     }
 
-    .prediction-res-box {
-        margin-top: 30px;
-        padding: 40px;
-        background: var(--aurora-gradient);
-        border-radius: 20px;
-        text-align: center;
-        display: none;
-    }
 
-    .prediction-val {
-        font-size: 5rem;
-        font-weight: 800;
-        line-height: 1;
-        letter-spacing: -4px;
-        margin-bottom: 15px;
-        color: white;
-    }
-
-    .form-group-p {
-        margin-bottom: 20px;
-    }
-
-    .form-group-p label {
-        display: block;
-        font-size: 0.65rem;
-        text-transform: uppercase;
-        letter-spacing: 2.5px;
-        font-weight: 800;
-        color: var(--text-main);
-        margin-bottom: 10px;
-        opacity: 0.8;
-    }
-
-    .form-group-p input {
-        width: 100%;
-        padding: 12px;
-        background: rgba(0, 0, 0, 0.05);
-        border: 1px solid var(--gray-border);
-        border-radius: 10px;
-        color: var(--text-heading);
-        font-weight: 600;
-    }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="monitoring-container">
-    <div class="header-section" style="margin-bottom: 60px;">
-        <h1 class="section-title">Student Engagement</h1>
-        <p class="subtitle">Monitor progress and task completion across all scholars</p>
+    <div class="header-section" style="margin-bottom: 35px;">
+        <h1 style="font-size: 2.2rem; font-weight: 700; color: var(--text-heading); margin-bottom: 5px; display: flex; align-items: center; gap: 12px;">
+            <i class="fas fa-users" style="color: #6366f1;"></i> Student Engagement
+        </h1>
+        <p style="color: #64748b; font-size: 1.05rem; font-weight: 500;">Monitor progress and task completion across scholars</p>
+    </div>
+
+    <!-- Dept/Year Filter -->
+    <div style="background: white; padding: 25px 30px; border-radius: 20px; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 25px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+                <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748b; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">
+                    <i class="fas fa-building" style="color: #6366f1; margin-right: 4px;"></i> Department
+                </label>
+                <select id="deptFilter" class="search-bar" style="margin-bottom: 0; padding: 12px 18px; border-radius: 12px; border: 2px solid #f1f5f9; background: #f8fafc;" onchange="onFilterChange()">
+                    <option value="">All Departments</option>
+                    {% for dept in departments %}
+                    <option value="{{ dept }}" {% if dept == staff_dept %}selected{% endif %}>{{ dept }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748b; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">
+                    <i class="fas fa-calendar-alt" style="color: #10b981; margin-right: 4px;"></i> Year
+                </label>
+                <select id="yearFilter" class="search-bar" style="margin-bottom: 0; padding: 12px 18px; border-radius: 12px; border: 2px solid #f1f5f9; background: #f8fafc;" onchange="onFilterChange()">
+                    <option value="">All Years</option>
+                    {% for year in years %}
+                    <option value="{{ year }}" {% if year == staff_year %}selected{% endif %}>{{ year }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
     </div>
 
     <div class="monitoring-card">
-        <input type="text" id="studentSearch" class="search-bar" placeholder="🔍 Search student name or email..." onkeyup="filterTable()">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <input type="text" id="studentSearch" class="search-bar" style="margin-bottom: 0; flex: 1;" placeholder="🔍 Search student name or email..." onkeyup="filterTable()">
+            <span id="studentCountBadge" style="font-size: 0.8rem; font-weight: 700; color: #6366f1; background: rgba(99, 102, 241, 0.1); padding: 6px 14px; border-radius: 20px; margin-left: 15px; white-space: nowrap;">{{ students|length }} Students</span>
+        </div>
 
         <div style="overflow-x: auto;">
             <table class="student-table" id="studentTable">
@@ -215,7 +207,7 @@
                         <th>Analytics</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="studentTableBody">
                     {% for s in students %}
                     <tr>
                         <td><div class="rank-badge">{{ loop.index }}</div></td>
@@ -239,17 +231,10 @@
                             </div>
                         </td>
                         <td>
-                            <div style="display: flex; gap: 10px;">
                                 <button class="btn-detail" 
                                         data-student-id="{{ s.id }}" 
                                         data-student-name="{{ s.username }}" 
                                         onclick="handleViewDetail(this)">Status Matrix</button>
-                                <button class="btn-detail" style="border-color: var(--primary); color: var(--primary);" 
-                                        data-student-id="{{ s.id }}" 
-                                        data-student-name="{{ s.username }}" 
-                                        data-points="{{ s.points }}"
-                                        onclick="handleOpenPredictor(this)">AI Analysis</button>
-                            </div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -275,55 +260,7 @@
     </div>
 </div>
 
-<!-- Prediction Modal -->
-<div id="prediction-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(15px); z-index: 2000; justify-content: center; align-items: center;">
-    <div class="modal-content" style="max-width: 800px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
-            <div>
-                <h4 style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-dim); letter-spacing: 2px;">Predictive Intelligence</h4>
-                <h2 id="predict-student-name" style="margin: 0;">Scholar Name</h2>
-            </div>
-            <button onclick="closePredictor()" class="btn-detail" style="border-radius: 50%; width: 40px; height: 40px; padding: 0;">✕</button>
-        </div>
 
-        <div id="predict-form">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                <div class="form-group-p">
-                    <label>Weekly Study Hours</label>
-                    <input type="number" id="p_study" value="10" step="0.5">
-                </div>
-                <div class="form-group-p">
-                    <label>Attendance (%)</label>
-                    <input type="number" id="p_attendance" value="90">
-                </div>
-                <div class="form-group-p">
-                    <label>Rest Cycle (Sleep Hours)</label>
-                    <input type="number" id="p_sleep" value="7" step="0.5">
-                </div>
-                <div class="form-group-p">
-                    <label>Class Participation (0-100)</label>
-                    <input type="number" id="p_part" value="70">
-                </div>
-                <div class="form-group-p">
-                    <label>Previous Performance Score</label>
-                    <input type="number" id="p_prev" value="75">
-                </div>
-                <div class="form-group-p">
-                    <label>System Engagement (XP Points)</label>
-                    <input type="number" id="p_points" readonly style="background: rgba(187,134,252,0.1); border-color: var(--primary);">
-                </div>
-            </div>
-            <button onclick="runAIPrediction()" class="gradient-btn" style="width: 100%; padding: 20px; border-radius: 12px; margin-top: 20px;">Execute Forecast</button>
-        </div>
-
-        <div id="prediction-results" class="prediction-res-box">
-             <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; color: rgba(255,255,255,0.8);">Predicted Outcome</div>
-             <div id="res-val" class="prediction-val">--</div>
-             <div id="res-recs" style="text-align: left; margin-top: 20px; font-size: 0.85rem; color: white;"></div>
-             <button onclick="resetPredictor()" class="btn-detail" style="margin-top: 30px; background: white; color: black; border: none;">New Scan</button>
-        </div>
-    </div>
-</div>
 
 <script>
     function filterTable() {
@@ -350,13 +287,6 @@
         const id = btn.getAttribute('data-student-id');
         const name = btn.getAttribute('data-student-name');
         viewStudentDetail(id, name);
-    }
-
-    function handleOpenPredictor(btn) {
-        const id = btn.getAttribute('data-student-id');
-        const name = btn.getAttribute('data-student-name');
-        const points = btn.getAttribute('data-points');
-        openPredictor(id, name, points);
     }
 
     async function viewStudentDetail(studentId, name) {
@@ -407,67 +337,60 @@
         document.getElementById('detail-modal').style.display = 'none';
     }
 
-    /* Predictor Logic */
-    let currentPredictUser = null;
-
-    function openPredictor(id, name, points) {
-        currentPredictUser = id;
-        document.getElementById('predict-student-name').innerText = name;
-        document.getElementById('p_points').value = points;
-        document.getElementById('prediction-modal').style.display = 'flex';
-        resetPredictor();
-    }
-
-    function closePredictor() {
-        document.getElementById('prediction-modal').style.display = 'none';
-    }
-
-    function resetPredictor() {
-        document.getElementById('predict-form').style.display = 'block';
-        document.getElementById('prediction-results').style.display = 'none';
-    }
-
-    async function runAIPrediction() {
-        const btn = event.target;
-        const originalText = btn.innerText;
-        btn.innerText = "Analyzing data...";
-        btn.disabled = true;
-
-        const payload = {
-            study_hours: document.getElementById('p_study').value,
-            attendance: document.getElementById('p_attendance').value,
-            sleep_hours: document.getElementById('p_sleep').value,
-            participation: document.getElementById('p_part').value,
-            previous_grade: document.getElementById('p_prev').value,
-            points: document.getElementById('p_points').value
-        };
+    // ---- Dynamic Dept/Year Filter ----
+    async function onFilterChange() {
+        const dept = document.getElementById('deptFilter').value;
+        const year = document.getElementById('yearFilter').value;
 
         try {
-            const resp = await fetch('/api/predict', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            const data = await resp.json();
+            const resp = await fetch(`/api/staff/get_engagement?department=${encodeURIComponent(dept)}&year=${encodeURIComponent(year)}`);
+            const students = await resp.json();
 
-            if (data.status === 'success') {
-                document.getElementById('predict-form').style.display = 'none';
-                document.getElementById('prediction-results').style.display = 'block';
-                document.getElementById('res-val').innerText = data.prediction;
-                
-                let recsHtml = '';
-                if(data.recommendations.length > 0) {
-                    recsHtml = '<ul style="margin-left: 20px;">' + data.recommendations.map(r => `<li style="margin-bottom: 5px;">${r}</li>`).join('') + '</ul>';
-                }
-                document.getElementById('res-recs').innerHTML = recsHtml;
+            const tbody = document.getElementById('studentTableBody');
+            tbody.innerHTML = '';
+
+            if (students.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px; color: #94a3b8;">No students found for this filter.</td></tr>';
             } else {
-                alert("Prediction failed: " + data.message);
+                students.forEach((s, idx) => {
+                    const total = s.total_tasks || 0;
+                    const done = s.tasks_finished || 0;
+                    const opened = s.tasks_opened || 0;
+                    const percent = total > 0 ? Math.round((done / total) * 100) : 0;
+                    const notStarted = total - done - opened;
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><div class="rank-badge">${idx + 1}</div></td>
+                            <td>
+                                <div style="font-weight: 800;">${s.username}</div>
+                                <div style="font-size: 0.75rem; color: var(--text-dim);">${s.email || ''}</div>
+                            </td>
+                            <td><span class="xp-tag">${s.points || 0} XP</span></td>
+                            <td>
+                                <div class="progress-mini">
+                                    <div class="progress-fill-mini" style="--progress-per: ${percent}%;"></div>
+                                </div>
+                                <span style="font-size: 0.8rem; font-weight: 800;">${percent}%</span>
+                                <div style="font-size: 0.6rem; color: var(--text-dim); margin-top: 5px;">
+                                    ${done} Done | ${opened} Started | ${notStarted} Not Started
+                                </div>
+                            </td>
+                            <td>
+                                <button class="btn-detail" 
+                                        data-student-id="${s.id}" 
+                                        data-student-name="${s.username}" 
+                                        onclick="handleViewDetail(this)">Status Matrix</button>
+                            </td>
+                        </tr>
+                    `;
+                });
             }
-        } catch (e) {
-            alert("Error connecting to AI engine.");
-        } finally {
-            btn.innerText = originalText;
-            btn.disabled = false;
+
+            document.getElementById('studentCountBadge').textContent = students.length + ' Students';
+
+        } catch(e) {
+            console.error('Error loading students:', e);
         }
     }
 </script>

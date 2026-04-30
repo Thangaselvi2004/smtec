@@ -8,45 +8,66 @@
         padding-bottom: 50px;
     }
 
-    .form-card {
-        background: white;
-        padding: 40px;
-        border-radius: 24px;
-        border: 1px solid rgba(0,0,0,0.05);
-        box-shadow: var(--shadow-md);
-        margin-bottom: 40px;
+    .page-header {
+        margin-bottom: 35px;
     }
 
-    .form-title {
-        font-size: 1.5rem;
-        font-weight: 800;
-        color: #1e293b;
-        margin-bottom: 25px;
+    .page-header h1 {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--text-heading);
+        margin-bottom: 5px;
         display: flex;
         align-items: center;
         gap: 12px;
     }
 
-    .form-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 25px;
-        margin-bottom: 25px;
+    .page-header p {
+        color: #64748b;
+        font-size: 1.05rem;
+        font-weight: 500;
     }
 
-    .form-group label {
+    /* Top Config Section */
+    .config-card {
+        background: white;
+        padding: 30px;
+        border-radius: 20px;
+        border: 1px solid rgba(0,0,0,0.05);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        margin-bottom: 30px;
+    }
+
+    .config-card h2 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .config-row {
+        display: grid;
+        grid-template-columns: 2fr 2fr 1fr;
+        gap: 20px;
+        align-items: end;
+    }
+
+    .config-group label {
         display: block;
-        font-size: 0.85rem;
+        font-size: 0.75rem;
         font-weight: 700;
         color: #64748b;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
 
-    .form-control {
+    .config-control {
         width: 100%;
-        padding: 14px 18px;
+        padding: 12px 16px;
         border-radius: 12px;
         border: 2px solid #f1f5f9;
         background: #f8fafc;
@@ -55,141 +76,507 @@
         color: #1e293b;
         outline: none;
         transition: all 0.2s;
+        font-family: inherit;
     }
 
-    .form-control:focus {
+    .config-control:focus {
         border-color: #6366f1;
         background: white;
         box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
     }
 
-    .submit-btn {
-        width: 100%;
-        padding: 16px;
-        border-radius: 12px;
-        background: var(--primary-gradient);
-        color: white;
-        border: none;
-        font-weight: 800;
-        font-size: 1rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        cursor: pointer;
-        transition: transform 0.2s;
-        margin-top: 10px;
-    }
-
-    .submit-btn:hover {
-        transform: translateY(-2px);
-    }
-
-    /* Table Styles */
-    .table-card {
+    /* Excel Table */
+    .excel-card {
         background: white;
-        border-radius: 24px;
+        border-radius: 20px;
         border: 1px solid rgba(0,0,0,0.05);
-        box-shadow: var(--shadow-md);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
         overflow: hidden;
+        margin-bottom: 30px;
     }
 
-    .marks-table {
+    .excel-header {
+        padding: 20px 25px;
+        border-bottom: 2px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .excel-header h2 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .student-count {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #6366f1;
+        background: rgba(99, 102, 241, 0.1);
+        padding: 4px 12px;
+        border-radius: 20px;
+    }
+
+    .excel-table {
         width: 100%;
         border-collapse: collapse;
     }
 
-    .marks-table th {
+    .excel-table thead th {
         background: #f8fafc;
-        padding: 20px;
+        padding: 14px 20px;
         text-align: left;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border-bottom: 2px solid #e2e8f0;
+        position: sticky;
+        top: 0;
+    }
+
+    .excel-table thead th:nth-child(1) { width: 50px; text-align: center; }
+    .excel-table thead th:nth-child(4) { width: 120px; text-align: center; }
+    .excel-table thead th:nth-child(5) { width: 100px; text-align: center; }
+    .excel-table thead th:nth-child(6) { width: 80px; text-align: center; }
+
+    .excel-table tbody tr {
+        transition: background 0.15s;
+    }
+
+    .excel-table tbody tr:hover {
+        background: #fafbff;
+    }
+
+    .excel-table tbody tr.absent-row {
+        background: #fef2f2;
+    }
+
+    .excel-table td {
+        padding: 12px 20px;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 0.9rem;
+        color: #1e293b;
+    }
+
+    .excel-table td:nth-child(1) { text-align: center; }
+    .excel-table td:nth-child(5),
+    .excel-table td:nth-child(6) { text-align: center; }
+
+    .row-num {
+        font-weight: 700;
+        color: #94a3b8;
+        font-size: 0.8rem;
+    }
+
+    .student-name {
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .student-email {
         font-size: 0.75rem;
-        font-weight: 800;
+        color: #94a3b8;
+    }
+
+    .mark-input {
+        width: 90px;
+        padding: 8px 12px;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #1e293b;
+        text-align: center;
+        outline: none;
+        transition: all 0.2s;
+        font-family: inherit;
+        background: white;
+    }
+
+    .mark-input:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+
+    .mark-input.invalid {
+        border-color: #ef4444;
+        background: #fef2f2;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    }
+
+    .mark-input.valid {
+        border-color: #10b981;
+    }
+
+    .percent-badge {
+        font-size: 0.8rem;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 8px;
+        display: inline-block;
+        min-width: 50px;
+    }
+
+    .percent-badge.high { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+    .percent-badge.medium { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+    .percent-badge.low { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+    .percent-badge.absent { background: rgba(100, 116, 139, 0.1); color: #64748b; }
+
+    .absent-toggle {
+        width: 18px;
+        height: 18px;
+        accent-color: #ef4444;
+        cursor: pointer;
+    }
+
+    /* Submit Footer */
+    .submit-footer {
+        background: white;
+        padding: 20px 30px;
+        border-radius: 20px;
+        border: 1px solid rgba(0,0,0,0.05);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 40px;
+    }
+
+    .submit-stats {
+        display: flex;
+        gap: 25px;
+    }
+
+    .stat-mini {
+        text-align: center;
+    }
+
+    .stat-mini .num {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #1e293b;
+        display: block;
+    }
+
+    .stat-mini .lbl {
+        font-size: 0.65rem;
+        font-weight: 600;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .submit-btn {
+        padding: 14px 40px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        color: white;
+        border: none;
+        font-weight: 700;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: inherit;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+    }
+
+    .submit-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    /* History Table */
+    .history-card {
+        background: white;
+        border-radius: 20px;
+        border: 1px solid rgba(0,0,0,0.05);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        overflow: hidden;
+    }
+
+    .history-header {
+        padding: 20px 25px;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .history-header h2 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .history-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .history-table th {
+        background: #f8fafc;
+        padding: 14px 20px;
+        text-align: left;
+        font-size: 0.72rem;
+        font-weight: 700;
         color: #64748b;
         text-transform: uppercase;
         letter-spacing: 1px;
     }
 
-    .marks-table td {
-        padding: 20px;
+    .history-table td {
+        padding: 16px 20px;
         border-bottom: 1px solid #f1f5f9;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         color: #1e293b;
     }
 
     .badge-subject {
         background: rgba(99, 102, 241, 0.1);
         color: #6366f1;
-        padding: 5px 12px;
+        padding: 4px 12px;
         border-radius: 8px;
         font-size: 0.8rem;
         font-weight: 700;
     }
 
-    .score-val {
-        font-weight: 800;
-        color: #0f172a;
+    .score-val { font-weight: 800; color: #0f172a; }
+
+    /* Toast notification */
+    .toast-msg {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 16px 24px;
+        border-radius: 14px;
+        color: white;
+        font-weight: 700;
+        font-size: 0.9rem;
+        z-index: 9999;
+        display: none;
+        animation: slideIn 0.3s ease;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    .toast-msg.success { background: #10b981; }
+    .toast-msg.error { background: #ef4444; }
+
+    @keyframes slideIn {
+        from { transform: translateX(100px); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+
+    @media (max-width: 768px) {
+        .config-row { grid-template-columns: 1fr; }
+        .submit-footer { flex-direction: column; gap: 20px; }
+        .mark-input { width: 70px; }
+    }
+
+    /* Action buttons in history */
+    .action-icon-btn {
+        background: none;
+        border: 2px solid transparent;
+        cursor: pointer;
+        font-size: 0.85rem;
+        padding: 6px 8px;
+        border-radius: 8px;
+        transition: all 0.2s;
+    }
+
+    .edit-btn { color: #6366f1; }
+    .edit-btn:hover { background: rgba(99, 102, 241, 0.1); border-color: rgba(99, 102, 241, 0.2); }
+
+    .delete-btn { color: #ef4444; }
+    .delete-btn:hover { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.2); }
+
+    .save-action-btn { color: #10b981; }
+    .save-action-btn:hover { background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2); }
+
+    .cancel-action-btn { color: #64748b; }
+    .cancel-action-btn:hover { background: rgba(100, 116, 139, 0.1); }
+
+    .absent-badge {
+        background: rgba(239,68,68,0.1);
+        color: #ef4444;
+        padding: 4px 12px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.8rem;
+    }
+
+    .edit-mark-input {
+        width: 70px;
+        padding: 6px 10px;
+        border: 2px solid #6366f1;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        text-align: center;
+        outline: none;
+        font-family: inherit;
+    }
+
+    .edit-mark-input:focus {
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="marks-container">
-    <div style="margin-bottom: 40px;">
-        <h1 style="font-size: 2.5rem; font-weight: 900; color: var(--text-heading); margin-bottom: 5px;">Internal Marks</h1>
-        <p style="color: #64748b; font-size: 1.1rem; font-weight: 500;">Manage and publish academic results for your students.</p>
+    <div class="page-header">
+        <h1><i class="fas fa-pen-alt" style="color: #6366f1;"></i> Internal Marks</h1>
+        <p>Bulk upload marks for all students — Excel style, one click submit.</p>
     </div>
 
-    <!-- Upload Form -->
-    <div class="form-card">
-        <h2 class="form-title"><i class="fas fa-plus-circle" style="color: #6366f1;"></i> Upload Marks</h2>
-        <form method="POST">
-            <div class="form-grid">
-                <div class="form-group">
-                    <label>Student</label>
-                    <select name="student_id" class="form-control" required>
-                        <option value="" disabled selected>Select Student</option>
-                        {% for student in students %}
-                        <option value="{{ student.id }}">{{ student.username }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Subject</label>
-                    <select name="subject_id" class="form-control" required>
-                        <option value="" disabled selected>Select Subject</option>
-                        {% for subject in subjects %}
-                        <option value="{{ subject.id }}">{{ subject.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+    <!-- Config Section -->
+    <div class="config-card">
+        <h2><i class="fas fa-cog" style="color: #6366f1;"></i> Test Configuration</h2>
+        
+        <!-- Dept/Year Filter Row -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 2px solid #f1f5f9;">
+            <div class="config-group">
+                <label><i class="fas fa-building" style="color: #6366f1; margin-right: 4px;"></i> Department</label>
+                <select id="deptFilter" class="config-control" onchange="onFilterChange()">
+                    <option value="">All Departments</option>
+                    {% for dept in departments %}
+                    <option value="{{ dept }}" {% if dept == staff_dept %}selected{% endif %}>{{ dept }}</option>
+                    {% endfor %}
+                </select>
             </div>
+            <div class="config-group">
+                <label><i class="fas fa-calendar-alt" style="color: #10b981; margin-right: 4px;"></i> Year</label>
+                <select id="yearFilter" class="config-control" onchange="onFilterChange()">
+                    <option value="">All Years</option>
+                    {% for year in years %}
+                    <option value="{{ year }}" {% if year == staff_year %}selected{% endif %}>{{ year }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
 
-            <div class="form-group">
+        <!-- Subject / Test / Total Row -->
+        <div class="config-row">
+            <div class="config-group">
+                <label>Subject</label>
+                <select id="subjectSelect" class="config-control" required>
+                    <option value="" disabled selected>Select Subject</option>
+                    {% for subject in subjects %}
+                    <option value="{{ subject.id }}">{{ subject.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="config-group">
                 <label>Test Name</label>
-                <input type="text" name="test_name" class="form-control" placeholder="e.g. Unit Test 1, Model Exam" required>
+                <input type="text" id="testName" class="config-control" placeholder="e.g. Unit Test 1, Model Exam, CIA 2">
             </div>
-
-            <div class="form-grid" style="margin-top: 20px;">
-                <div class="form-group">
-                    <label>Marks Obtained</label>
-                    <input type="number" step="0.5" name="marks" class="form-control" placeholder="0.0" required>
-                </div>
-                <div class="form-group">
-                    <label>Total Marks</label>
-                    <input type="number" step="0.5" name="total" class="form-control" placeholder="100.0" required>
-                </div>
+            <div class="config-group">
+                <label>Total Marks</label>
+                <input type="number" id="totalMarks" class="config-control" placeholder="100" value="100" min="1">
             </div>
+        </div>
+    </div>
 
-            <button type="submit" class="submit-btn">Publish Marks</button>
-        </form>
+    <!-- Excel Table -->
+    <div class="excel-card">
+        <div class="excel-header">
+            <h2><i class="fas fa-table" style="color: #10b981;"></i> Student Marks Entry</h2>
+            <span class="student-count">{{ students|length }} Students</span>
+        </div>
+        <div style="overflow-x: auto;">
+            <table class="excel-table" id="marksTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Student</th>
+                        <th>Email</th>
+                        <th>Marks</th>
+                        <th>%</th>
+                        <th>AB</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr id="row-{{ student.id }}" data-student-id="{{ student.id }}">
+                        <td><span class="row-num">{{ loop.index }}</span></td>
+                        <td><span class="student-name">{{ student.username }}</span></td>
+                        <td><span class="student-email">{{ student.email or '—' }}</span></td>
+                        <td>
+                            <input type="number" 
+                                   class="mark-input" 
+                                   id="mark-{{ student.id }}" 
+                                   placeholder="—" 
+                                   step="0.5" 
+                                   min="0"
+                                   oninput="onMarkChange({{ student.id }})">
+                        </td>
+                        <td>
+                            <span class="percent-badge" id="percent-{{ student.id }}">—</span>
+                        </td>
+                        <td>
+                            <input type="checkbox" 
+                                   class="absent-toggle" 
+                                   id="absent-{{ student.id }}" 
+                                   title="Mark as Absent"
+                                   onchange="onAbsentToggle({{ student.id }})">
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Submit Footer -->
+    <div class="submit-footer">
+        <div class="submit-stats">
+            <div class="stat-mini">
+                <span class="num" id="filledCount">0</span>
+                <span class="lbl">Filled</span>
+            </div>
+            <div class="stat-mini">
+                <span class="num" id="absentCount">0</span>
+                <span class="lbl">Absent</span>
+            </div>
+            <div class="stat-mini">
+                <span class="num" id="pendingCount">{{ students|length }}</span>
+                <span class="lbl">Pending</span>
+            </div>
+            <div class="stat-mini">
+                <span class="num" id="avgPercent">—</span>
+                <span class="lbl">Class Avg</span>
+            </div>
+        </div>
+        <button class="submit-btn" id="submitBtn" onclick="submitAllMarks()">
+            <i class="fas fa-cloud-upload-alt"></i> Submit All Marks
+        </button>
     </div>
 
     <!-- Marks History -->
-    <div class="table-card">
-        <div style="padding: 25px; border-bottom: 1px solid #f1f5f9;">
-            <h2 style="font-size: 1.2rem; font-weight: 800; color: #1e293b;">Recent Uploads</h2>
+    <div class="history-card">
+        <div class="history-header">
+            <h2><i class="fas fa-history" style="color: #f59e0b;"></i> Recent Uploads</h2>
         </div>
         <div style="overflow-x: auto;">
-            <table class="marks-table">
+            <table class="history-table" id="historyTable">
                 <thead>
                     <tr>
                         <th>Student</th>
@@ -197,27 +584,56 @@
                         <th>Test Name</th>
                         <th>Score</th>
                         <th>Percentage</th>
+                        <th style="width: 110px; text-align: center;">Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% if marks_list %}
                         {% for mark in marks_list %}
-                        <tr>
+                        <tr id="mark-row-{{ mark.id }}" 
+                            data-mark-id="{{ mark.id }}"
+                            data-total="{{ mark.total_marks }}"
+                            data-marks="{{ mark.marks_obtained }}"
+                            style="{% if mark.marks_obtained == -1 %}background: #fef2f2;{% endif %}">
                             <td style="font-weight: 700;">{{ mark.student_name }}</td>
                             <td><span class="badge-subject">{{ mark.subject_name }}</span></td>
                             <td>{{ mark.test_name }}</td>
-                            <td><span class="score-val">{{ mark.marks_obtained }}</span> / {{ mark.total_marks }}</td>
-                            <td>
-                                {% set per = (mark.marks_obtained / mark.total_marks * 100)|round(1) %}
-                                <strong style="color: {% if per >= 80 %}#10b981{% elif per >= 50 %}#f59e0b{% else %}#ef4444{% endif %};">
-                                    {{ per }}%
-                                </strong>
+                            <td id="score-cell-{{ mark.id }}">
+                                {% if mark.marks_obtained == -1 %}
+                                    <span class="absent-badge">Absent</span>
+                                {% else %}
+                                    <span class="score-val">{{ mark.marks_obtained }}</span> / {{ mark.total_marks }}
+                                {% endif %}
+                            </td>
+                            <td id="pct-cell-{{ mark.id }}">
+                                {% if mark.marks_obtained == -1 %}
+                                    <strong style="color: #ef4444;">AB</strong>
+                                {% else %}
+                                    {% set per = (mark.marks_obtained / mark.total_marks * 100)|round(1) %}
+                                    <strong style="color: {% if per >= 80 %}#10b981{% elif per >= 50 %}#f59e0b{% else %}#ef4444{% endif %};">
+                                        {{ per }}%
+                                    </strong>
+                                {% endif %}
+                            </td>
+                            <td style="text-align: center;">
+                                <div id="actions-{{ mark.id }}" style="display: flex; gap: 4px; justify-content: center;">
+                                    <button onclick="startEdit({{ mark.id }})" 
+                                            class="action-icon-btn edit-btn"
+                                            title="Edit marks">
+                                        <i class="fas fa-pen"></i>
+                                    </button>
+                                    <button onclick="deleteMark({{ mark.id }})" 
+                                            class="action-icon-btn delete-btn"
+                                            title="Delete record">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <td colspan="5" style="text-align: center; padding: 40px; color: #94a3b8;">No marks uploaded yet.</td>
+                            <td colspan="6" style="text-align: center; padding: 40px; color: #94a3b8;">No marks uploaded yet.</td>
                         </tr>
                     {% endif %}
                 </tbody>
@@ -225,4 +641,401 @@
         </div>
     </div>
 </div>
+
+<!-- Toast -->
+<div class="toast-msg" id="toast"></div>
+
+<script>
+    let totalStudents = {{ students|length }};
+
+    function getTotal() {
+        return parseFloat(document.getElementById('totalMarks').value) || 100;
+    }
+
+    function onMarkChange(studentId) {
+        const input = document.getElementById(`mark-${studentId}`);
+        const val = parseFloat(input.value);
+        const total = getTotal();
+        const percentEl = document.getElementById(`percent-${studentId}`);
+        const row = document.getElementById(`row-${studentId}`);
+
+        // Validation
+        if (input.value === '') {
+            input.classList.remove('invalid', 'valid');
+            percentEl.textContent = '—';
+            percentEl.className = 'percent-badge';
+            updateStats();
+            return;
+        }
+
+        if (val > total || val < 0) {
+            input.classList.add('invalid');
+            input.classList.remove('valid');
+            percentEl.textContent = '!';
+            percentEl.className = 'percent-badge low';
+        } else {
+            input.classList.remove('invalid');
+            input.classList.add('valid');
+            const pct = ((val / total) * 100).toFixed(1);
+            percentEl.textContent = pct + '%';
+
+            if (pct >= 80) percentEl.className = 'percent-badge high';
+            else if (pct >= 50) percentEl.className = 'percent-badge medium';
+            else percentEl.className = 'percent-badge low';
+        }
+
+        // Uncheck absent if marks entered
+        document.getElementById(`absent-${studentId}`).checked = false;
+        row.classList.remove('absent-row');
+
+        updateStats();
+    }
+
+    function onAbsentToggle(studentId) {
+        const checkbox = document.getElementById(`absent-${studentId}`);
+        const input = document.getElementById(`mark-${studentId}`);
+        const percentEl = document.getElementById(`percent-${studentId}`);
+        const row = document.getElementById(`row-${studentId}`);
+
+        if (checkbox.checked) {
+            input.value = '';
+            input.disabled = true;
+            input.classList.remove('invalid', 'valid');
+            percentEl.textContent = 'AB';
+            percentEl.className = 'percent-badge absent';
+            row.classList.add('absent-row');
+        } else {
+            input.disabled = false;
+            percentEl.textContent = '—';
+            percentEl.className = 'percent-badge';
+            row.classList.remove('absent-row');
+        }
+        updateStats();
+    }
+
+    function updateStats() {
+        let filled = 0, absent = 0, totalPct = 0, validMarks = 0;
+
+        document.querySelectorAll('.mark-input').forEach(input => {
+            const sid = input.id.replace('mark-', '');
+            const absentBox = document.getElementById(`absent-${sid}`);
+
+            if (absentBox && absentBox.checked) {
+                absent++;
+            } else if (input.value !== '' && !input.classList.contains('invalid')) {
+                filled++;
+                totalPct += (parseFloat(input.value) / getTotal()) * 100;
+                validMarks++;
+            }
+        });
+
+        document.getElementById('filledCount').textContent = filled;
+        document.getElementById('absentCount').textContent = absent;
+        document.getElementById('pendingCount').textContent = totalStudents - filled - absent;
+        document.getElementById('avgPercent').textContent = validMarks > 0 ? (totalPct / validMarks).toFixed(1) + '%' : '—';
+    }
+
+    // Recalculate all percentages when total changes
+    document.getElementById('totalMarks').addEventListener('input', function() {
+        document.querySelectorAll('.mark-input').forEach(input => {
+            if (input.value !== '') {
+                const sid = input.id.replace('mark-', '');
+                onMarkChange(parseInt(sid));
+            }
+        });
+    });
+
+    async function submitAllMarks() {
+        const subjectId = document.getElementById('subjectSelect').value;
+        const testName = document.getElementById('testName').value.trim();
+        const total = getTotal();
+
+        // Validate config
+        if (!subjectId) { showToast('Please select a subject.', 'error'); return; }
+        if (!testName) { showToast('Please enter a test name.', 'error'); return; }
+        if (!total || total <= 0) { showToast('Please enter valid total marks.', 'error'); return; }
+
+        // Collect marks + absent
+        const marks = [];
+        const absent = [];
+        let hasInvalid = false;
+
+        document.querySelectorAll('.mark-input').forEach(input => {
+            const sid = input.id.replace('mark-', '');
+            const absentBox = document.getElementById(`absent-${sid}`);
+            const row = document.getElementById(`row-${sid}`);
+            const name = row ? (row.querySelector('.student-name')?.textContent || '') : '';
+
+            if (absentBox && absentBox.checked) {
+                // Collect absent students
+                absent.push({ student_id: parseInt(sid), name: name });
+                return;
+            }
+
+            if (input.value !== '') {
+                const val = parseFloat(input.value);
+                if (val > total || val < 0) {
+                    hasInvalid = true;
+                    return;
+                }
+                marks.push({
+                    student_id: parseInt(sid),
+                    marks: val
+                });
+            }
+        });
+
+        if (hasInvalid) { showToast('Fix invalid marks (highlighted in red) before submitting.', 'error'); return; }
+        if (marks.length === 0 && absent.length === 0) { showToast('No marks entered and no students marked absent.', 'error'); return; }
+
+        // Submit
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+
+        try {
+            const resp = await fetch('/api/staff/bulk_marks', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    subject_id: subjectId,
+                    test_name: testName,
+                    total_marks: total,
+                    marks: marks,
+                    absent: absent
+                })
+            });
+
+            const data = await resp.json();
+
+            if (data.status === 'success') {
+                showToast(data.message, 'success');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showToast(data.message || 'Upload failed.', 'error');
+            }
+        } catch (e) {
+            showToast('Network error. Please try again.', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Submit All Marks';
+        }
+    }
+
+    async function deleteMark(markId) {
+        if (!confirm('Delete this record?')) return;
+        
+        try {
+            const resp = await fetch(`/api/staff/delete_mark/${markId}`, { method: 'DELETE' });
+            const data = await resp.json();
+            
+            if (data.status === 'success') {
+                const row = document.getElementById(`mark-row-${markId}`);
+                if (row) {
+                    row.style.transition = 'opacity 0.3s, transform 0.3s';
+                    row.style.opacity = '0';
+                    row.style.transform = 'translateX(30px)';
+                    setTimeout(() => row.remove(), 300);
+                }
+                showToast('Record deleted.', 'success');
+            } else {
+                showToast('Delete failed.', 'error');
+            }
+        } catch(e) {
+            showToast('Network error.', 'error');
+        }
+    }
+
+    // ---- Inline Edit Functions ----
+    function startEdit(markId) {
+        const row = document.getElementById(`mark-row-${markId}`);
+        const total = parseFloat(row.dataset.total);
+        const currentMarks = parseFloat(row.dataset.marks);
+        const scoreCell = document.getElementById(`score-cell-${markId}`);
+        const actionsDiv = document.getElementById(`actions-${markId}`);
+
+        // Replace score with input
+        const isAbsent = currentMarks === -1;
+        scoreCell.innerHTML = `
+            <input type="number" class="edit-mark-input" id="edit-input-${markId}" 
+                   value="${isAbsent ? '' : currentMarks}" 
+                   placeholder="${isAbsent ? 'Enter marks' : ''}"
+                   min="0" max="${total}" step="0.5">
+            <span style="color: #94a3b8; font-size: 0.85rem;"> / ${total}</span>
+        `;
+
+        // Replace actions with save/cancel
+        actionsDiv.innerHTML = `
+            <button onclick="saveEdit(${markId})" class="action-icon-btn save-action-btn" title="Save">
+                <i class="fas fa-check"></i>
+            </button>
+            <button onclick="cancelEdit(${markId})" class="action-icon-btn cancel-action-btn" title="Cancel">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+
+        // Focus the input
+        document.getElementById(`edit-input-${markId}`).focus();
+    }
+
+    async function saveEdit(markId) {
+        const input = document.getElementById(`edit-input-${markId}`);
+        const row = document.getElementById(`mark-row-${markId}`);
+        const total = parseFloat(row.dataset.total);
+        const newMarks = parseFloat(input.value);
+
+        if (isNaN(newMarks) || newMarks < -1 || newMarks > total) {
+            showToast(`Enter a valid mark between 0 and ${total}.`, 'error');
+            return;
+        }
+
+        try {
+            const resp = await fetch(`/api/staff/update_mark/${markId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ marks_obtained: newMarks })
+            });
+            const data = await resp.json();
+
+            if (data.status === 'success') {
+                // Update the row data
+                row.dataset.marks = newMarks;
+                row.style.background = newMarks === -1 ? '#fef2f2' : '';
+
+                // Update score cell
+                const scoreCell = document.getElementById(`score-cell-${markId}`);
+                if (newMarks === -1) {
+                    scoreCell.innerHTML = '<span class="absent-badge">Absent</span>';
+                } else {
+                    scoreCell.innerHTML = `<span class="score-val">${newMarks}</span> / ${total}`;
+                }
+
+                // Update percentage cell
+                const pctCell = document.getElementById(`pct-cell-${markId}`);
+                if (newMarks === -1) {
+                    pctCell.innerHTML = '<strong style="color: #ef4444;">AB</strong>';
+                } else {
+                    const pct = ((newMarks / total) * 100).toFixed(1);
+                    let color = '#ef4444';
+                    if (pct >= 80) color = '#10b981';
+                    else if (pct >= 50) color = '#f59e0b';
+                    pctCell.innerHTML = `<strong style="color: ${color};">${pct}%</strong>`;
+                }
+
+                // Restore action buttons
+                const actionsDiv = document.getElementById(`actions-${markId}`);
+                actionsDiv.innerHTML = `
+                    <button onclick="startEdit(${markId})" class="action-icon-btn edit-btn" title="Edit marks">
+                        <i class="fas fa-pen"></i>
+                    </button>
+                    <button onclick="deleteMark(${markId})" class="action-icon-btn delete-btn" title="Delete record">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                `;
+
+                showToast('Marks updated!', 'success');
+            } else {
+                showToast(data.message || 'Update failed.', 'error');
+            }
+        } catch(e) {
+            showToast('Network error.', 'error');
+        }
+    }
+
+    function cancelEdit(markId) {
+        const row = document.getElementById(`mark-row-${markId}`);
+        const total = parseFloat(row.dataset.total);
+        const marks = parseFloat(row.dataset.marks);
+
+        // Restore score cell
+        const scoreCell = document.getElementById(`score-cell-${markId}`);
+        if (marks === -1) {
+            scoreCell.innerHTML = '<span class="absent-badge">Absent</span>';
+        } else {
+            scoreCell.innerHTML = `<span class="score-val">${marks}</span> / ${total}`;
+        }
+
+        // Restore action buttons
+        const actionsDiv = document.getElementById(`actions-${markId}`);
+        actionsDiv.innerHTML = `
+            <button onclick="startEdit(${markId})" class="action-icon-btn edit-btn" title="Edit marks">
+                <i class="fas fa-pen"></i>
+            </button>
+            <button onclick="deleteMark(${markId})" class="action-icon-btn delete-btn" title="Delete record">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+        `;
+    }
+
+    function showToast(msg, type) {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.className = `toast-msg ${type}`;
+        toast.style.display = 'block';
+        setTimeout(() => { toast.style.display = 'none'; }, 3500);
+    }
+
+    // ---- Dynamic Dept/Year Filter ----
+    async function onFilterChange() {
+        const dept = document.getElementById('deptFilter').value;
+        const year = document.getElementById('yearFilter').value;
+
+        // Reload subjects
+        try {
+            const subResp = await fetch(`/api/staff/get_subjects?department=${encodeURIComponent(dept)}&year=${encodeURIComponent(year)}`);
+            const subjects = await subResp.json();
+            
+            const subSelect = document.getElementById('subjectSelect');
+            subSelect.innerHTML = '<option value="" disabled selected>Select Subject</option>';
+            subjects.forEach(sub => {
+                subSelect.innerHTML += `<option value="${sub.id}">${sub.name}</option>`;
+            });
+        } catch(e) {
+            console.error('Error loading subjects:', e);
+        }
+
+        // Reload students
+        try {
+            const stuResp = await fetch(`/api/staff/get_students?department=${encodeURIComponent(dept)}&year=${encodeURIComponent(year)}`);
+            const students = await stuResp.json();
+            
+            const tbody = document.querySelector('#marksTable tbody');
+            tbody.innerHTML = '';
+
+            if (students.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px; color: #94a3b8;">No students found for this filter.</td></tr>';
+            } else {
+                students.forEach((stu, idx) => {
+                    tbody.innerHTML += `
+                        <tr id="row-${stu.id}" data-student-id="${stu.id}">
+                            <td><span class="row-num">${idx + 1}</span></td>
+                            <td><span class="student-name">${stu.username}</span></td>
+                            <td><span class="student-email">${stu.email || '—'}</span></td>
+                            <td>
+                                <input type="number" class="mark-input" id="mark-${stu.id}" 
+                                       placeholder="—" step="0.5" min="0"
+                                       oninput="onMarkChange(${stu.id})">
+                            </td>
+                            <td>
+                                <span class="percent-badge" id="percent-${stu.id}">—</span>
+                            </td>
+                            <td>
+                                <input type="checkbox" class="absent-toggle" id="absent-${stu.id}" 
+                                       title="Mark as Absent" onchange="onAbsentToggle(${stu.id})">
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            // Update counters
+            totalStudents = students.length;
+            document.querySelector('.student-count').textContent = totalStudents + ' Students';
+            updateStats();
+
+        } catch(e) {
+            console.error('Error loading students:', e);
+        }
+    }
+</script>
 {% endblock %}

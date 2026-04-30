@@ -1,0 +1,377 @@
+{% extends "layout.html" %}
+
+{% block title %}Assignments | Staff Portal{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header { margin-bottom: 35px; }
+    .page-header h1 { font-size: 2rem; font-weight: 700; color: var(--text-heading); display: flex; align-items: center; gap: 12px; }
+    .page-header p { color: #64748b; font-size: 1rem; font-weight: 500; margin-top: 6px; }
+
+    .add-card {
+        background: white;
+        border-radius: 24px;
+        padding: 30px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        border: 1px solid rgba(0,0,0,0.05);
+        margin-bottom: 30px;
+    }
+
+    .add-card h2 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .form-group.full { grid-column: 1 / -1; }
+
+    .form-group label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 12px 16px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 0.88rem;
+        font-weight: 600;
+        font-family: inherit;
+        color: #1e293b;
+        transition: all 0.2s;
+        background: white;
+    }
+
+    .form-group textarea {
+        min-height: 80px;
+        resize: vertical;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .submit-row {
+        margin-top: 20px;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .submit-btn {
+        padding: 12px 30px;
+        background: linear-gradient(135deg, #6366f1, #06b6d4);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-family: inherit;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+    }
+
+    /* Task List */
+    .list-card {
+        background: white;
+        border-radius: 24px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        border: 1px solid rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+
+    .list-header {
+        padding: 22px 28px;
+        border-bottom: 2px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .list-header h2 {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .count-badge {
+        background: rgba(99, 102, 241, 0.08);
+        color: #6366f1;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.72rem;
+        font-weight: 700;
+    }
+
+    .task-item {
+        padding: 20px 28px;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: background 0.2s;
+    }
+
+    .task-item:hover { background: #f8fafc; }
+    .task-item:last-child { border-bottom: none; }
+
+    .task-info h3 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 5px;
+    }
+
+    .task-info p {
+        font-size: 0.82rem;
+        color: #64748b;
+        margin-bottom: 8px;
+    }
+
+    .task-meta {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .meta-badge {
+        font-size: 0.68rem;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 6px;
+    }
+
+    .meta-badge.due { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+    .meta-badge.type { background: rgba(99, 102, 241, 0.08); color: #6366f1; }
+    .meta-badge.file { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+
+    .task-actions {
+        display: flex;
+        gap: 6px;
+        flex-shrink: 0;
+    }
+
+    .act-btn {
+        background: none;
+        border: 2px solid transparent;
+        cursor: pointer;
+        padding: 6px 8px;
+        border-radius: 8px;
+        transition: all 0.2s;
+        font-size: 0.85rem;
+    }
+
+    .act-btn.view { color: #6366f1; }
+    .act-btn.view:hover { background: rgba(99,102,241,0.08); }
+    .act-btn.delete { color: #ef4444; }
+    .act-btn.delete:hover { background: rgba(239,68,68,0.08); }
+
+    .empty-msg {
+        text-align: center;
+        padding: 50px;
+        color: #94a3b8;
+        font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+        .form-grid { grid-template-columns: 1fr; }
+        .task-item { flex-direction: column; align-items: flex-start; gap: 12px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-tasks" style="color: #6366f1;"></i> Assignments</h1>
+    <p>Create and manage tasks assigned to your students.</p>
+</div>
+
+<!-- Add Assignment -->
+<div class="add-card">
+    <h2><i class="fas fa-plus-circle" style="color: #10b981;"></i> Create New Assignment</h2>
+    <form action="{{ url_for('api_add_assigned_task') }}" method="POST" enctype="multipart/form-data">
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" name="title" placeholder="e.g. Python Lab Assignment 3" required>
+            </div>
+            <div class="form-group">
+                <label>Due Date</label>
+                <input type="date" name="due_date" required>
+            </div>
+            <div class="form-group full">
+                <label>Description</label>
+                <textarea name="description" placeholder="Describe the assignment..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Link (Optional)</label>
+                <input type="url" name="task_url" placeholder="https://example.com/assignment">
+            </div>
+            <div class="form-group">
+                <label>Upload Document (Optional)</label>
+                <input type="file" name="document" accept=".pdf,.doc,.docx,.pptx,.txt,.zip">
+            </div>
+        </div>
+        <div class="submit-row">
+            <button type="submit" class="submit-btn">
+                <i class="fas fa-paper-plane"></i> Assign to All Students
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Assignment List -->
+<div class="list-card">
+    <div class="list-header">
+        <h2><i class="fas fa-clipboard-list" style="color: #f59e0b;"></i> All Assignments</h2>
+        <span class="count-badge">{{ assigned_tasks|length }} Tasks</span>
+    </div>
+    {% if assigned_tasks %}
+        {% for task in assigned_tasks %}
+        <div class="task-item" style="flex-direction: column; align-items: stretch; gap: 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div class="task-info" style="flex: 1;">
+                    <h3>{{ task.title }}</h3>
+                    {% if task.description %}
+                        <p>{{ task.description }}</p>
+                    {% endif %}
+                    <div class="task-meta">
+                        {% if task.due_date %}
+                            <span class="meta-badge due"><i class="fas fa-clock"></i> Due: {{ task.due_date }}</span>
+                        {% endif %}
+                        {% if task.task_url %}
+                            <a href="{{ task.task_url }}" target="_blank" class="meta-badge type" style="text-decoration: none;">
+                                <i class="fas fa-link"></i> Link
+                            </a>
+                        {% endif %}
+                        {% if task.file_path %}
+                            <a href="{{ url_for('api_view_task_doc', task_id=task.id) }}" target="_blank" class="meta-badge file" style="text-decoration: none;">
+                                <i class="fas fa-file"></i> Document
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="task-actions">
+                    <form action="{{ url_for('api_delete_assigned_task', task_id=task.id) }}" method="POST" style="margin: 0;" onsubmit="return confirm('Delete this assignment?')">
+                        <button type="submit" class="act-btn delete" title="Delete assignment">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Completion Stats -->
+            <div style="background: #f8fafc; border-radius: 12px; padding: 14px 18px;">
+                <div style="display: flex; gap: 20px; margin-bottom: 10px; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="width: 10px; height: 10px; border-radius: 50%; background: #10b981; display: inline-block;"></span>
+                        <span style="font-size: 0.75rem; font-weight: 700; color: #10b981;">
+                            Completed: {{ task.completed_count or 0 }}
+                        </span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="width: 10px; height: 10px; border-radius: 50%; background: #f59e0b; display: inline-block;"></span>
+                        <span style="font-size: 0.75rem; font-weight: 700; color: #f59e0b;">
+                            Opened: {% if task.opened_names %}{{ task.opened_names.split(',')|length }}{% else %}0{% endif %}
+                        </span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="width: 10px; height: 10px; border-radius: 50%; background: #ef4444; display: inline-block;"></span>
+                        <span style="font-size: 0.75rem; font-weight: 700; color: #ef4444;">
+                            Not Started: {% if task.pending_names %}{{ task.pending_names.split(',')|length }}{% else %}0{% endif %}
+                        </span>
+                    </div>
+                    <span style="font-size: 0.75rem; font-weight: 700; color: #94a3b8; margin-left: auto;">
+                        Total: {{ task.total_students or 0 }} students
+                    </span>
+                </div>
+                <!-- Progress Bar -->
+                {% set pct = ((task.completed_count or 0) / (task.total_students or 1) * 100)|round(0)|int %}
+                <div style="height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden;">
+                    <div style="width: {{ pct }}%; height: 100%; background: linear-gradient(90deg, #10b981, #06b6d4); border-radius: 4px; transition: width 0.5s;"></div>
+                </div>
+
+                <!-- Student Names (collapsible) -->
+                {% if task.finished_names or task.opened_names or task.pending_names %}
+                <details style="margin-top: 10px;">
+                    <summary style="font-size: 0.72rem; font-weight: 700; color: #6366f1; cursor: pointer;">View Student Details</summary>
+                    <div style="margin-top: 8px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; font-size: 0.72rem;">
+                        <div>
+                            <strong style="color: #10b981;">✅ Completed</strong><br>
+                            {% if task.finished_names %}
+                                {% for name in task.finished_names.split(',') %}
+                                    <span style="color: #64748b;">{{ name.strip() }}</span><br>
+                                {% endfor %}
+                            {% else %}
+                                <span style="color: #94a3b8;">—</span>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <strong style="color: #f59e0b;">👀 Opened</strong><br>
+                            {% if task.opened_names %}
+                                {% for name in task.opened_names.split(',') %}
+                                    <span style="color: #64748b;">{{ name.strip() }}</span><br>
+                                {% endfor %}
+                            {% else %}
+                                <span style="color: #94a3b8;">—</span>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <strong style="color: #ef4444;">⏳ Not Started</strong><br>
+                            {% if task.pending_names %}
+                                {% for name in task.pending_names.split(',') %}
+                                    <span style="color: #64748b;">{{ name.strip() }}</span><br>
+                                {% endfor %}
+                            {% else %}
+                                <span style="color: #94a3b8;">—</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </details>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-msg">
+            <i class="fas fa-inbox" style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
+            No assignments created yet. Add one above!
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,531 @@
+{% extends "layout.html" %}
+
+{% block title %}Question Bank | Staff Portal{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header { margin-bottom: 35px; }
+    .page-header h1 { font-size: 2rem; font-weight: 700; color: var(--text-heading); display: flex; align-items: center; gap: 12px; }
+    .page-header p { color: #64748b; font-size: 1rem; font-weight: 500; margin-top: 6px; }
+
+    /* Tabs */
+    .tab-bar {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 25px;
+    }
+
+    .tab-btn {
+        padding: 10px 22px;
+        border-radius: 12px;
+        background: #f1f5f9;
+        color: #64748b;
+        font-weight: 700;
+        font-size: 0.85rem;
+        cursor: pointer;
+        border: none;
+        transition: all 0.2s;
+        font-family: inherit;
+    }
+
+    .tab-btn.active {
+        background: linear-gradient(135deg, #6366f1, #06b6d4);
+        color: white;
+    }
+
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; animation: fadeIn 0.3s ease; }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Cards */
+    .section-card {
+        background: white;
+        border-radius: 24px;
+        padding: 30px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        border: 1px solid rgba(0,0,0,0.05);
+        margin-bottom: 25px;
+    }
+
+    .section-card h2 {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .form-group.full { grid-column: 1 / -1; }
+
+    .form-group label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 12px 16px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 0.88rem;
+        font-weight: 600;
+        font-family: inherit;
+        color: #1e293b;
+        transition: all 0.2s;
+        background: white;
+    }
+
+    .form-group textarea { min-height: 80px; resize: vertical; }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .submit-row {
+        margin-top: 20px;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .submit-btn {
+        padding: 12px 28px;
+        background: linear-gradient(135deg, #6366f1, #06b6d4);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-family: inherit;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+    }
+
+    /* MCQ Options */
+    .options-container { margin-top: 10px; }
+
+    .option-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+
+    .option-row input {
+        flex: 1;
+        padding: 10px 14px;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        font-family: inherit;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .option-label {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        background: rgba(99,102,241,0.1);
+        color: #6366f1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 0.75rem;
+        flex-shrink: 0;
+    }
+
+    /* Question List */
+    .q-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .q-table th {
+        background: #f8fafc;
+        padding: 12px 20px;
+        text-align: left;
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .q-table td {
+        padding: 14px 20px;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 0.85rem;
+    }
+
+    .q-table tbody tr:hover { background: #f8fafc; }
+
+    .type-badge {
+        padding: 3px 10px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.72rem;
+    }
+
+    .type-badge.mcq { background: rgba(99,102,241,0.08); color: #6366f1; }
+    .type-badge.short { background: rgba(245,158,11,0.1); color: #f59e0b; }
+    .type-badge.tf { background: rgba(16,185,129,0.1); color: #10b981; }
+
+    .topic-badge {
+        background: rgba(236,72,153,0.08);
+        color: #ec4899;
+        padding: 3px 10px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.72rem;
+    }
+
+    .count-badge {
+        background: rgba(99, 102, 241, 0.08);
+        color: #6366f1;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.72rem;
+        font-weight: 700;
+    }
+
+    /* PDF List */
+    .pdf-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 22px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .pdf-item:last-child { border-bottom: none; }
+
+    .pdf-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .pdf-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+    }
+
+    .pdf-details h4 {
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .pdf-details span {
+        font-size: 0.72rem;
+        color: #94a3b8;
+        font-weight: 600;
+    }
+
+    .pdf-actions {
+        display: flex;
+        gap: 6px;
+    }
+
+    .act-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 6px 8px;
+        border-radius: 8px;
+        transition: all 0.2s;
+        font-size: 0.85rem;
+        text-decoration: none;
+    }
+
+    .act-btn.download { color: #6366f1; }
+    .act-btn.download:hover { background: rgba(99,102,241,0.08); }
+    .act-btn.delete { color: #ef4444; }
+    .act-btn.delete:hover { background: rgba(239,68,68,0.08); }
+
+    .empty-msg {
+        text-align: center;
+        padding: 40px;
+        color: #94a3b8;
+        font-weight: 600;
+    }
+
+    .list-header {
+        padding: 22px 28px;
+        border-bottom: 2px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .list-header h2 {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    @media (max-width: 768px) {
+        .form-grid { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-question-circle" style="color: #6366f1;"></i> Question Bank</h1>
+    <p>Add questions and upload question paper PDFs for assessments.</p>
+</div>
+
+<!-- Tabs -->
+<div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab(event, 'tab-add')">Add Question</button>
+    <button class="tab-btn" onclick="switchTab(event, 'tab-pdf')">Upload PDF</button>
+    <button class="tab-btn" onclick="switchTab(event, 'tab-list')">All Questions ({{ questions|length }})</button>
+    <button class="tab-btn" onclick="switchTab(event, 'tab-pdfs')">PDF Library ({{ question_pdfs|length }})</button>
+</div>
+
+<!-- TAB 1: Add Question -->
+<div id="tab-add" class="tab-pane active">
+    <div class="section-card">
+        <h2><i class="fas fa-plus-circle" style="color: #10b981;"></i> Add New Question</h2>
+        <form action="{{ url_for('api_add_question') }}" method="POST">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Topic</label>
+                    <select name="topic_id" required>
+                        <option value="" disabled selected>Select Topic</option>
+                        {% for topic in topics %}
+                            <option value="{{ topic.id }}">{{ topic.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Question Type</label>
+                    <select name="type" id="qType" onchange="toggleMcqOptions()" required>
+                        <option value="MCQ">MCQ (Multiple Choice)</option>
+                        <option value="Short Answer">Short Answer</option>
+                        <option value="True/False">True / False</option>
+                    </select>
+                </div>
+                <div class="form-group full">
+                    <label>Question Text</label>
+                    <textarea name="question_text" placeholder="Enter the question..." required></textarea>
+                </div>
+
+                <!-- MCQ Options -->
+                <div class="form-group full options-container" id="mcqOptions">
+                    <label>Options</label>
+                    <div class="option-row">
+                        <span class="option-label">A</span>
+                        <input type="text" name="options[]" placeholder="Option A">
+                    </div>
+                    <div class="option-row">
+                        <span class="option-label">B</span>
+                        <input type="text" name="options[]" placeholder="Option B">
+                    </div>
+                    <div class="option-row">
+                        <span class="option-label">C</span>
+                        <input type="text" name="options[]" placeholder="Option C">
+                    </div>
+                    <div class="option-row">
+                        <span class="option-label">D</span>
+                        <input type="text" name="options[]" placeholder="Option D">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Correct Answer</label>
+                    <input type="text" name="correct_answer" placeholder="e.g. Option A or True" required>
+                </div>
+                <div class="form-group">
+                    <label>Points</label>
+                    <input type="number" name="points" value="10" min="1">
+                </div>
+                <div class="form-group full">
+                    <label>Reference Link (Optional)</label>
+                    <input type="url" name="link" placeholder="https://example.com/reference">
+                </div>
+            </div>
+            <div class="submit-row">
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-plus"></i> Add Question
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- TAB 2: Upload PDF -->
+<div id="tab-pdf" class="tab-pane">
+    <div class="section-card">
+        <h2><i class="fas fa-file-pdf" style="color: #ef4444;"></i> Upload Question Paper PDF</h2>
+        <form action="{{ url_for('api_upload_question_pdf') }}" method="POST" enctype="multipart/form-data">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Topic / Subject</label>
+                    <input type="text" name="topic" placeholder="e.g. Python Programming" required>
+                </div>
+                <div class="form-group">
+                    <label>Exam Type</label>
+                    <select name="type">
+                        <option value="Unit Test">Unit Test</option>
+                        <option value="Model Exam">Model Exam</option>
+                        <option value="Semester Exam">Semester Exam</option>
+                        <option value="Practice">Practice</option>
+                    </select>
+                </div>
+                <div class="form-group full">
+                    <label>PDF File</label>
+                    <input type="file" name="pdf_file" accept=".pdf" required>
+                </div>
+            </div>
+            <div class="submit-row">
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-upload"></i> Upload PDF
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- TAB 3: All Questions -->
+<div id="tab-list" class="tab-pane">
+    <div class="section-card" style="padding: 0; overflow: hidden;">
+        <div class="list-header">
+            <h2><i class="fas fa-list" style="color: #6366f1;"></i> All Questions</h2>
+            <span class="count-badge">{{ questions|length }} Questions</span>
+        </div>
+        <div style="overflow-x: auto;">
+            <table class="q-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Question</th>
+                        <th>Topic</th>
+                        <th>Type</th>
+                        <th>Answer</th>
+                        <th>Points</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if questions %}
+                        {% for q in questions %}
+                        <tr>
+                            <td style="font-weight: 700; color: #94a3b8;">{{ loop.index }}</td>
+                            <td style="font-weight: 600; max-width: 300px;">{{ q.question_text[:80] }}{% if q.question_text|length > 80 %}...{% endif %}</td>
+                            <td><span class="topic-badge">{{ q.topic_name }}</span></td>
+                            <td>
+                                <span class="type-badge {% if q.type == 'MCQ' %}mcq{% elif q.type == 'Short Answer' %}short{% else %}tf{% endif %}">
+                                    {{ q.type }}
+                                </span>
+                            </td>
+                            <td style="font-weight: 600; color: #10b981;">{{ q.correct_answer[:30] }}</td>
+                            <td style="font-weight: 700;">{{ q.points }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr><td colspan="6" class="empty-msg">No questions added yet.</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- TAB 4: PDF Library -->
+<div id="tab-pdfs" class="tab-pane">
+    <div class="section-card" style="padding: 0; overflow: hidden;">
+        <div class="list-header">
+            <h2><i class="fas fa-file-pdf" style="color: #ef4444;"></i> Uploaded PDFs</h2>
+            <span class="count-badge">{{ question_pdfs|length }} PDFs</span>
+        </div>
+        {% if question_pdfs %}
+            {% for pdf in question_pdfs %}
+            <div class="pdf-item">
+                <div class="pdf-info">
+                    <div class="pdf-icon"><i class="fas fa-file-pdf"></i></div>
+                    <div class="pdf-details">
+                        <h4>{{ pdf.topic }}</h4>
+                        <span>{{ pdf.type }} • Uploaded {{ pdf.uploaded_at[:10] if pdf.uploaded_at else 'N/A' }}</span>
+                    </div>
+                </div>
+                <div class="pdf-actions">
+                    <a href="{{ url_for('api_download_question_pdf', pdf_id=pdf.id) }}" class="act-btn download" title="Download PDF">
+                        <i class="fas fa-download"></i>
+                    </a>
+                    <form action="{{ url_for('api_delete_question_pdf', pdf_id=pdf.id) }}" method="POST" style="margin: 0;" onsubmit="return confirm('Delete this PDF?')">
+                        <button type="submit" class="act-btn delete" title="Delete PDF">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-msg">
+                <i class="fas fa-file-upload" style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
+                No PDFs uploaded yet. Use the "Upload PDF" tab to add one.
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    function switchTab(event, tabId) {
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
+
+    function toggleMcqOptions() {
+        const type = document.getElementById('qType').value;
+        const mcqDiv = document.getElementById('mcqOptions');
+        mcqDiv.style.display = (type === 'MCQ') ? 'flex' : 'none';
+    }
+</script>
+{% endblock %}

@@ -52,16 +52,48 @@
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         gap: 20px;
-        margin-bottom: 40px;
+        margin-bottom: 30px;
     }
 
     .stat-card {
         background: white;
         padding: 25px;
         border-radius: 20px;
-        border: 1px solid rgba(0,0,0,0.05);
+        border: 2px solid transparent;
         box-shadow: var(--shadow-sm);
         text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 25px rgba(0,0,0,0.08);
+    }
+
+    .stat-card.selected {
+        border-color: var(--primary);
+        box-shadow: 0 8px 25px rgba(99, 102, 241, 0.15);
+    }
+
+    .stat-card::after {
+        content: 'Click to view';
+        position: absolute;
+        bottom: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 0.6rem;
+        color: #94a3b8;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+
+    .stat-card:hover::after {
+        opacity: 1;
     }
 
     .stat-val {
@@ -77,6 +109,56 @@
         color: #94a3b8;
         text-transform: uppercase;
         letter-spacing: 1px;
+    }
+
+    /* Detail Panel */
+    .detail-panel {
+        display: none;
+        animation: fadeIn 0.4s ease;
+        margin-bottom: 30px;
+    }
+
+    .detail-panel.visible {
+        display: block;
+    }
+
+    .detail-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 25px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .detail-title {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: #1e293b;
+    }
+
+    .detail-count {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 4px 14px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 800;
+    }
+
+    .close-detail {
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        color: #94a3b8;
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 8px;
+        transition: all 0.2s;
+    }
+
+    .close-detail:hover {
+        background: #f1f5f9;
+        color: #ef4444;
     }
 
     /* Table Hub */
@@ -95,7 +177,7 @@
 
     .admin-table th {
         background: #f8fafc;
-        padding: 20px;
+        padding: 16px 20px;
         text-align: left;
         font-size: 0.75rem;
         font-weight: 800;
@@ -104,9 +186,13 @@
     }
 
     .admin-table td {
-        padding: 18px 20px;
+        padding: 14px 20px;
         border-bottom: 1px solid #f1f5f9;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
+    }
+
+    .admin-table tbody tr:hover {
+        background: #f8fafc;
     }
 
     .badge-status {
@@ -132,6 +218,13 @@
 
     .btn-approve { background: #10b981; color: white; }
     .btn-delete { background: #ef4444; color: white; margin-left: 5px; }
+
+    .empty-state {
+        padding: 40px;
+        text-align: center;
+        color: #94a3b8;
+        font-weight: 600;
+    }
 </style>
 {% endblock %}
 
@@ -155,21 +248,51 @@
         <!-- 1. DASHBOARD -->
         <div id="tab-dashboard" class="tab-pane active">
             <div class="stats-grid">
-                <div class="stat-card">
+                <div class="stat-card" onclick="showDetail('all')" id="card-all">
                     <span class="stat-val">{{ stats.total }}</span>
                     <span class="stat-label">Total Users</span>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" onclick="showDetail('students')" id="card-students">
                     <span class="stat-val" style="color: #6366f1;">{{ stats.students }}</span>
                     <span class="stat-label">Students</span>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" onclick="showDetail('pending')" id="card-pending">
                     <span class="stat-val" style="color: #f59e0b;">{{ stats.pending }}</span>
                     <span class="stat-label">Pending</span>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" onclick="showDetail('staff')" id="card-staff">
                     <span class="stat-val" style="color: #06b6d4;">{{ stats.staff }}</span>
                     <span class="stat-label">Staff</span>
+                </div>
+            </div>
+
+            <!-- Detail Panel (shows filtered users when a stat card is clicked) -->
+            <div class="detail-panel" id="detailPanel">
+                <div class="table-card">
+                    <div class="detail-header">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <h3 class="detail-title" id="detailTitle">All Users</h3>
+                            <span class="detail-count" id="detailCount">0</span>
+                        </div>
+                        <button class="close-detail" onclick="hideDetail()" title="Close">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="detailBody">
+                        </tbody>
+                    </table>
+                    <div class="empty-state" id="detailEmpty" style="display: none;">
+                        No users found in this category.
+                    </div>
                 </div>
             </div>
 
@@ -244,28 +367,292 @@
 
         <!-- 3. BROADCAST -->
         <div id="tab-broadcast" class="tab-pane">
-            <div class="table-card" style="padding: 40px; max-width: 700px; margin: 0 auto;">
-                <h3 style="margin-bottom: 25px; color: #1e293b; font-weight: 800;">Global Broadcast</h3>
-                <p style="color: #64748b; margin-bottom: 20px;">Broadcast feature coming soon. Announcements will be sent to all users.</p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                <!-- Send Form -->
+                <div class="table-card" style="padding: 35px;">
+                    <h3 style="margin-bottom: 8px; color: #1e293b; font-weight: 800; font-size: 1.2rem;">
+                        <i class="fas fa-bullhorn" style="color: #6366f1; margin-right: 8px;"></i>New Broadcast
+                    </h3>
+                    <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 24px;">Send announcements to students and staff.</p>
+
+                    <form action="{{ url_for('send_broadcast') }}" method="POST">
+                        <div style="margin-bottom: 18px;">
+                            <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Message</label>
+                            <textarea name="message" required placeholder="Type your announcement here..." rows="4"
+                                style="width: 100%; padding: 14px; background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 14px; color: #1e293b; font-weight: 600; font-family: inherit; outline: none; resize: vertical; font-size: 0.9rem; transition: border-color 0.3s;"
+                                onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e2e8f0'"></textarea>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 22px;">
+                            <div>
+                                <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Target Year</label>
+                                <select name="year" style="width: 100%; padding: 12px; background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; color: #1e293b; font-weight: 600; cursor: pointer; outline: none; font-family: inherit;">
+                                    <option value="all">All Years</option>
+                                    <option value="1st Year">1st Year</option>
+                                    <option value="2nd Year">2nd Year</option>
+                                    <option value="3rd Year">3rd Year</option>
+                                    <option value="4th Year">4th Year</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Target Department</label>
+                                <select name="department" style="width: 100%; padding: 12px; background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; color: #1e293b; font-weight: 600; cursor: pointer; outline: none; font-family: inherit;">
+                                    <option value="all">All Departments</option>
+                                    <option value="CSE">CSE</option>
+                                    <option value="ECE">ECE</option>
+                                    <option value="MECH">MECH</option>
+                                    <option value="CIVIL">CIVIL</option>
+                                    <option value="EEE">EEE</option>
+                                    <option value="IT">IT</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="gradient-btn" style="width: 100%; padding: 14px; font-size: 0.9rem; font-weight: 800; border-radius: 14px;">
+                            <i class="fas fa-paper-plane" style="margin-right: 8px;"></i>Send Broadcast
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Sent Messages History -->
+                <div class="table-card" style="padding: 35px; max-height: 500px; overflow-y: auto;">
+                    <h3 style="margin-bottom: 20px; color: #1e293b; font-weight: 800; font-size: 1.2rem;">
+                        <i class="fas fa-history" style="color: #06b6d4; margin-right: 8px;"></i>Sent Messages
+                    </h3>
+
+                    {% if broadcasts %}
+                        {% for b in broadcasts %}
+                        <div style="padding: 18px; background: #f8fafc; border-radius: 16px; margin-bottom: 12px; border-left: 4px solid #6366f1; position: relative;">
+                            <p style="color: #1e293b; font-weight: 600; font-size: 0.9rem; margin-bottom: 8px; padding-right: 30px;">{{ b[1] }}</p>
+                            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                                <span style="font-size: 0.65rem; background: rgba(99, 102, 241, 0.08); color: #6366f1; padding: 3px 8px; border-radius: 6px; font-weight: 700;">
+                                    {{ b[2] if b[2] != 'all' else 'All Years' }}
+                                </span>
+                                <span style="font-size: 0.65rem; background: rgba(6, 182, 212, 0.08); color: #06b6d4; padding: 3px 8px; border-radius: 6px; font-weight: 700;">
+                                    {{ b[3] if b[3] != 'all' else 'All Depts' }}
+                                </span>
+                                <span style="font-size: 0.65rem; color: #94a3b8; margin-left: auto;">{{ b[4] }}</span>
+                            </div>
+                            <form action="{{ url_for('api_delete_broadcast', broadcast_id=b[0]) }}" method="POST" style="position: absolute; top: 12px; right: 12px; margin: 0;">
+                                <button type="submit" onclick="return confirm('Delete this broadcast?')" style="background: none; border: none; color: #cbd5e1; cursor: pointer; font-size: 0.85rem; transition: color 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#cbd5e1'">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </form>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div style="text-align: center; padding: 40px; color: #94a3b8;">
+                            <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 10px; display: block; opacity: 0.4;"></i>
+                            <p style="font-weight: 600;">No broadcasts sent yet</p>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
 
         <!-- 4. LOGS -->
         <div id="tab-logs" class="tab-pane">
-            <div class="table-card" style="padding: 40px; text-align: center;">
-                <i class="fas fa-history" style="font-size: 3rem; color: #e2e8f0; margin-bottom: 15px;"></i>
-                <h3 style="color: #94a3b8; font-weight: 700;">System logs will be available in the next update.</h3>
+            <div class="table-card" style="padding: 30px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;">
+                    <h3 style="color: #1e293b; font-weight: 800; font-size: 1.2rem;">
+                        <i class="fas fa-scroll" style="color: #6366f1; margin-right: 8px;"></i>System Activity Log
+                    </h3>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <input type="text" id="logSearch" placeholder="🔍 Search logs..." oninput="filterLogs()"
+                            style="padding: 10px 18px; background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; font-weight: 600; outline: none; font-family: inherit; font-size: 0.85rem; min-width: 200px;"
+                            onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e2e8f0'">
+                        <select id="logFilter" onchange="filterLogs()"
+                            style="padding: 10px 14px; background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; font-weight: 600; cursor: pointer; outline: none; font-family: inherit; font-size: 0.85rem;">
+                            <option value="all">All Actions</option>
+                            <option value="LOGIN">Login</option>
+                            <option value="LOGOUT">Logout</option>
+                            <option value="REGISTER">Register</option>
+                            <option value="APPROVE">Approve</option>
+                            <option value="DELETE">Delete</option>
+                            <option value="BROADCAST">Broadcast</option>
+                            <option value="ROLE_CHANGE">Role Change</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="max-height: 500px; overflow-y: auto; border-radius: 16px; border: 1px solid #e2e8f0;">
+                    <table class="admin-table" id="logsTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 60px;">#</th>
+                                <th>User</th>
+                                <th>Role</th>
+                                <th>Action</th>
+                                <th>Details</th>
+                                <th>IP Address</th>
+                                <th>Timestamp</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if logs %}
+                                {% for log in logs %}
+                                <tr data-action="{{ log.action }}">
+                                    <td style="color: #94a3b8; font-weight: 700;">{{ loop.index }}</td>
+                                    <td style="font-weight: 700; color: #1e293b;">{{ log.username or 'System' }}</td>
+                                    <td>
+                                        {% if log.role == 'Admin' %}
+                                        <span style="background: rgba(239, 68, 68, 0.08); color: #ef4444; padding: 3px 10px; border-radius: 8px; font-size: 0.7rem; font-weight: 800;">ADMIN</span>
+                                        {% elif log.role == 'Staff' %}
+                                        <span style="background: rgba(245, 158, 11, 0.08); color: #f59e0b; padding: 3px 10px; border-radius: 8px; font-size: 0.7rem; font-weight: 800;">STAFF</span>
+                                        {% else %}
+                                        <span style="background: rgba(99, 102, 241, 0.08); color: #6366f1; padding: 3px 10px; border-radius: 8px; font-size: 0.7rem; font-weight: 800;">{{ log.role or 'N/A' }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if log.action == 'LOGIN' %}
+                                        <span style="background: rgba(16, 185, 129, 0.08); color: #10b981; padding: 4px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: 800;">🔐 LOGIN</span>
+                                        {% elif log.action == 'LOGOUT' %}
+                                        <span style="background: rgba(100, 116, 139, 0.08); color: #64748b; padding: 4px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: 800;">🚪 LOGOUT</span>
+                                        {% elif log.action == 'REGISTER' %}
+                                        <span style="background: rgba(99, 102, 241, 0.08); color: #6366f1; padding: 4px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: 800;">✨ REGISTER</span>
+                                        {% elif log.action == 'APPROVE' %}
+                                        <span style="background: rgba(6, 182, 212, 0.08); color: #06b6d4; padding: 4px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: 800;">✅ APPROVE</span>
+                                        {% elif log.action == 'DELETE' %}
+                                        <span style="background: rgba(239, 68, 68, 0.08); color: #ef4444; padding: 4px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: 800;">❌ DELETE</span>
+                                        {% elif log.action == 'BROADCAST' %}
+                                        <span style="background: rgba(245, 158, 11, 0.08); color: #f59e0b; padding: 4px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: 800;">📢 BROADCAST</span>
+                                        {% elif log.action == 'ROLE_CHANGE' %}
+                                        <span style="background: rgba(139, 92, 246, 0.08); color: #8b5cf6; padding: 4px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: 800;">🔄 ROLE</span>
+                                        {% else %}
+                                        <span style="background: #f1f5f9; color: #64748b; padding: 4px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: 800;">{{ log.action }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td style="color: #64748b; font-size: 0.85rem; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ log.details or '-' }}</td>
+                                    <td style="color: #94a3b8; font-size: 0.8rem; font-family: monospace;">{{ log.ip_address or '-' }}</td>
+                                    <td style="color: #94a3b8; font-size: 0.8rem; white-space: nowrap;">{{ log.created_at or '-' }}</td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="7" style="text-align: center; padding: 40px; color: #94a3b8;">
+                                        <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 10px; display: block; opacity: 0.4;"></i>
+                                        No activity logs recorded yet. Actions will appear here automatically.
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {% if logs %}
+                <p style="text-align: right; margin-top: 12px; font-size: 0.75rem; color: #94a3b8;">Showing last {{ logs|length }} entries</p>
+                {% endif %}
             </div>
         </div>
     </div>
 </div>
 
+<!-- Store all users as JSON for JS filtering -->
+<script id="users-data" type="application/json">
+{{ all_users_json | safe }}
+</script>
+
 <script>
+    // Parse user data
+    let allUsers = [];
+    try {
+        allUsers = JSON.parse(document.getElementById('users-data').textContent);
+    } catch(e) {
+        console.warn('Could not parse user data');
+    }
+
+    let activeCard = null;
+
+    function showDetail(filter) {
+        const panel = document.getElementById('detailPanel');
+        const body = document.getElementById('detailBody');
+        const title = document.getElementById('detailTitle');
+        const count = document.getElementById('detailCount');
+        const empty = document.getElementById('detailEmpty');
+
+        // Toggle if same card clicked again
+        if (activeCard === filter && panel.classList.contains('visible')) {
+            hideDetail();
+            return;
+        }
+
+        // Highlight selected card
+        document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('selected'));
+        document.getElementById('card-' + filter).classList.add('selected');
+        activeCard = filter;
+
+        // Filter users
+        let filtered = [];
+        let titleText = '';
+
+        switch(filter) {
+            case 'all':
+                filtered = allUsers;
+                titleText = 'All Users';
+                break;
+            case 'students':
+                filtered = allUsers.filter(u => u.role === 'Student');
+                titleText = 'Students';
+                break;
+            case 'pending':
+                filtered = allUsers.filter(u => u.is_approved === 0);
+                titleText = 'Pending Approvals';
+                break;
+            case 'staff':
+                filtered = allUsers.filter(u => u.role === 'Staff');
+                titleText = 'Staff Members';
+                break;
+        }
+
+        title.textContent = titleText;
+        count.textContent = filtered.length + ' users';
+
+        // Build table rows
+        body.innerHTML = '';
+
+        if (filtered.length === 0) {
+            empty.style.display = 'block';
+            body.parentElement.querySelector('thead').style.display = 'none';
+        } else {
+            empty.style.display = 'none';
+            body.parentElement.querySelector('thead').style.display = '';
+
+            filtered.forEach(u => {
+                const statusBadge = u.is_approved === 1
+                    ? '<span class="badge-status badge-active">Active</span>'
+                    : '<span class="badge-status badge-pending">Pending</span>';
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <div style="font-weight: 700; color: #1e293b;">${u.username}</div>
+                    </td>
+                    <td style="color: #64748b;">${u.email || '—'}</td>
+                    <td>
+                        <span style="font-weight: 700; color: var(--primary);">${u.role}</span>
+                    </td>
+                    <td>${statusBadge}</td>
+                `;
+                body.appendChild(row);
+            });
+        }
+
+        panel.classList.add('visible');
+        panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function hideDetail() {
+        document.getElementById('detailPanel').classList.remove('visible');
+        document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('selected'));
+        activeCard = null;
+    }
+
     function switchTab(event, tabId) {
         document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.admin-nav-item').forEach(i => i.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
         event.currentTarget.classList.add('active');
+        hideDetail();
     }
 
     function adminAction(action, targetId) {
@@ -283,5 +670,24 @@
             else alert('Error: ' + data.message);
         });
     }
+
+    // --- System Logs Filter ---
+    function filterLogs() {
+        const search = (document.getElementById('logSearch').value || '').toLowerCase();
+        const actionFilter = document.getElementById('logFilter').value;
+        const rows = document.querySelectorAll('#logsTable tbody tr[data-action]');
+        
+        rows.forEach(row => {
+            const action = row.getAttribute('data-action') || '';
+            const text = row.textContent.toLowerCase();
+            
+            const matchSearch = !search || text.includes(search);
+            const matchAction = actionFilter === 'all' || action === actionFilter;
+            
+            row.style.display = (matchSearch && matchAction) ? '' : 'none';
+        });
+    }
+
 </script>
 {% endblock %}
+

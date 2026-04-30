@@ -11,12 +11,13 @@ from src.database import (
     get_leaderboard, add_resource, delete_resource, update_resource, track_download,
     add_assigned_task, get_assigned_tasks_for_staff, get_assigned_tasks_for_student,
     toggle_assigned_task_completion, delete_assigned_task, get_task_completions,
-    add_internal_mark, get_internal_marks, record_attendance, get_attendance_report,
+    add_internal_mark, get_internal_marks, delete_internal_mark, update_internal_mark, record_attendance, get_attendance_report, update_attendance_status, delete_attendance,
     add_feedback, get_feedback_list,
     add_global_exam, get_global_exams, delete_global_exam, get_pending_task_count,
     mark_assigned_task_complete, get_user_by_id, update_user_profile, delete_user, change_user_role, update_password_by_email,
     add_question_pdf, get_question_pdfs, delete_question_pdf,
-    update_user_class_details
+    update_user_class_details,
+    add_activity_log, get_all_activity_logs
 )
 from src.auth import login_user, register_user
 from src.syllabus_data import SYLLABUS_DATA
@@ -124,6 +125,14 @@ def login():
             session['user_id'] = user[0]
             session['username'] = user[1]
             session['role'] = user_role
+            
+            # Load year and department from database into session
+            user_data = get_user_by_id(user[0])
+            if user_data:
+                session['user_year'] = user_data[6] or ''      # year
+                session['user_department'] = user_data[7] or '' # department
+            
+            add_activity_log(user[0], 'LOGIN', f'{user[1]} logged in as {user_role}', request.remote_addr)
             flash('Welcome back!', 'success')
             
             # Redirect to next page for staff/student selection
@@ -149,6 +158,7 @@ def register():
         else:
             # We use name as username and email as the identifier
             if register_user(name, password, role=role, email=email):
+                add_activity_log(None, 'REGISTER', f'New {role} account: {name} ({email})', request.remote_addr)
                 flash('Account created! Please login.', 'success')
                 return redirect(url_for('login'))
             else:
@@ -190,6 +200,10 @@ def user_profile():
 
 @app.route('/logout')
 def logout():
+    uid = session.get('user_id')
+    uname = session.get('username', 'Unknown')
+    if uid:
+        add_activity_log(uid, 'LOGOUT', f'{uname} logged out', request.remote_addr)
     session.clear()
     return redirect(url_for('login'))
 
@@ -389,6 +403,7 @@ def api_add_resource_route():
             pass
             
     add_resource(subject_id, title, author, edition, file_path, file_size, res_type, session.get('user_id', 0), resource_url)
+    add_activity_log(session.get('user_id'), 'UPLOAD', f'Uploaded resource: {title}', request.remote_addr)
     flash("Resource added successfully!", "success")
     return redirect(url_for('library'))
 
@@ -396,6 +411,7 @@ def api_add_resource_route():
 @staff_only
 def api_delete_resource(resource_id):
     delete_resource(resource_id)
+    add_activity_log(session.get('user_id'), 'DELETE', f'Deleted resource ID {resource_id}', request.remote_addr)
     flash("Resource deleted successfully", "success")
     return redirect(url_for('library'))
 
@@ -439,8 +455,12 @@ def settings():
     user_data = get_user_by_id(session['user_id'])
     if not user_data:
         return redirect(url_for('logout'))
+    
+    # Get system settings for admin
+    from src.database import get_system_settings
+    sys_settings = get_system_settings() if session.get('role') == 'Admin' else {}
         
-    return render_template('settings.html', user=user_data)
+    return render_template('settings.html', user=user_data, sys_settings=sys_settings)
 
 @app.route('/api/settings/update', methods=['POST'])
 def api_settings_update():
@@ -449,18 +469,78 @@ def api_settings_update():
     
     username = request.form.get('username')
     email = request.form.get('email')
-    password = request.form.get('password')
     
-    # Filter empty password
-    password = password if password and len(password.strip()) > 0 else None
-    
-    if update_user_profile(session['user_id'], username, email, password):
+    if update_user_profile(session['user_id'], username, email):
         session['username'] = username # Update session username
         flash('Profile updated successfully!', 'success')
     else:
         flash('Error updating profile. Email or Username might already be in use.', 'error')
     
     return redirect(url_for('settings'))
+
+@app.route('/api/settings/change_password', methods=['POST'])
+def api_settings_change_password():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    current_password = request.form.get('current_password')
+    new_password = request.form.get('new_password')
+    confirm_password = request.form.get('confirm_password')
+    
+    if not current_password or not new_password or not confirm_password:
+        flash('All password fields are required.', 'error')
+        return redirect(url_for('settings'))
+    
+    if new_password != confirm_password:
+        flash('New passwords do not match.', 'error')
+        return redirect(url_for('settings'))
+    
+    if len(new_password) < 4:
+        flash('Password must be at least 4 characters.', 'error')
+        return redirect(url_for('settings'))
+    
+    # Verify current password
+    from src.database import hash_password, get_db_connection
+    conn = get_db_connection()
+    stored = conn.execute('SELECT password FROM users WHERE id = ?', (session['user_id'],)).fetchone()
+    conn.close()
+    
+    if not stored or stored[0] != hash_password(current_password):
+        flash('Current password is incorrect.', 'error')
+        return redirect(url_for('settings'))
+    
+    # Update password
+    if update_user_profile(session['user_id'], session['username'], None, new_password):
+        flash('Password changed successfully!', 'success')
+    else:
+        flash('Error changing password.', 'error')
+    
+    return redirect(url_for('settings'))
+
+@app.route('/api/settings/system', methods=['POST'])
+@admin_only
+def api_settings_system():
+    from src.database import update_system_setting
+    
+    update_system_setting('site_name', request.form.get('site_name', 'SMTEC EDUPREDICT'))
+    update_system_setting('college_name', request.form.get('college_name', ''))
+    update_system_setting('auto_approve', '1' if request.form.get('auto_approve') else '0')
+    update_system_setting('allow_staff_uploads', '1' if request.form.get('allow_staff_uploads') else '0')
+    update_system_setting('enable_leaderboard', '1' if request.form.get('enable_leaderboard') else '0')
+    
+    flash('System settings saved successfully!', 'success')
+    return redirect(url_for('settings'))
+
+@app.route('/api/settings/logout_all', methods=['POST'])
+def api_settings_logout_all():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    # Clear session (Flask server-side session) — effectively logs out current device
+    # For true multi-device logout, would need session store; this clears current + changes secret
+    session.clear()
+    flash('You have been logged out from all sessions.', 'success')
+    return redirect(url_for('login'))
 
 @app.route('/api/settings/delete', methods=['POST'])
 def api_settings_delete():
@@ -471,6 +551,7 @@ def api_settings_delete():
     session.clear()
     flash('Your account has been permanently deleted.', 'success')
     return redirect(url_for('login'))
+
 
 # --- Student Hub Routes ---
 
@@ -485,14 +566,28 @@ def student_hub():
     
     user_id = session['user_id']
     points = get_user_points(user_id)
-    upcoming_exams = get_global_exams()
+
+    # Get student's year and department for filtering
+    user_data = get_user_by_id(user_id)
+    user_year = user_data[6] if user_data and len(user_data) > 6 else None
+    user_dept = user_data[7] if user_data and len(user_data) > 7 else None
+
+    # Filter all staff-uploaded data by student's year & department
+    upcoming_exams = get_global_exams(year=user_year, department=user_dept)
     todos = get_todos(user_id)
-    assigned_tasks = get_assigned_tasks_for_student(user_id).to_dict('records')
+    assigned_tasks = get_assigned_tasks_for_student(user_id, year=user_year, department=user_dept).to_dict('records')
     leaderboard = get_leaderboard(limit=5)
-    
-    # Fetch study materials (resources)
+
+    # Study materials filtered by student's year & dept
     from src.database import get_resources
-    resources = get_resources().to_dict('records')
+    resources = get_resources(year=user_year, department=user_dept).to_dict('records')
+
+    # Question bank PDFs filtered by student's year & dept
+    question_pdfs = get_question_pdfs(year=user_year, department=user_dept).to_dict('records')
+
+    # Broadcasts for this student
+    from src.database import get_broadcasts
+    broadcasts = get_broadcasts(user_year, user_dept)
     
     from src.syllabus_data import SYLLABUS_DATA
     cse_first_year = {
@@ -507,22 +602,60 @@ def student_hub():
                            assigned_tasks=assigned_tasks,
                            leaderboard=leaderboard,
                            resources=resources,
-                           cse_first_year=cse_first_year)
+                           question_pdfs=question_pdfs,
+                           cse_first_year=cse_first_year,
+                           broadcasts=broadcasts)
+
+
+@app.route('/staff/exams')
+@staff_only
+def staff_exams():
+    """Staff exam schedule page - add/view/delete exams."""
+    conn = get_db_connection()
+    staff_dept = session.get('user_department', '')
+    staff_year = session.get('user_year', '')
+    
+    # Get subjects for dropdown
+    subject_query = "SELECT id, name FROM subjects WHERE 1=1"
+    sub_params = []
+    if staff_dept:
+        subject_query += " AND (department = ? OR department IS NULL OR department = '')"
+        sub_params.append(staff_dept)
+    if staff_year:
+        subject_query += " AND (year = ? OR year IS NULL OR year = '')"
+        sub_params.append(staff_year)
+    subject_query += " ORDER BY name ASC"
+    subjects = pd.read_sql_query(subject_query, conn, params=sub_params).to_dict('records')
+    
+    conn.close()
+    
+    # Get exams filtered by dept/year
+    exams = get_global_exams(year=staff_year, department=staff_dept)
+    
+    return render_template('staff_exams.html',
+                         subjects=subjects,
+                         exams=exams,
+                         staff_dept=staff_dept,
+                         staff_year=staff_year)
 
 @app.route('/api/add_exam', methods=['POST'])
 @staff_only
 def api_add_exam():
     data = request.form
-    add_global_exam(data.get('subject'), data.get('date'))
-    flash('Exam added to global schedule!', 'success')
-    return redirect(url_for('staff_portal') + '#exams')
+    staff_dept = session.get('user_department', '')
+    staff_year = session.get('user_year', '')
+    add_global_exam(data.get('subject'), data.get('date'), year=staff_year, department=staff_dept)
+    add_activity_log(session.get('user_id'), 'UPLOAD', f'Added exam: {data.get("subject")} on {data.get("date")}', request.remote_addr)
+    flash('Exam added to schedule!', 'success')
+    return redirect(url_for('staff_exams'))
 
 @app.route('/api/delete_exam/<int:exam_id>', methods=['POST'])
 @staff_only
 def api_delete_exam(exam_id):
     delete_global_exam(exam_id)
-    flash('Exam removed from global schedule!', 'success')
-    return redirect(url_for('staff_portal') + '#exams')
+    add_activity_log(session.get('user_id'), 'DELETE', f'Removed exam ID {exam_id} from schedule', request.remote_addr)
+    flash('Exam removed from schedule!', 'success')
+    return redirect(url_for('staff_exams'))
 
 @app.route('/api/add_todo', methods=['POST'])
 def api_add_todo():
@@ -625,6 +758,10 @@ def staff_portal():
     
     question_pdfs = get_question_pdfs().to_dict('records')
     
+    # Fetch broadcasts for staff
+    from src.database import get_broadcasts
+    broadcasts = get_broadcasts()
+    
     return render_template('staff_portal.html', 
                            student_count=student_count,
                            subject_count=subject_count,
@@ -637,55 +774,283 @@ def staff_portal():
                            global_exams=global_exams,
                            topics=topics,
                            students=students,
-                           question_pdfs=question_pdfs)
+                           question_pdfs=question_pdfs,
+                           broadcasts=broadcasts)
 
-@app.route('/staff/marks', methods=['GET', 'POST'])
+@app.route('/staff/student-view')
+@staff_only
+def staff_student_view():
+    """Preview what students see — exams, marks, attendance, resources."""
+    conn = get_db_connection()
+    staff_dept = session.get('user_department', '')
+    staff_year = session.get('user_year', '')
+    
+    # 1. Exams for this dept/year
+    exams = get_global_exams(year=staff_year, department=staff_dept)
+    
+    # 2. Internal marks uploaded for this dept/year students
+    marks_query = """
+        SELECT m.id, u.username as student_name, s.name as subject_name, 
+               m.test_name, m.marks_obtained, m.total_marks, m.created_at
+        FROM internal_marks m
+        JOIN users u ON m.student_id = u.id
+        JOIN subjects s ON m.subject_id = s.id
+        WHERE 1=1
+    """
+    params = []
+    if staff_dept:
+        marks_query += " AND u.department = ?"
+        params.append(staff_dept)
+    if staff_year:
+        marks_query += " AND u.year = ?"
+        params.append(staff_year)
+    marks_query += " ORDER BY m.created_at DESC LIMIT 50"
+    marks_data = pd.read_sql_query(marks_query, conn, params=params).to_dict('records')
+    
+    # 3. Attendance summary for this dept/year
+    att_query = """
+        SELECT a.date, 
+               SUM(CASE WHEN a.status = 'Present' THEN 1 ELSE 0 END) as present_count,
+               SUM(CASE WHEN a.status != 'Present' THEN 1 ELSE 0 END) as absent_count,
+               COUNT(*) as total,
+               s.name as subject_name
+        FROM attendance a
+        JOIN users u ON a.student_id = u.id
+        JOIN subjects s ON a.subject_id = s.id
+        WHERE 1=1
+    """
+    att_params = []
+    if staff_dept:
+        att_query += " AND u.department = ?"
+        att_params.append(staff_dept)
+    if staff_year:
+        att_query += " AND u.year = ?"
+        att_params.append(staff_year)
+    att_query += " GROUP BY a.date, a.subject_id ORDER BY a.date DESC LIMIT 30"
+    attendance_summary = pd.read_sql_query(att_query, conn, params=att_params).to_dict('records')
+    
+    # 4. Resources
+    from src.database import get_resources
+    resources = get_resources().to_dict('records')
+    
+    # 5. Student count
+    stu_query = "SELECT COUNT(*) FROM users WHERE role = 'Student'"
+    stu_params = []
+    if staff_dept:
+        stu_query += " AND department = ?"
+        stu_params.append(staff_dept)
+    if staff_year:
+        stu_query += " AND year = ?"
+        stu_params.append(staff_year)
+    student_count = conn.execute(stu_query, stu_params).fetchone()[0]
+    
+    conn.close()
+    
+    return render_template('staff_student_view.html',
+                         exams=exams,
+                         marks_data=marks_data,
+                         attendance_summary=attendance_summary,
+                         resources=resources,
+                         student_count=student_count,
+                         staff_dept=staff_dept,
+                         staff_year=staff_year)
+
+@app.route('/staff/marks', methods=['GET'])
 @staff_only
 def staff_marks():
-    """Route for uploading/viewing student internal marks."""
+    """Route for uploading/viewing student internal marks (Excel-style bulk entry)."""
     conn = get_db_connection()
-    students = pd.read_sql_query("SELECT id, username FROM users WHERE role = 'Student' ORDER BY username ASC", conn).to_dict('records')
-    subjects = pd.read_sql_query("SELECT id, name FROM subjects ORDER BY name ASC", conn).to_dict('records')
     
-    if request.method == 'POST':
-        student_id = request.form.get('student_id')
-        subject_id = request.form.get('subject_id')
-        test_name = request.form.get('test_name')
-        marks = request.form.get('marks')
-        total = request.form.get('total')
-        
-        if student_id and subject_id and test_name and marks and total:
-            add_internal_mark(student_id, subject_id, test_name, marks, total)
-            flash(f"Marks for {test_name} uploaded successfully!", "success")
-        else:
-            flash("All fields are required.", "error")
-        return redirect(url_for('staff_marks'))
-        
+    # Get staff's department and year from session/profile
+    staff_dept = session.get('user_department', '')
+    staff_year = session.get('user_year', '')
+    
+    # Filter students by dept/year if staff has them set
+    student_query = "SELECT id, username, email FROM users WHERE role = 'Student'"
+    params = []
+    if staff_dept:
+        student_query += " AND department = ?"
+        params.append(staff_dept)
+    if staff_year:
+        student_query += " AND year = ?"
+        params.append(staff_year)
+    student_query += " ORDER BY username ASC"
+    
+    students = pd.read_sql_query(student_query, conn, params=params).to_dict('records')
+    
+    # Get subjects filtered by dept/year
+    subject_query = "SELECT id, name FROM subjects WHERE 1=1"
+    sub_params = []
+    if staff_dept:
+        subject_query += " AND (department = ? OR department IS NULL OR department = '')"
+        sub_params.append(staff_dept)
+    if staff_year:
+        subject_query += " AND (year = ? OR year IS NULL OR year = '')"
+        sub_params.append(staff_year)
+    subject_query += " ORDER BY name ASC"
+    
+    subjects = pd.read_sql_query(subject_query, conn, params=sub_params).to_dict('records')
+    
+    # Get departments and years for manual override (Admin)
+    departments = [row[0] for row in conn.execute("SELECT name FROM departments ORDER BY name ASC").fetchall()]
+    years = [row[0] for row in conn.execute("SELECT name FROM academic_years ORDER BY id ASC").fetchall()]
+    
     marks_list = get_internal_marks().to_dict('records')
     conn.close()
-    return render_template('staff_marks.html', students=students, subjects=subjects, marks_list=marks_list)
+    return render_template('staff_marks.html', 
+                           students=students, 
+                           subjects=subjects, 
+                           marks_list=marks_list,
+                           staff_dept=staff_dept,
+                           staff_year=staff_year,
+                           departments=departments,
+                           years=years)
 
-@app.route('/staff/attendance', methods=['GET', 'POST'])
+@app.route('/api/staff/get_subjects')
+@staff_only
+def api_get_subjects():
+    """Returns subjects filtered by department and year."""
+    dept = request.args.get('department', '')
+    year = request.args.get('year', '')
+    
+    conn = get_db_connection()
+    query = "SELECT id, name FROM subjects WHERE 1=1"
+    params = []
+    
+    if dept:
+        query += " AND (department = ? OR department IS NULL OR department = '')"
+        params.append(dept)
+    if year:
+        query += " AND (year = ? OR year IS NULL OR year = '')"
+        params.append(year)
+    
+    query += " ORDER BY name ASC"
+    subjects = pd.read_sql_query(query, conn, params=params).to_dict('records')
+    conn.close()
+    
+    return jsonify(subjects)
+
+@app.route('/api/staff/get_students')
+@staff_only
+def api_get_students():
+    """Returns students filtered by department and year."""
+    dept = request.args.get('department', '')
+    year = request.args.get('year', '')
+    
+    conn = get_db_connection()
+    query = "SELECT id, username, email FROM users WHERE role = 'Student'"
+    params = []
+    
+    if dept:
+        query += " AND department = ?"
+        params.append(dept)
+    if year:
+        query += " AND year = ?"
+        params.append(year)
+    
+    query += " ORDER BY username ASC"
+    students = pd.read_sql_query(query, conn, params=params).to_dict('records')
+    conn.close()
+    
+    return jsonify(students)
+
+@app.route('/api/staff/bulk_marks', methods=['POST'])
+@staff_only
+def api_bulk_marks():
+    """Bulk upload marks for multiple students at once."""
+    data = request.json
+    subject_id = data.get('subject_id')
+    test_name = data.get('test_name')
+    total_marks = data.get('total_marks')
+    marks_list = data.get('marks', [])
+    absent_list = data.get('absent', [])
+    
+    if not subject_id or not test_name or not total_marks:
+        return jsonify({'status': 'error', 'message': 'Missing required fields.'}), 400
+    
+    if not marks_list and not absent_list:
+        return jsonify({'status': 'error', 'message': 'No marks or absent entries provided.'}), 400
+    
+    count = 0
+    # Save marks entries
+    for entry in marks_list:
+        student_id = entry.get('student_id')
+        marks = entry.get('marks')
+        if student_id is not None and marks is not None:
+            add_internal_mark(student_id, subject_id, test_name, marks, total_marks)
+            count += 1
+    
+    # Save absent entries (marks = -1 as sentinel)
+    absent_count = 0
+    for entry in absent_list:
+        student_id = entry.get('student_id')
+        if student_id is not None:
+            add_internal_mark(student_id, subject_id, test_name, -1, total_marks)
+            absent_count += 1
+    
+    return jsonify({
+        'status': 'success', 
+        'count': count, 
+        'absent_count': absent_count,
+        'message': f'{count} marks + {absent_count} absent uploaded successfully!'
+    })
+
+@app.route('/api/staff/delete_mark/<int:mark_id>', methods=['DELETE'])
+@staff_only
+def api_delete_mark(mark_id):
+    """Delete a single internal marks record."""
+    delete_internal_mark(mark_id)
+    return jsonify({'status': 'success', 'message': 'Record deleted.'})
+
+@app.route('/api/staff/update_mark/<int:mark_id>', methods=['PUT'])
+@staff_only
+def api_update_mark(mark_id):
+    """Update marks for a single record."""
+    data = request.json
+    new_marks = data.get('marks_obtained')
+    if new_marks is None:
+        return jsonify({'status': 'error', 'message': 'Missing marks value.'}), 400
+    update_internal_mark(mark_id, new_marks)
+    return jsonify({'status': 'success', 'message': 'Marks updated.'})
+
+
+@app.route('/staff/attendance', methods=['GET'])
 @staff_only
 def staff_attendance():
-    """Route for recording/viewing student attendance."""
+    """Route for recording/viewing student attendance (Excel-style bulk entry)."""
     conn = get_db_connection()
-    students = pd.read_sql_query("SELECT id, username FROM users WHERE role = 'Student' ORDER BY username ASC", conn).to_dict('records')
-    subjects = pd.read_sql_query("SELECT id, name FROM subjects ORDER BY name ASC", conn).to_dict('records')
     
-    if request.method == 'POST':
-        subject_id = request.form.get('subject_id')
-        date = request.form.get('date')
-        
-        if subject_id and date:
-            for student in students:
-                status = request.form.get(f"status_{student['id']}")
-                if status:
-                    record_attendance(student['id'], subject_id, date, status)
-            flash(f"Attendance for {date} recorded successfully!", "success")
-        else:
-            flash("Please select a subject and date.", "error")
-        return redirect(url_for('staff_attendance'))
+    # Get staff's department and year from session
+    staff_dept = session.get('user_department', '')
+    staff_year = session.get('user_year', '')
+    
+    # Filter students by dept/year
+    student_query = "SELECT id, username, email FROM users WHERE role = 'Student'"
+    params = []
+    if staff_dept:
+        student_query += " AND department = ?"
+        params.append(staff_dept)
+    if staff_year:
+        student_query += " AND year = ?"
+        params.append(staff_year)
+    student_query += " ORDER BY username ASC"
+    students = pd.read_sql_query(student_query, conn, params=params).to_dict('records')
+    
+    # Filter subjects by dept/year
+    subject_query = "SELECT id, name FROM subjects WHERE 1=1"
+    sub_params = []
+    if staff_dept:
+        subject_query += " AND (department = ? OR department IS NULL OR department = '')"
+        sub_params.append(staff_dept)
+    if staff_year:
+        subject_query += " AND (year = ? OR year IS NULL OR year = '')"
+        sub_params.append(staff_year)
+    subject_query += " ORDER BY name ASC"
+    subjects = pd.read_sql_query(subject_query, conn, params=sub_params).to_dict('records')
+    
+    # Get departments and years for filter dropdowns
+    departments = [row[0] for row in conn.execute("SELECT name FROM departments ORDER BY name ASC").fetchall()]
+    years = [row[0] for row in conn.execute("SELECT name FROM academic_years ORDER BY id ASC").fetchall()]
     
     attendance_data = get_attendance_report().to_dict('records')
     conn.close()
@@ -697,7 +1062,91 @@ def staff_attendance():
                          students=students, 
                          subjects=subjects, 
                          attendance_data=attendance_data,
-                         today_date=today)
+                         today_date=today,
+                         staff_dept=staff_dept,
+                         staff_year=staff_year,
+                         departments=departments,
+                         years=years)
+
+@app.route('/api/staff/bulk_attendance', methods=['POST'])
+@staff_only
+def api_bulk_attendance():
+    """Bulk save attendance for all students at once."""
+    data = request.json
+    subject_id = data.get('subject_id')
+    date_str = data.get('date')
+    records = data.get('records', [])
+    
+    if not subject_id or not date_str or not records:
+        return jsonify({'status': 'error', 'message': 'Missing required fields.'}), 400
+    
+    saved = []
+    for rec in records:
+        student_id = rec.get('student_id')
+        status = rec.get('status', 'Absent')
+        name = rec.get('name', '')
+        if student_id:
+            record_attendance(student_id, subject_id, date_str, status)
+            saved.append({'name': name, 'student_id': student_id, 'status': status})
+    
+    return jsonify({'status': 'success', 'count': len(saved), 'records': saved})
+
+@app.route('/api/staff/get_attendance')
+@staff_only
+def api_get_attendance():
+    """Get attendance records. Supports filtering by subject_id, date, department, year."""
+    subject_id = request.args.get('subject_id')
+    date_str = request.args.get('date')
+    dept = request.args.get('department', '')
+    year = request.args.get('year', '')
+    
+    conn = get_db_connection()
+    query = """
+        SELECT a.id, u.id as student_id, u.username as name, a.status, a.date, s.name as subject_name
+        FROM attendance a
+        JOIN users u ON a.student_id = u.id
+        JOIN subjects s ON a.subject_id = s.id
+        WHERE 1=1
+    """
+    params = []
+    
+    if subject_id:
+        query += " AND a.subject_id = ?"
+        params.append(subject_id)
+    if date_str:
+        query += " AND a.date = ?"
+        params.append(date_str)
+    if dept:
+        query += " AND u.department = ?"
+        params.append(dept)
+    if year:
+        query += " AND u.year = ?"
+        params.append(year)
+    
+    query += " ORDER BY a.date DESC, u.username ASC"
+    
+    records = pd.read_sql_query(query, conn, params=params).to_dict('records')
+    conn.close()
+    
+    return jsonify(records)
+
+@app.route('/api/staff/update_attendance/<int:att_id>', methods=['PUT'])
+@staff_only
+def api_update_attendance(att_id):
+    """Toggle attendance status for a single record."""
+    data = request.json
+    new_status = data.get('status')
+    if not new_status:
+        return jsonify({'status': 'error', 'message': 'Missing status.'}), 400
+    update_attendance_status(att_id, new_status)
+    return jsonify({'status': 'success', 'new_status': new_status})
+
+@app.route('/api/staff/delete_attendance/<int:att_id>', methods=['DELETE'])
+@staff_only
+def api_delete_attendance(att_id):
+    """Delete a single attendance record."""
+    delete_attendance(att_id)
+    return jsonify({'status': 'success', 'message': 'Record deleted.'})
 
 @app.route('/staff/feedback')
 @staff_only
@@ -705,6 +1154,50 @@ def staff_feedback():
     """Route for viewing student feedback."""
     feedback_data = get_feedback_list().to_dict('records')
     return render_template('staff_feedback.html', feedback_data=feedback_data)
+
+@app.route('/staff/assignments')
+@staff_only
+def staff_assignments():
+    """Manage assignments - add/view/delete."""
+    staff_dept = session.get('user_department', '')
+    staff_year = session.get('user_year', '')
+    
+    assigned_tasks = get_assigned_tasks_for_staff().to_dict('records')
+    
+    return render_template('staff_assignments.html',
+                         assigned_tasks=assigned_tasks,
+                         staff_dept=staff_dept,
+                         staff_year=staff_year)
+
+@app.route('/staff/questions')
+@staff_only
+def staff_questions():
+    """Manage question bank - add questions, upload PDFs."""
+    conn = get_db_connection()
+    staff_dept = session.get('user_department', '')
+    staff_year = session.get('user_year', '')
+    
+    # Get topics for dropdown
+    topics = pd.read_sql_query("SELECT id, title FROM topics ORDER BY title ASC", conn).to_dict('records')
+    
+    # Get existing questions
+    q_query = """
+        SELECT q.id, q.question_text, q.type, q.correct_answer, q.points, t.title as topic_name
+        FROM questions q
+        JOIN topics t ON q.topic_id = t.id
+        ORDER BY q.id DESC LIMIT 50
+    """
+    questions = pd.read_sql_query(q_query, conn).to_dict('records')
+    conn.close()
+    
+    question_pdfs = get_question_pdfs().to_dict('records')
+    
+    return render_template('staff_questions.html',
+                         topics=topics,
+                         questions=questions,
+                         question_pdfs=question_pdfs,
+                         staff_dept=staff_dept,
+                         staff_year=staff_year)
 
 @app.route('/api/staff/add_subject', methods=['POST'])
 @staff_only
@@ -794,7 +1287,7 @@ def api_add_question():
     conn.commit()
     conn.close()
     flash("Question added to bank!", "success")
-    return redirect(url_for('staff_portal', tab='courses') + '#questions')
+    return redirect(url_for('staff_questions'))
 
 @app.route('/api/staff/upload_question_pdf', methods=['POST'])
 @staff_only
@@ -804,12 +1297,12 @@ def api_upload_question_pdf():
     
     if 'pdf_file' not in request.files:
         flash("No file part", "error")
-        return redirect(url_for('staff_portal', tab='courses') + '#questions')
+        return redirect(url_for('staff_questions'))
         
     file = request.files['pdf_file']
     if file.filename == '':
         flash("No selected file", "error")
-        return redirect(url_for('staff_portal', tab='courses') + '#questions')
+        return redirect(url_for('staff_questions'))
         
     if file and file.filename.endswith('.pdf'):
         upload_dir = "uploads/question_bank"
@@ -823,14 +1316,14 @@ def api_upload_question_pdf():
     else:
         flash("Invalid file type. Please upload a PDF.", "error")
         
-    return redirect(url_for('staff_portal', tab='courses') + '#questions')
+    return redirect(url_for('staff_questions'))
 
 @app.route('/api/staff/delete_question_pdf/<int:pdf_id>', methods=['POST'])
 @staff_only
 def api_delete_question_pdf(pdf_id):
     delete_question_pdf(pdf_id)
     flash("Question Bank PDF deleted.", "success")
-    return redirect(url_for('staff_portal', tab='courses') + '#questions')
+    return redirect(url_for('staff_questions'))
 
 @app.route('/api/staff/download_question_pdf/<int:pdf_id>')
 @staff_only
@@ -931,14 +1424,14 @@ def api_add_assigned_task():
     conn.close()
     
     flash(f"Task '{title}' allocated to all students!", "success")
-    return redirect(url_for('staff_portal') + '#tasks')
+    return redirect(url_for('staff_assignments'))
 
 @app.route('/api/staff/delete_assigned_task/<int:task_id>', methods=['POST'])
 @staff_only
 def api_delete_assigned_task(task_id):
     delete_assigned_task(task_id)
     flash("Assigned task deleted.", "success")
-    return redirect(url_for('staff_portal', tab='tasks'))
+    return redirect(url_for('staff_assignments'))
 
 @app.route('/api/tasks/view_doc/<int:task_id>')
 def api_view_task_doc(task_id):
@@ -982,8 +1475,41 @@ def api_mark_task_viewed(task_id):
 @staff_only
 def student_monitoring():
     from src.database import get_all_students_engagement_list
-    students = get_all_students_engagement_list().to_dict('records')
-    return render_template('student_details.html', students=students)
+    
+    # Get staff's department and year from session
+    staff_dept = session.get('user_department', '')
+    staff_year = session.get('user_year', '')
+    
+    # Filter students by staff's dept/year
+    students = get_all_students_engagement_list(year=staff_year or None, department=staff_dept or None).to_dict('records')
+    
+    # Get departments and years for filter dropdowns
+    conn = get_db_connection()
+    departments = [row[0] for row in conn.execute("SELECT name FROM departments ORDER BY name ASC").fetchall()]
+    years = [row[0] for row in conn.execute("SELECT name FROM academic_years ORDER BY id ASC").fetchall()]
+    conn.close()
+    
+    return render_template('student_details.html', 
+                           students=students,
+                           staff_dept=staff_dept,
+                           staff_year=staff_year,
+                           departments=departments,
+                           years=years)
+
+@app.route('/api/staff/get_engagement')
+@staff_only
+def api_get_engagement():
+    """Returns full student engagement list filtered by department and year."""
+    from src.database import get_all_students_engagement_list
+    dept = request.args.get('department', '')
+    year = request.args.get('year', '')
+    
+    students = get_all_students_engagement_list(
+        year=year or None, 
+        department=dept or None
+    ).to_dict('records')
+    
+    return jsonify(students)
 
 @app.route('/api/staff/student_stats/<int:student_id>')
 @staff_only
@@ -1223,6 +1749,7 @@ def student_feedback():
 @app.route('/admin/hub')
 @admin_only
 def admin_portal():
+    import json
     from src.database import get_managed_users
     users = get_managed_users()
     
@@ -1235,9 +1762,19 @@ def admin_portal():
         'admins': len([u for u in users if u.get('role') == 'Admin'])
     }
     
-    # Filter out current admin so they don't delete themselves
+    # JSON for stat card drill-down (all users including current admin)
+    all_users_json = json.dumps(users)
+    
+    # Fetch all broadcasts for admin to see + manage
+    from src.database import get_broadcasts
+    broadcasts = get_broadcasts()
+    
+    # Fetch system logs
+    logs = get_all_activity_logs(limit=100).to_dict('records')
+    
+    # Filter out current admin so they don't delete themselves (for User Control tab)
     users = [u for u in users if u.get('id') != session['user_id']]
-    return render_template('admin_portal.html', users=users, stats=stats)
+    return render_template('admin_portal.html', users=users, stats=stats, all_users_json=all_users_json, broadcasts=broadcasts, logs=logs)
 
 @app.route('/api/admin/user_action', methods=['POST'])
 @admin_only
@@ -1254,13 +1791,16 @@ def api_admin_action():
     try:
         if action == 'approve':
             approve_user(user_id)
+            add_activity_log(session['user_id'], 'APPROVE', f'Admin approved user ID {user_id}', request.remote_addr)
             flash('User approved successfully.', 'success')
         elif action == 'reject':
             reject_user(user_id)
+            add_activity_log(session['user_id'], 'DELETE', f'Admin deleted user ID {user_id}', request.remote_addr)
             flash('User rejected/deleted.', 'success')
         elif action.startswith('role_'):
             new_role = action.split('_')[1]
             change_user_role(user_id, new_role)
+            add_activity_log(session['user_id'], 'ROLE_CHANGE', f'Changed user ID {user_id} role to {new_role}', request.remote_addr)
             flash(f'User role updated to {new_role}.', 'success')
         
         return jsonify({'status': 'success'})
@@ -1279,6 +1819,33 @@ def curriculum():
     resources = get_resources().to_dict('records')
     
     return render_template('curriculum.html', exams=exams, resources=resources)
+
+# --- Broadcast Routes ---
+
+@app.route('/api/admin/send_broadcast', methods=['POST'])
+@admin_only
+def send_broadcast():
+    from src.database import add_broadcast
+    message = request.form.get('message', '').strip()
+    year = request.form.get('year', 'all')
+    department = request.form.get('department', 'all')
+    
+    if not message:
+        flash('Broadcast message cannot be empty.', 'error')
+        return redirect(url_for('admin_portal'))
+    
+    add_broadcast(message, year, department)
+    add_activity_log(session['user_id'], 'BROADCAST', f'Sent broadcast: {message[:50]}...', request.remote_addr)
+    flash('Broadcast sent successfully!', 'success')
+    return redirect(url_for('admin_portal'))
+
+@app.route('/api/admin/delete_broadcast/<int:broadcast_id>', methods=['POST'])
+@admin_only
+def api_delete_broadcast(broadcast_id):
+    from src.database import delete_broadcast
+    delete_broadcast(broadcast_id)
+    flash('Broadcast deleted.', 'success')
+    return redirect(url_for('admin_portal'))
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
